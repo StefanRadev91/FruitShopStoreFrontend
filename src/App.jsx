@@ -9,7 +9,7 @@ import { CartDrawer } from "./components/CartDrawer";
 import { HomePage } from "./pages/HomePage";
 import { CategoryPage } from "./pages/CategoryPage";
 import { AboutPage } from "./pages/AboutPage";
-import Footer from "./components/Footer";
+import Footer from "./components/footer";
 
 function App() {
   const [cart, setCart] = useState([]);
