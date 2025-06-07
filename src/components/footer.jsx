@@ -20,9 +20,24 @@ export default function Footer() {
       >
         {/* Иконки най-вляво */}
         <Group gap={8}>
-          <a href="#" style={iconLinkStyle}><FaFacebookF size={18} /></a>
-          <a href="#" style={iconLinkStyle}><FaInstagram size={18} /></a>
+          <a
+            href="https://www.facebook.com/profile.php?id=61576940663187"
+            style={iconLinkStyle}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <FaFacebookF size={18} />
+          </a>
+          <a
+            href="https://www.instagram.com/your-page"
+            style={iconLinkStyle}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <FaInstagram size={18} />
+          </a>
         </Group>
+
         {/* Центриран текст */}
         <Box style={{ flex: 1, textAlign: "center", position: "absolute", left: 0, right: 0, margin: "0 auto", pointerEvents: "none" }}>
           <Text size="sm" style={{ color: "white", fontWeight: 400 }}>
@@ -47,5 +62,5 @@ const iconLinkStyle = {
   fontSize: "1.15rem",
   transition: "background .2s, color .2s",
   textDecoration: "none",
-  zIndex: 1, // за да не изчезват
+  zIndex: 1,
 };

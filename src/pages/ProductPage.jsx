@@ -1,86 +1,127 @@
-// src/pages/ProductPage.jsx
-import { useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
+import { useParams } from "react-router-dom";
 import {
-  Box,
-  Title,
-  Text,
   Loader,
-  Badge,
+  Title,
+  Box,
+  Text,
   Image,
+  Container,
+  Grid,
+  Stack,
   Button,
+  Badge,
 } from "@mantine/core";
 
-export function ProductPage() {
+export function ProductPage({ onAddToCart }) {
   const { id } = useParams();
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch(`https://fruitshopstore.onrender.com/api/products/${id}?populate=*`)
-      .then((res) => res.json())
-      .then((data) => {
-        const raw = data.data;
-
-        // Преобразуваме го, както се използва навсякъде другаде:
-        const formatted = {
-          id: raw.id,
-          name: raw.name,
-          price: raw.price,
-          image: raw.image,
-          category: raw.category,
-          product_description: raw.product_description,
-        };
-
-        setProduct(formatted);
+    async function fetchProduct() {
+      try {
+        const res = await fetch(
+          `https://fruitshopstore.onrender.com/api/products?filters[id][$eq]=${id}&populate=*`
+        );
+        const data = await res.json();
+        if (!data.data || data.data.length === 0) throw new Error("Продуктът не е намерен.");
+        setProduct(data.data[0]);
+      } catch (error) {
+        console.error("Грешка при зареждане на продукт:", error);
+      } finally {
         setLoading(false);
-      })
-      .catch((err) => {
-        console.error("Error fetching product:", err);
-        setLoading(false);
-      });
+      }
+    }
+
+    fetchProduct();
   }, [id]);
 
   if (loading) {
     return (
-      <Box mt="lg" style={{ textAlign: "center" }}>
+      <Box
+        style={{
+          minHeight: 300,
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+        }}
+      >
         <Loader />
       </Box>
     );
   }
 
-  if (!product) {
-    return <Text align="center">Продуктът не беше намерен.</Text>;
-  }
+  if (!product) return <Text align="center">Продуктът не беше намерен.</Text>;
 
-  const imageUrl = product.image?.[0]?.url?.startsWith("http")
-    ? product.image[0].url
-    : `https://fruitshopstore.onrender.com${product.image?.[0]?.url || ""}`;
+  const { name, price, product_description, image } = product;
 
-  const descriptionText = Array.isArray(product.product_description)
-    ? product.product_description[0]?.children?.[0]?.text
-    : product.product_description;
+  const imageUrl = image?.[0]?.url?.startsWith("http")
+    ? image[0].url
+    : `https://fruitshopstore.onrender.com${image?.[0]?.url || ""}`;
 
   return (
-    <Box mt="xl" maw={800} mx="auto" px="md">
-      <Title order={2}>{product.name}</Title>
-      <Image
-        src={imageUrl}
-        height={300}
-        fit="contain"
-        mt="md"
-        alt={product.name}
-      />
-      <Text fw={700} size="xl" mt="md">
-        {product.price} лв.
-      </Text>
-      <Badge mt="sm" color="green" variant="light">
-        {product.category?.Name || "Категория"}
-      </Badge>
-      <Text mt="md">{descriptionText}</Text>
-      <Button color="green" radius="md" mt="lg">
-        Добави в количката
-      </Button>
-    </Box>
+    <Container size="md" py="xl">
+      <Grid gutter="xl">
+        {/* Лява колона: снимка */}
+        <Grid.Col span={{ base: 12, md: 5 }}>
+          <Image
+            src={imageUrl}
+            alt={name}
+            radius="md"
+            fit="contain"
+            h={320}
+            w="100%"
+            withPlaceholder
+          />
+        </Grid.Col>
+
+        {/* Дясна колона: инфо */}
+        <Grid.Col span={{ base: 12, md: 7 }}>
+          <Stack spacing="sm">
+            <Title order={3}>{name}</Title>
+            <Text size="xl" fw={700}>
+              {price}
+            </Text>
+
+            <Badge color="green" size="lg" variant="light">
+              В наличност
+            </Badge>
+
+            <Button
+              color="orange"
+              size="md"
+              radius="md"
+              w={160}
+              onClick={() => onAddToCart(product)}
+            >
+              Купи
+            </Button>
+          </Stack>
+        </Grid.Col>
+      </Grid>
+
+      {/* Описание под гърда */}
+      <Box mt="xl">
+        <Title order={4} mb="sm">
+          Описание на продукта
+        </Title>
+        {Array.isArray(product_description) ? (
+          product_description.map((desc, index) => {
+            if (typeof desc === "string") return <Text key={index}>{desc}</Text>;
+            if (desc.children && Array.isArray(desc.children)) {
+              return (
+                <Text key={index} mt="sm">
+                  {desc.children.map((c) => c.text || "").join("")}
+                </Text>
+              );
+            }
+            return null;
+          })
+        ) : (
+          <Text>{product_description}</Text>
+        )}
+      </Box>
+    </Container>
   );
 }

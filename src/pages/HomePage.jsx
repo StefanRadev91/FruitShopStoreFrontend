@@ -15,12 +15,14 @@ export function HomePage({ onAddToCart }) {
           "https://fruitshopstore.onrender.com/api/products?populate=*&filters[featured]=true"
         );
         const dataFeatured = await resFeatured.json();
+        console.log("⭐ Най-продавани продукти:", dataFeatured.data);
         setFeatured(dataFeatured.data || []);
 
         const resNew = await fetch(
           "https://fruitshopstore.onrender.com/api/products?populate=*&filters[new_product]=true"
         );
         const dataNew = await resNew.json();
+        console.log("⭐ Най-продавани продукти:", dataFeatured.data);
         setNewProducts(dataNew.data || []);
       } catch (error) {
         console.error("⚠️ Error fetching products:", error);

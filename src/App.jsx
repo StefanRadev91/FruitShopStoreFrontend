@@ -144,7 +144,7 @@ function App() {
             <Route path="/salty" element={<CategoryPage category="Местни изделия" onAddToCart={handleAddToCart} />} />
             <Route path="/bio" element={<CategoryPage category="БИО" onAddToCart={handleAddToCart} />} />
             <Route path="/about" element={<AboutPage />} />
-            <Route path="/product/:id" element={<ProductPage />} />
+            <Route path="/product/:id" element={<ProductPage onAddToCart={handleAddToCart} />} />
           </Routes>
         </Container>
 
