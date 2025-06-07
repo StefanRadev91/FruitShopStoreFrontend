@@ -55,7 +55,7 @@ export function ProductCard({ id, name, price, description, image, category, onA
         </Stack>
       </Link>
 
-      <Group justify="space-between" mt="md" noWrap style={{ marginTop: "auto", paddingTop: 8 }}>
+      <Group justify="space-between" mt="md" wrap="nowrap" style={{ marginTop: "auto", paddingTop: 8 }}>
         <Text size="lg" fw={700}>
           {price}
         </Text>

@@ -10,6 +10,7 @@ import { useDisclosure } from "@mantine/hooks";
 import { useNavigate } from "react-router-dom";
 import logo from "../assets/logo.png";
 import { CategoryDrawer } from "./Drawer"; // <-- Добави това
+import { SearchInput } from "./SearchInput";
 
 export function Header({ cart, onCartClick }) {
   const [drawerOpened, { open: openDrawer, close: closeDrawer }] = useDisclosure(false);
@@ -57,6 +58,7 @@ export function Header({ cart, onCartClick }) {
           </ActionIcon>
 
           <Burger opened={drawerOpened} onClick={openDrawer} size="md" />
+          <SearchInput />
         </Group>
 
         {/* Център: ЛОГО */}

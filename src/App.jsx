@@ -11,6 +11,7 @@ import { CategoryPage } from "./pages/CategoryPage";
 import { AboutPage } from "./pages/AboutPage";
 import Footer from "./components/footer";
 import { ProductPage } from "./pages/ProductPage";
+import { SearchResultsPage } from "./pages/SearchResultsPage";
 
 function App() {
   const [cart, setCart] = useState([]);
@@ -145,6 +146,7 @@ function App() {
             <Route path="/bio" element={<CategoryPage category="БИО" onAddToCart={handleAddToCart} />} />
             <Route path="/about" element={<AboutPage />} />
             <Route path="/product/:id" element={<ProductPage onAddToCart={handleAddToCart} />} />
+            <Route path="/search" element={<SearchResultsPage onAddToCart={handleAddToCart} />}/>
           </Routes>
         </Container>
 
