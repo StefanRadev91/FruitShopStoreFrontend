@@ -1,20 +1,31 @@
 import { Drawer, Box, Stack } from "@mantine/core";
 import { useNavigate } from "react-router-dom";
 import {
-  FaCarrot, FaFish, FaCheese, FaLeaf, FaCandyCane, FaGlassWhiskey, FaAppleAlt
+  FaCarrot,
+  FaFish,
+  FaCheese,
+  FaLeaf,
+  FaCandyCane,
+  FaGlassWhiskey,
+  FaAppleAlt
 } from "react-icons/fa";
-import { GiSaltShaker, GiPeanut } from "react-icons/gi";
+import {
+  GiSaltShaker,
+  GiPeanut,
+  GiMeat,
+  GiChiliPepper
+} from "react-icons/gi";
 
 const categories = [
   { label: "Плодове", path: "/fruits", icon: <FaAppleAlt size={22} /> },
   { label: "Зеленчуци", path: "/vegetables", icon: <FaCarrot size={22} /> },
-  { label: "Млечни", path: "/dairy", icon: <FaCheese size={22} /> },
+  { label: "Лют Свят", path: "/dairy", icon: <GiChiliPepper size={22} /> },
   { label: "Напитки", path: "/drinks", icon: <FaGlassWhiskey size={22} /> },
   { label: "Сладко", path: "/sweet", icon: <FaCandyCane size={22} /> },
   { label: "Подправки", path: "/spices", icon: <GiSaltShaker size={22} /> },
   { label: "Рибни", path: "/fish", icon: <FaFish size={22} /> },
   { label: "Ядки", path: "/nuts", icon: <GiPeanut size={22} /> },
-  { label: "Солено", path: "/salty", icon: <GiSaltShaker size={22} /> },
+  { label: "Месни изделия", path: "/salty", icon: <GiMeat size={22} /> },
   { label: "БИО", path: "/bio", icon: <FaLeaf size={22} /> },
 ];
 

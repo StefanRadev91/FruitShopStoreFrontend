@@ -10,6 +10,7 @@ import { HomePage } from "./pages/HomePage";
 import { CategoryPage } from "./pages/CategoryPage";
 import { AboutPage } from "./pages/AboutPage";
 import Footer from "./components/footer";
+import { ProductPage } from "./pages/ProductPage";
 
 function App() {
   const [cart, setCart] = useState([]);
@@ -134,15 +135,16 @@ function App() {
             <Route path="/" element={<HomePage onAddToCart={handleAddToCart} />} />
             <Route path="/fruits" element={<CategoryPage category="Плодове" onAddToCart={handleAddToCart} />} />
             <Route path="/vegetables" element={<CategoryPage category="Зеленчуци" onAddToCart={handleAddToCart} />} />
-            <Route path="/dairy" element={<CategoryPage category="Млечни" onAddToCart={handleAddToCart} />} />
+            <Route path="/dairy" element={<CategoryPage category="Лют свят" onAddToCart={handleAddToCart} />} />
             <Route path="/drinks" element={<CategoryPage category="Напитки" onAddToCart={handleAddToCart} />} />
             <Route path="/sweet" element={<CategoryPage category="Сладко" onAddToCart={handleAddToCart} />} />
             <Route path="/spices" element={<CategoryPage category="Подправки" onAddToCart={handleAddToCart} />} />
             <Route path="/fish" element={<CategoryPage category="Рибни" onAddToCart={handleAddToCart} />} />
             <Route path="/nuts" element={<CategoryPage category="Ядки" onAddToCart={handleAddToCart} />} />
-            <Route path="/salty" element={<CategoryPage category="Солено" onAddToCart={handleAddToCart} />} />
+            <Route path="/salty" element={<CategoryPage category="Местни изделия" onAddToCart={handleAddToCart} />} />
             <Route path="/bio" element={<CategoryPage category="БИО" onAddToCart={handleAddToCart} />} />
             <Route path="/about" element={<AboutPage />} />
+            <Route path="/product/:id" element={<ProductPage />} />
           </Routes>
         </Container>
 
