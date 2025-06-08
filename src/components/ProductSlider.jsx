@@ -37,6 +37,7 @@ export function ProductSlider({ title, products, onAddToCart }) {
                 description={p.product_description}
                 image={p.image}
                 category={p.category}
+                weight={p.weight}
                 onAddToCart={() => onAddToCart(p)}
               />
             </Box>

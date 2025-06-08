@@ -11,12 +11,14 @@ import {
   Stack,
   Button,
   Badge,
+  Select,
 } from "@mantine/core";
 
 export function ProductPage({ onAddToCart }) {
   const { id } = useParams();
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [selectedWeight, setSelectedWeight] = useState(null);
 
   useEffect(() => {
     async function fetchProduct() {
@@ -25,8 +27,10 @@ export function ProductPage({ onAddToCart }) {
           `https://fruitshopstore.onrender.com/api/products?filters[id][$eq]=${id}&populate=*`
         );
         const data = await res.json();
-        if (!data.data || data.data.length === 0) throw new Error("Продуктът не е намерен.");
-        setProduct(data.data[0]);
+        if (!data.data || data.data.length === 0)
+          throw new Error("Продуктът не е намерен.");
+        const prod = data.data[0];
+        setProduct(prod);
       } catch (error) {
         console.error("Грешка при зареждане на продукт:", error);
       } finally {
@@ -54,16 +58,30 @@ export function ProductPage({ onAddToCart }) {
 
   if (!product) return <Text align="center">Продуктът не беше намерен.</Text>;
 
-  const { name, price, product_description, image } = product;
+  const {
+    name,
+    price,
+    product_description,
+    image,
+    category,
+    weight_variants = [],
+  } = product;
 
   const imageUrl = image?.[0]?.url?.startsWith("http")
     ? image[0].url
     : `https://fruitshopstore.onrender.com${image?.[0]?.url || ""}`;
 
+  const handleAddClick = () => {
+    const itemToAdd = {
+      ...product,
+      selectedWeight,
+    };
+    onAddToCart(itemToAdd);
+  };
+
   return (
     <Container size="md" py="xl">
       <Grid gutter="xl">
-        {/* Лява колона: снимка */}
         <Grid.Col span={{ base: 12, md: 5 }}>
           <Image
             src={imageUrl}
@@ -76,13 +94,44 @@ export function ProductPage({ onAddToCart }) {
           />
         </Grid.Col>
 
-        {/* Дясна колона: инфо */}
         <Grid.Col span={{ base: 12, md: 7 }}>
           <Stack spacing="sm">
             <Title order={3}>{name}</Title>
+
             <Text size="xl" fw={700}>
-              {price}
+              {selectedWeight
+                ? `${selectedWeight.price.toFixed(2)} лв.`
+                : `${price}`}
             </Text>
+
+            {weight_variants.length > 0 && (
+              <Select
+                label="Избери друг грамаж (по желание)"
+                placeholder="Избери..."
+                value={selectedWeight?.label || "__original__"}
+                onChange={(val) => {
+                  if (val === "__original__") {
+                    setSelectedWeight(null);
+                  } else {
+                    const variant = weight_variants.find(
+                      (w) => w.label === val
+                    );
+                    setSelectedWeight(variant);
+                  }
+                }}
+                data={[
+                  {
+                    value: "__original__",
+                    label: `${price} (оригинална цена)`,
+                  },
+                  ...weight_variants.map((w) => ({
+                    value: w.label,
+                    label: `${w.label} – ${w.price.toFixed(2)} лв.`,
+                  })),
+                ]}
+                size="sm"
+              />
+            )}
 
             <Badge color="green" size="lg" variant="light">
               В наличност
@@ -93,7 +142,7 @@ export function ProductPage({ onAddToCart }) {
               size="md"
               radius="md"
               w={160}
-              onClick={() => onAddToCart(product)}
+              onClick={handleAddClick}
             >
               Купи
             </Button>
@@ -101,14 +150,14 @@ export function ProductPage({ onAddToCart }) {
         </Grid.Col>
       </Grid>
 
-      {/* Описание под гърда */}
       <Box mt="xl">
         <Title order={4} mb="sm">
           Описание на продукта
         </Title>
         {Array.isArray(product_description) ? (
           product_description.map((desc, index) => {
-            if (typeof desc === "string") return <Text key={index}>{desc}</Text>;
+            if (typeof desc === "string")
+              return <Text key={index}>{desc}</Text>;
             if (desc.children && Array.isArray(desc.children)) {
               return (
                 <Text key={index} mt="sm">

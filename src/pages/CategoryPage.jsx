@@ -1,4 +1,4 @@
-// src/pages/CategoryPage.jsx
+// ✅ CategoryPage.jsx – адаптиран за selectedWeight
 import { useEffect, useState } from "react";
 import { Title, SimpleGrid, Loader } from "@mantine/core";
 import { ProductCard } from "../components/ProductCard";
@@ -27,6 +27,10 @@ export function CategoryPage({ category, onAddToCart }) {
     fetchData();
   }, [category]);
 
+  const handleAddToCart = (product) => {
+    onAddToCart(product);
+  };
+
   if (loading) return <Loader />;
 
   return (
@@ -48,7 +52,8 @@ export function CategoryPage({ category, onAddToCart }) {
             description={p.product_description}
             image={p.image}
             category={p.category}
-            onAddToCart={() => onAddToCart(p.attributes)}
+            weight_variants={p.weight_variants || []}
+            onAddToCart={handleAddToCart}
           />
         ))}
       </SimpleGrid>

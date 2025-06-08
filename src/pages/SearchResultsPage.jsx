@@ -1,4 +1,4 @@
-// src/pages/SearchResultsPage.jsx
+// ✅ SearchResultsPage.jsx – адаптиран за selectedWeight
 import { useEffect, useState } from "react";
 import { useLocation } from "react-router-dom";
 import { SimpleGrid, Title, Loader, Text } from "@mantine/core";
@@ -32,6 +32,10 @@ export function SearchResultsPage({ onAddToCart }) {
     fetchResults();
   }, [query]);
 
+  const handleAddToCart = (product) => {
+    onAddToCart(product);
+  };
+
   if (loading) return <Loader />;
 
   return (
@@ -58,8 +62,9 @@ export function SearchResultsPage({ onAddToCart }) {
               price={p.price}
               description={p.product_description}
               image={p.image}
-              category={p.category?.data?.attributes}
-              onAddToCart={() => onAddToCart(p)}
+              category={p.category?.data?.attributes || p.category}
+              weight_variants={p.weight_variants || []}
+              onAddToCart={handleAddToCart}
             />
           ))}
         </SimpleGrid>

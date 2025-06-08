@@ -1,10 +1,44 @@
-import { Card, Image, Text, Badge, Button, Group, Stack } from "@mantine/core";
+// ✅ ProductCard.jsx – финализиран с оригинална цена, без дублирани лв., и Select със връщане назад
+import { useState } from "react";
+import {
+  Card,
+  Image,
+  Text,
+  Badge,
+  Button,
+  Group,
+  Stack,
+  Select,
+} from "@mantine/core";
 import { Link } from "react-router-dom";
 
-export function ProductCard({ id, name, price, description, image, category, onAddToCart }) {
+export function ProductCard({
+  id,
+  name,
+  price,
+  description,
+  image,
+  category,
+  weight_variants = [],
+  onAddToCart,
+}) {
   const imageUrl = image?.[0]?.url?.startsWith("http")
     ? image[0].url
     : `https://fruitshopstore.onrender.com${image?.[0]?.url || ""}`;
+
+  const [selectedWeight, setSelectedWeight] = useState(null);
+
+  const handleAddClick = () => {
+    const productToAdd = {
+      id,
+      name,
+      image,
+      category,
+      price,
+      selectedWeight,
+    };
+    onAddToCart(productToAdd);
+  };
 
   return (
     <Card
@@ -13,13 +47,16 @@ export function ProductCard({ id, name, price, description, image, category, onA
       radius="md"
       withBorder
       style={{
-        height: 390,
+        height: 440,
         display: "flex",
         flexDirection: "column",
         justifyContent: "space-between",
       }}
     >
-      <Link to={`/product/${id}`} style={{ textDecoration: "none", flexGrow: 1 }}>
+      <Link
+        to={`/product/${id}`}
+        style={{ textDecoration: "none", flexGrow: 1 }}
+      >
         <Card.Section>
           <Image
             src={imageUrl}
@@ -30,7 +67,14 @@ export function ProductCard({ id, name, price, description, image, category, onA
           />
         </Card.Section>
 
-        <Stack spacing="xs" style={{ flexGrow: 1, justifyContent: "flex-start" }}>
+        <Stack
+          spacing="xs"
+          style={{
+            flexGrow: 1,
+            justifyContent: "flex-start",
+            minHeight: 130,
+          }}
+        >
           <Text fw={500} lineClamp={2} size="sm" c="blue" title={name}>
             {name}
           </Text>
@@ -41,11 +85,12 @@ export function ProductCard({ id, name, price, description, image, category, onA
 
           <div
             style={{
-              height: 60,
+              maxHeight: 40,
               overflowY: "auto",
               fontSize: "0.875rem",
               color: "var(--mantine-color-dimmed)",
               lineHeight: 1.4,
+              paddingRight: 4,
             }}
           >
             {Array.isArray(description)
@@ -55,15 +100,48 @@ export function ProductCard({ id, name, price, description, image, category, onA
         </Stack>
       </Link>
 
-      <Group justify="space-between" mt="md" wrap="nowrap" style={{ marginTop: "auto", paddingTop: 8 }}>
+      {weight_variants.length > 0 && (
+        <Select
+          label="Избери друг грамаж (по желание)"
+          placeholder="Избери..."
+          value={selectedWeight?.label || "__original__"}
+          onChange={(val) => {
+            if (val === "__original__") {
+              setSelectedWeight(null);
+            } else {
+              const variant = weight_variants.find((w) => w.label === val);
+              setSelectedWeight(variant);
+            }
+          }}
+          data={[
+            {
+              value: "__original__",
+              label: `${price} (оригинална цена)`,
+            },
+            ...weight_variants.map((w) => ({
+              value: w.label,
+              label: `${w.label} – ${w.price.toFixed(2)} лв.`,
+            })),
+          ]}
+          size="xs"
+          mb={-4}
+        />
+      )}
+
+      <Group
+        justify="space-between"
+        mt="md"
+        wrap="nowrap"
+        style={{ marginTop: "auto", paddingTop: 8 }}
+      >
         <Text size="lg" fw={700}>
-          {price}
+          {(selectedWeight?.price ?? parseFloat(price)).toFixed(2)} лв.
         </Text>
         <Button
           variant="light"
           color="green"
           radius="md"
-          onClick={onAddToCart}
+          onClick={handleAddClick}
           style={{ whiteSpace: "nowrap" }}
         >
           Добави

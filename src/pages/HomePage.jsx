@@ -1,6 +1,6 @@
-// src/pages/HomePage.jsx
+// ✅ HomePage.jsx – адаптиран за selectedWeight
 import { useEffect, useState } from "react";
-import { Title, Loader, Box } from "@mantine/core";
+import { Title, SimpleGrid, Loader, Box } from "@mantine/core";
 import { ProductSlider } from "../components/ProductSlider";
 
 export function HomePage({ onAddToCart }) {
@@ -15,14 +15,12 @@ export function HomePage({ onAddToCart }) {
           "https://fruitshopstore.onrender.com/api/products?populate=*&filters[featured]=true"
         );
         const dataFeatured = await resFeatured.json();
-        console.log("⭐ Най-продавани продукти:", dataFeatured.data);
         setFeatured(dataFeatured.data || []);
 
         const resNew = await fetch(
           "https://fruitshopstore.onrender.com/api/products?populate=*&filters[new_product]=true"
         );
         const dataNew = await resNew.json();
-        console.log("⭐ Най-продавани продукти:", dataFeatured.data);
         setNewProducts(dataNew.data || []);
       } catch (error) {
         console.error("⚠️ Error fetching products:", error);
@@ -33,6 +31,10 @@ export function HomePage({ onAddToCart }) {
 
     fetchData();
   }, []);
+
+  const handleAddToCart = (product) => {
+    onAddToCart(product);
+  };
 
   if (loading)
     return (
@@ -53,12 +55,12 @@ export function HomePage({ onAddToCart }) {
       <ProductSlider
         title="⭐ Най-продавани"
         products={featured}
-        onAddToCart={onAddToCart}
+        onAddToCart={handleAddToCart}
       />
       <ProductSlider
         title="🆕 Най-нови продукти"
         products={newProducts}
-        onAddToCart={onAddToCart}
+        onAddToCart={handleAddToCart}
       />
     </>
   );
