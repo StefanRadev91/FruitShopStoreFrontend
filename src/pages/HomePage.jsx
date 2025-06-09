@@ -2,6 +2,8 @@
 import { useEffect, useState } from "react";
 import { Title, SimpleGrid, Loader, Box } from "@mantine/core";
 import { ProductSlider } from "../components/ProductSlider";
+import { FeatureBanners } from "../components/FeatureBanners";
+import { CategoryIconsSlider } from "../components/CategoryIconsSlider";
 
 export function HomePage({ onAddToCart }) {
   const [featured, setFeatured] = useState([]);
@@ -52,6 +54,8 @@ export function HomePage({ onAddToCart }) {
 
   return (
     <>
+      <FeatureBanners />
+      <CategoryIconsSlider />
       <ProductSlider
         title="⭐ Най-продавани"
         products={featured}
