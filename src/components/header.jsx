@@ -29,7 +29,7 @@ export function Header({ cart, onCartClick }) {
           fontWeight: 500,
         }}
       >
-        За връзка: 0888 123 456 | orders@fresh.bg
+        За връзка: +359 886 282 323 | darotzemqta@abv.bg
       </Box>
 
       {/* Хедър */}

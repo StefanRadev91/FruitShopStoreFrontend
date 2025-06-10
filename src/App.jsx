@@ -12,6 +12,10 @@ import { AboutPage } from "./pages/AboutPage";
 import Footer from "./components/footer";
 import { ProductPage } from "./pages/ProductPage";
 import { SearchResultsPage } from "./pages/SearchResultsPage";
+import DeliveryPage from "./pages/DeliveryPage";
+import TermsPage from "./pages/TermsPage";
+import IdeaPage from "./pages/IdeaPage";
+import CookiesPage from "./pages/CookiesPage";
 
 function App() {
   const [cart, setCart] = useState([]);
@@ -147,6 +151,10 @@ function App() {
             <Route path="/about" element={<AboutPage />} />
             <Route path="/product/:id" element={<ProductPage onAddToCart={handleAddToCart} />} />
             <Route path="/search" element={<SearchResultsPage onAddToCart={handleAddToCart} />}/>
+            <Route path="/delivery" element={<DeliveryPage />} />
+            <Route path="/terms" element={<TermsPage />} />
+            <Route path="/idea" element={<IdeaPage />} />
+            <Route path="/cookies" element={<CookiesPage />} />
           </Routes>
         </Container>
 
