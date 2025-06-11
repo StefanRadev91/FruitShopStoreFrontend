@@ -1,4 +1,3 @@
-// ✅ CategoryPage.jsx – адаптиран за selectedWeight
 import { useEffect, useState } from "react";
 import { Title, SimpleGrid, Loader } from "@mantine/core";
 import { ProductCard } from "../components/ProductCard";
@@ -13,7 +12,7 @@ export function CategoryPage({ category, onAddToCart }) {
         const res = await fetch(
           `https://fruitshopstore.onrender.com/api/products?populate=*&filters[category][Name][$eq]=${encodeURIComponent(
             category
-          )}`
+          )}&pagination[limit]=200`
         );
         const data = await res.json();
         setProducts(data.data || []);
