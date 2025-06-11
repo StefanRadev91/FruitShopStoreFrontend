@@ -6,14 +6,15 @@ import {
   Button,
 } from "@mantine/core";
 import { IconShoppingCart, IconHome } from "@tabler/icons-react";
-import { useDisclosure } from "@mantine/hooks";
+import { useDisclosure, useMediaQuery } from "@mantine/hooks";
 import { useNavigate } from "react-router-dom";
 import logo from "../assets/logo.png";
-import { CategoryDrawer } from "./Drawer"; // <-- Добави това
+import { CategoryDrawer } from "./Drawer";
 import { SearchInput } from "./SearchInput";
 
 export function Header({ cart, onCartClick }) {
   const [drawerOpened, { open: openDrawer, close: closeDrawer }] = useDisclosure(false);
+  const isMobile = useMediaQuery("(max-width: 768px)");
   const navigate = useNavigate();
 
   return (
@@ -44,10 +45,11 @@ export function Header({ cart, onCartClick }) {
           justifyContent: "space-between",
           paddingLeft: 16,
           paddingRight: 16,
+          flexWrap: "wrap",
         }}
       >
-        {/* Ляво: Начало + Бургер */}
-        <Group spacing="xs">
+        {/* Ляво: Начало + Бургер + Search */}
+        <Group spacing="xs" style={{ flex: 1, minWidth: 0 }}>
           <ActionIcon
             size="lg"
             color="gray"
@@ -58,7 +60,8 @@ export function Header({ cart, onCartClick }) {
           </ActionIcon>
 
           <Burger opened={drawerOpened} onClick={openDrawer} size="md" />
-          <SearchInput />
+
+          {!isMobile && <SearchInput />}
         </Group>
 
         {/* Център: ЛОГО */}
@@ -84,13 +87,15 @@ export function Header({ cart, onCartClick }) {
 
         {/* Дясно: За нас + Количка */}
         <Group spacing="xs">
-          <Button
-            variant="subtle"
-            color="dark"
-            onClick={() => navigate("/about")}
-          >
-            За нас
-          </Button>
+          {!isMobile && (
+            <Button
+              variant="subtle"
+              color="dark"
+              onClick={() => navigate("/about")}
+            >
+              За нас
+            </Button>
+          )}
 
           <ActionIcon
             size="lg"
@@ -124,9 +129,15 @@ export function Header({ cart, onCartClick }) {
             )}
           </ActionIcon>
         </Group>
+
+        {/* SearchInput на мобилно – пада отдолу */}
+        {isMobile && (
+          <Box style={{ width: "100%", marginTop: 8 }}>
+            <SearchInput />
+          </Box>
+        )}
       </Box>
 
-      {/* Drawer меню – вече твоя красив CategoryDrawer */}
       <CategoryDrawer opened={drawerOpened} onClose={closeDrawer} />
     </>
   );

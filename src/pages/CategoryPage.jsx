@@ -15,7 +15,12 @@ export function CategoryPage({ category, onAddToCart }) {
           )}&pagination[limit]=200`
         );
         const data = await res.json();
-        setProducts(data.data || []);
+
+        const sorted = (data.data || []).sort((a, b) =>
+          a.name.localeCompare(b.name, "bg", { sensitivity: "base" })
+        );
+
+        setProducts(sorted);
       } catch (error) {
         console.error("⚠️ Error fetching category products:", error);
       } finally {

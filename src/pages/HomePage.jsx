@@ -4,6 +4,7 @@ import { Title, SimpleGrid, Loader, Box } from "@mantine/core";
 import { ProductSlider } from "../components/ProductSlider";
 import { FeatureBanners } from "../components/FeatureBanners";
 import { CategoryIconsSlider } from "../components/CategoryIconsSlider";
+import { DeliveryBanners } from "../components/DeliveryBanners"; 
 
 export function HomePage({ onAddToCart }) {
   const [featured, setFeatured] = useState([]);
@@ -54,6 +55,7 @@ export function HomePage({ onAddToCart }) {
 
   return (
     <>
+      <DeliveryBanners />
       <FeatureBanners />
       <CategoryIconsSlider />
       <ProductSlider
@@ -68,4 +70,4 @@ export function HomePage({ onAddToCart }) {
       />
     </>
   );
-}
+} 
