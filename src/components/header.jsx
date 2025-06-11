@@ -4,8 +4,9 @@ import {
   ActionIcon,
   Box,
   Button,
+  Tooltip,
 } from "@mantine/core";
-import { IconShoppingCart, IconHome } from "@tabler/icons-react";
+import { IconShoppingCart, IconHome, IconX } from "@tabler/icons-react";
 import { useDisclosure, useMediaQuery } from "@mantine/hooks";
 import { useNavigate } from "react-router-dom";
 import logo from "../assets/logo.png";
@@ -19,18 +20,37 @@ export function Header({ cart, onCartClick }) {
 
   return (
     <>
-      {/* Контакти */}
+      {/* Горна оранжева лента с контакти и бутон за кеш */}
       <Box
         style={{
           background: "#ff4c1c",
           color: "white",
-          padding: "4px 0",
-          textAlign: "center",
+          padding: "4px 12px",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
           fontSize: 14,
           fontWeight: 500,
+          position: "relative",
         }}
       >
-        За връзка: +359 886 282 323 | darotzemqta@abv.bg
+        <span>За връзка: +359 886 282 323 | darotzemqta@abv.bg</span>
+
+        <Box style={{ position: "absolute", right: 12 }}>
+          <Tooltip label="Изчисти кеша">
+            <ActionIcon
+              onClick={() => {
+                sessionStorage.clear();
+                window.location.reload();
+              }}
+              variant="transparent"
+              color="white"
+              size="lg"
+            >
+              <IconX size={20} />
+            </ActionIcon>
+          </Tooltip>
+        </Box>
       </Box>
 
       {/* Хедър */}
@@ -64,7 +84,7 @@ export function Header({ cart, onCartClick }) {
           {!isMobile && <SearchInput />}
         </Group>
 
-        {/* Център: ЛОГО */}
+        {/* Център: Лого */}
         <Box
           style={{
             position: "absolute",
@@ -130,7 +150,7 @@ export function Header({ cart, onCartClick }) {
           </ActionIcon>
         </Group>
 
-        {/* SearchInput на мобилно – пада отдолу */}
+        {/* Search на мобилно – пада отдолу */}
         {isMobile && (
           <Box style={{ width: "100%", marginTop: 8 }}>
             <SearchInput />

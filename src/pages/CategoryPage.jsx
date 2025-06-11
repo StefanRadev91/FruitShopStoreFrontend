@@ -7,6 +7,15 @@ export function CategoryPage({ category, onAddToCart }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    const cacheKey = `category_${category}`;
+    const cached = sessionStorage.getItem(cacheKey);
+
+    if (cached) {
+      setProducts(JSON.parse(cached));
+      setLoading(false);
+      return;
+    }
+
     async function fetchData() {
       try {
         const res = await fetch(
@@ -21,6 +30,7 @@ export function CategoryPage({ category, onAddToCart }) {
         );
 
         setProducts(sorted);
+        sessionStorage.setItem(cacheKey, JSON.stringify(sorted));
       } catch (error) {
         console.error("⚠️ Error fetching category products:", error);
       } finally {
