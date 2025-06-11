@@ -1,5 +1,4 @@
-// ✅ ProductCard.jsx – финализиран с оригинална цена, без дублирани лв., и Select със връщане назад
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   Card,
   Image,
@@ -27,6 +26,8 @@ export function ProductCard({
     : `https://fruitshopstore.onrender.com${image?.[0]?.url || ""}`;
 
   const [selectedWeight, setSelectedWeight] = useState(null);
+  const [showScrollHint, setShowScrollHint] = useState(false);
+  const descRef = useRef(null);
 
   const handleAddClick = () => {
     const productToAdd = {
@@ -39,6 +40,22 @@ export function ProductCard({
     };
     onAddToCart(productToAdd);
   };
+
+  useEffect(() => {
+    const el = descRef.current;
+    if (!el) return;
+
+    const shouldScroll = el.scrollHeight > el.clientHeight;
+    setShowScrollHint(shouldScroll);
+
+    const handleScroll = () => {
+      const atBottom = el.scrollTop + el.clientHeight >= el.scrollHeight - 1;
+      setShowScrollHint(!atBottom && shouldScroll);
+    };
+
+    el.addEventListener("scroll", handleScroll);
+    return () => el.removeEventListener("scroll", handleScroll);
+  }, [description]);
 
   return (
     <Card
@@ -84,19 +101,44 @@ export function ProductCard({
           </Badge>
 
           <div
+            ref={descRef}
             style={{
-              maxHeight: 40,
+              position: "relative",
+              maxHeight: "2.8em", // около два реда
               overflowY: "auto",
+              paddingRight: 4,
               fontSize: "0.875rem",
               color: "var(--mantine-color-dimmed)",
               lineHeight: 1.4,
-              paddingRight: 4,
+              ...(showScrollHint && {
+                maskImage: "linear-gradient(to bottom, black 60%, transparent 100%)",
+                WebkitMaskImage: "linear-gradient(to bottom, black 60%, transparent 100%)",
+              }),
             }}
+            title={
+              Array.isArray(description)
+                ? description[0]?.children?.[0]?.text
+                : description
+            }
           >
             {Array.isArray(description)
               ? description[0]?.children?.[0]?.text
               : description}
           </div>
+
+          {showScrollHint && (
+            <div
+              style={{
+                textAlign: "center",
+                marginTop: -6,
+                fontSize: 14,
+                color: "#bbb",
+                animation: "bounce 1.5s infinite",
+              }}
+            >
+              ↓
+            </div>
+          )}
         </Stack>
       </Link>
 

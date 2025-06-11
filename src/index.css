@@ -109,3 +109,11 @@ button:focus-visible {
 .category-label:hover {
   color: #4caf50; /* свежо зелено */
 }
+@keyframes bounce {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(4px);
+  }
+}
