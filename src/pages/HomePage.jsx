@@ -111,8 +111,8 @@ export function HomePage({ onAddToCart }) {
   return (
     <>
       <DeliveryBanners />
-      <FeatureBanners />
       <CategoryIconsSlider />
+      <FeatureBanners />
       <ProductSlider
         title="⭐ Най-продавани"
         products={featured}
