@@ -19,7 +19,7 @@ export function DeliveryBanners() {
         gap="xl"
         mt="xl"
         px="md"
-        style={{ overflowX: "auto" }}
+        style={{ overflow: "hidden" }}
       >
         {banners.map((banner, i) => (
           <Box
@@ -27,8 +27,8 @@ export function DeliveryBanners() {
             onClick={() => navigate("/delivery")}
             style={{
               position: "relative",
-              minWidth: 600,
-              height: 120,
+              minWidth: '50%',
+              height: '120px',
               borderRadius: 8,
               overflow: "hidden",
               background: "white",
@@ -46,6 +46,7 @@ export function DeliveryBanners() {
                 width: "100%",
                 height: "100%",
                 objectFit: "cover",
+
               }}
             />
 

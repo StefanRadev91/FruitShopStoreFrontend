@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Title, SimpleGrid, Loader, Box } from "@mantine/core";
+import { Title, SimpleGrid, Loader, Box, Container } from "@mantine/core";
 import { ProductSlider } from "../components/ProductSlider";
 import { FeatureBanners } from "../components/FeatureBanners";
 import { CategoryIconsSlider } from "../components/CategoryIconsSlider";
@@ -112,17 +112,22 @@ export function HomePage({ onAddToCart }) {
     <>
       <DeliveryBanners />
       <CategoryIconsSlider />
+      <ProductSlider
+        title="🆕 Най-нови продукти"
+        products={newProducts}
+        onAddToCart={handleAddToCart}
+      />
       <FeatureBanners />
       <ProductSlider
         title="⭐ Най-продавани"
         products={featured}
         onAddToCart={handleAddToCart}
       />
-      <ProductSlider
+      {/* <ProductSlider
         title="🆕 Най-нови продукти"
         products={newProducts}
         onAddToCart={handleAddToCart}
-      />
+      /> */}
     </>
   );
 }

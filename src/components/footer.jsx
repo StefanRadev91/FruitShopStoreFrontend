@@ -9,51 +9,56 @@ export default function Footer() {
       style={{
         background: "#202f10",
         color: "white",
-        padding: "24px 0",
+        padding: "32px 16px",
         fontFamily: "inherit",
         width: "100%",
-        position: "relative",
       }}
     >
-      <Box style={{ maxWidth: 1200, margin: "0 auto", position: "relative" }}>
-        <Flex justify="space-between" align="flex-start" wrap="wrap">
-          {/* Ляво: линкове */}
-          <Stack gap={4} style={{ minWidth: 180 }}>
-            <Title order={6} c="white">
+      <Box style={{ maxWidth: 1200, margin: "0 auto" }}>
+        <Flex
+          direction={{ base: "column", md: "row" }}
+          justify="space-between"
+          align={{ base: "center", md: "center", sm: "center", lg: "flex-start", xl: "flex-start" }}
+          wrap="wrap"
+          gap="xl"
+        >
+          {/* Лява колона */}
+          <Stack
+            gap={4}
+            flex="1"
+            order={{ base: 1, md: 0 }}
+            align="center"                // центрираме всичко хоризонтално
+            style={{
+              minWidth: 180,
+              padding: "16px 0",
+            }}
+          >
+            <Title order={6} c="white" ta="center">
               Информация
             </Title>
-            <Link to="/delivery" style={linkStyle}>
+            <Link to="/delivery" style={{ ...linkStyle, textAlign: "center" }}>
               Доставка
             </Link>
-            <Link to="/terms" style={linkStyle}>
+            <Link to="/terms" style={{ ...linkStyle, textAlign: "center" }}>
               Общи условия
             </Link>
-            <Link to="/idea" style={linkStyle}>
+            <Link to="/idea" style={{ ...linkStyle, textAlign: "center" }}>
               Нашата идея
             </Link>
-            <Link to="/cookies" style={linkStyle}>
+            <Link to="/cookies" style={{ ...linkStyle, textAlign: "center" }}>
               Ние използваме бисквитки
             </Link>
           </Stack>
 
-          {/* Дясно: контакт */}
-          <Stack gap={4} style={{ minWidth: 180, textAlign: "right" }}>
-            <Title order={6} c="white">
-              Връзка с нас
-            </Title>
-            <Text size="sm">ФРЕСКО 2022 ООД</Text>
-            <Text size="sm">Тел: +359 886 282 323</Text>
-            <Text size="sm">гр. София</Text>
-            <Text size="sm">ж.к. Христо Смирненски бл.74, ап.62</Text>
-          </Stack>
-
-          {/* Център – абсолютно центриран */}
+          {/* Централна колона */}
           <Box
+            flex="1"
+            order={{ base: 0, md: 1 }}
             style={{
-              position: "absolute",
-              top: 0,
-              left: "50%",
-              transform: "translateX(-50%)",
+              padding: "16px 0",
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
               textAlign: "center",
             }}
           >
@@ -79,6 +84,34 @@ export default function Footer() {
               Всички права запазени &copy; 2025 "ДАР ОТ ЗЕМЯТА"
             </Text>
           </Box>
+
+          {/* Дясна колона */}
+          <Stack
+            gap={4}
+            flex="1"
+            order={{ base: 2, md: 2 }}
+            align={{ base: "center", md: "flex-end" }}
+            style={{
+              minWidth: 180,
+              padding: "16px 0",
+            }}
+          >
+            <Title order={6} c="white" ta={{ base: "center", md: "right" }}>
+              Връзка с нас
+            </Title>
+            <Text size="sm" ta={{ base: "center", md: "right" }}>
+              ФРЕСКО 2022 ООД
+            </Text>
+            <Text size="sm" ta={{ base: "center", md: "right" }}>
+              Тел: +359 886 282 323
+            </Text>
+            <Text size="sm" ta={{ base: "center", md: "right" }}>
+              гр. София
+            </Text>
+            <Text size="sm" ta={{ base: "center", md: "right" }}>
+              ж.к. Христо Смирненски бл.74, ап.62
+            </Text>
+          </Stack>
         </Flex>
       </Box>
     </Box>

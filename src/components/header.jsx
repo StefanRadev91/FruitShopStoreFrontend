@@ -19,7 +19,12 @@ export function Header({ cart, onCartClick }) {
   const navigate = useNavigate();
 
   return (
-    <>
+    <Box
+      style={{
+        display: 'flex',
+        flexDirection: 'column'
+      }}
+    >
       {/* Горна оранжева лента с контакти и бутон за кеш */}
       <Box
         style={{
@@ -69,7 +74,7 @@ export function Header({ cart, onCartClick }) {
         }}
       >
         {/* Ляво: Начало + Бургер + Search */}
-        <Group spacing="xs" style={{ flex: 1, minWidth: 0 }}>
+        <Group spacing="xs" style={{ minWidth: 0, width: '25%' }}>
           <ActionIcon
             size="lg"
             color="gray"
@@ -87,11 +92,7 @@ export function Header({ cart, onCartClick }) {
         {/* Център: Лого */}
         <Box
           style={{
-            position: "absolute",
-            left: "50%",
-            transform: "translateX(-50%)",
             backgroundColor: "#fff",
-            padding: "4px",
             zIndex: 1,
           }}
         >
@@ -106,16 +107,17 @@ export function Header({ cart, onCartClick }) {
         </Box>
 
         {/* Дясно: За нас + Количка */}
-        <Group spacing="xs">
-          {!isMobile && (
-            <Button
-              variant="subtle"
-              color="dark"
-              onClick={() => navigate("/about")}
-            >
+        <Group spacing="xs" style={{width: '25%', display: 'flex', justifyContent: 'end'}}>
+          <Button
+            variant="subtle"
+            color="dark"
+            style={{
+              padding: 0,
+            }}
+            onClick={() => navigate("/about")}
+          >
               За нас
-            </Button>
-          )}
+          </Button>
 
           <ActionIcon
             size="lg"
@@ -152,13 +154,13 @@ export function Header({ cart, onCartClick }) {
 
         {/* Search на мобилно – пада отдолу */}
         {isMobile && (
-          <Box style={{ width: "100%", marginTop: 8 }}>
+          <Box style={{ width: '100%', marginBottom: '16px'}}>
             <SearchInput />
           </Box>
         )}
       </Box>
 
       <CategoryDrawer opened={drawerOpened} onClose={closeDrawer} />
-    </>
+    </Box>
   );
 }
