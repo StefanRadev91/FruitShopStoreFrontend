@@ -70,7 +70,9 @@ function App() {
 
   const total = cart.reduce((sum, item) => {
     const num = parseFloat(
-      String(item.price).replace(/[^\d.]/g, "").replace(",", ".")
+      String(item.selectedWeight?.price ?? item.price)
+        .replace(/[^\d.]/g, "")
+        .replace(",", ".")
     );
     return sum + num * item.qty;
   }, 0);
@@ -87,7 +89,8 @@ function App() {
         id: item.id,
         name: item.name,
         qty: item.qty,
-        price: item.price,
+        price: item.selectedWeight?.price ?? item.price,
+        weight: item.selectedWeight?.label ?? "оригинален грамаж",
       })),
     };
 
@@ -129,8 +132,8 @@ function App() {
           background: "linear-gradient(120deg, #e6ffe6 0%, #f9fcff 100%)",
           display: "flex",
           flexDirection: "column",
-          maxWidth: "100vw",      // 🛠️ фиксира проблема с дясната празнина
-          overflowX: "hidden",     // 🔐 предотвратява хоризонтално скролване
+          maxWidth: "100vw",
+          overflowX: "hidden",
         }}
       >
         <Header cart={cart} onCartClick={() => setCartOpened(true)} />
@@ -150,7 +153,7 @@ function App() {
             <Route path="/bio" element={<CategoryPage category="БИО" onAddToCart={handleAddToCart} />} />
             <Route path="/about" element={<AboutPage />} />
             <Route path="/product/:id" element={<ProductPage onAddToCart={handleAddToCart} />} />
-            <Route path="/search" element={<SearchResultsPage onAddToCart={handleAddToCart} />}/>
+            <Route path="/search" element={<SearchResultsPage onAddToCart={handleAddToCart} />} />
             <Route path="/delivery" element={<DeliveryPage />} />
             <Route path="/terms" element={<TermsPage />} />
             <Route path="/idea" element={<IdeaPage />} />
