@@ -15,7 +15,7 @@ import {
 } from "@mantine/core";
 
 export function ProductPage({ onAddToCart }) {
-  const { id } = useParams();
+  const { name } = useParams();
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
   const [selectedWeight, setSelectedWeight] = useState(null);
@@ -24,7 +24,7 @@ export function ProductPage({ onAddToCart }) {
     async function fetchProduct() {
       try {
         const res = await fetch(
-          `https://fruitshopstore.onrender.com/api/products?filters[id][$eq]=${id}&populate=*`
+          `https://fruitshopstore.onrender.com/api/products?filters[name][$eq]=${encodeURIComponent(name)}&populate=*`
         );
         const data = await res.json();
         if (!data.data || data.data.length === 0)
@@ -39,7 +39,7 @@ export function ProductPage({ onAddToCart }) {
     }
 
     fetchProduct();
-  }, [id]);
+  }, [name]);
 
   if (loading) {
     return (
@@ -59,7 +59,7 @@ export function ProductPage({ onAddToCart }) {
   if (!product) return <Text align="center">Продуктът не беше намерен.</Text>;
 
   const {
-    name,
+    name: productName,
     price,
     product_description,
     image,
@@ -85,7 +85,7 @@ export function ProductPage({ onAddToCart }) {
         <Grid.Col span={{ base: 12, md: 5 }}>
           <Image
             src={imageUrl}
-            alt={name}
+            alt={productName}
             radius="md"
             fit="contain"
             h={320}
@@ -96,7 +96,7 @@ export function ProductPage({ onAddToCart }) {
 
         <Grid.Col span={{ base: 12, md: 7 }}>
           <Stack spacing="sm">
-            <Title order={3}>{name}</Title>
+            <Title order={3}>{productName}</Title>
 
             <Text size="xl" fw={700}>
               {selectedWeight

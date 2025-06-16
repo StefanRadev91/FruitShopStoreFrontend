@@ -60,7 +60,6 @@ export function CategoryPage({ category, onAddToCart }) {
         {products.map((p) => (
           <ProductCard
             key={p.id}
-            id={p.id}
             name={p.name}
             price={p.price}
             description={p.product_description}

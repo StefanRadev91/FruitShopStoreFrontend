@@ -71,7 +71,7 @@ export function ProductCard({
       }}
     >
       <Link
-        to={`/product/${id}`}
+        to={`/product/${encodeURIComponent(name)}`}
         style={{ textDecoration: "none", flexGrow: 1 }}
       >
         <Card.Section>
@@ -104,7 +104,7 @@ export function ProductCard({
             ref={descRef}
             style={{
               position: "relative",
-              maxHeight: "2.8em", // около два реда
+              maxHeight: "2.8em",
               overflowY: "auto",
               paddingRight: 4,
               fontSize: "0.875rem",

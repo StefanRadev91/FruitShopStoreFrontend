@@ -1,4 +1,3 @@
-// ✅ CartDrawer.jsx – с правилно изчисляване на total с избраната цена от грамаж
 import {
   Drawer,
   Text,
@@ -7,6 +6,7 @@ import {
   Button,
   TextInput,
   Textarea,
+  Box,
 } from "@mantine/core";
 
 export function CartDrawer({
@@ -43,27 +43,49 @@ export function CartDrawer({
       {cart.length === 0 ? (
         <Text>Количката е празна.</Text>
       ) : (
-        <div>
+        <Box>
           {cart.map((item) => (
-            <Group key={item.id + (item.selectedWeight?.label || "")} position="apart" mb="sm">
-              <div>
-                <Text fw={500}>{item.name}</Text>
+            <Box key={item.id + (item.selectedWeight?.label || "")} mb="lg">
+              <Text fw={600} size="sm" mb={4}>
+                {item.name}
+              </Text>
+
+              <Group spacing="xs" mb={6}>
+                <Badge color="green" radius="sm">
+                  {item.category?.Name}
+                </Badge>
 
                 {item.selectedWeight?.label && (
-                  <Text size="sm" c="dimmed">
-                    Тегло: {item.selectedWeight.label}
-                  </Text>
+                  <Badge color="gray" variant="outline" radius="sm">
+                    {item.selectedWeight.label}
+                  </Badge>
                 )}
+              </Group>
 
-                <Badge color="green" ml="sm">{item.category?.Name}</Badge>
-                <div>
-                  <Button size="xs" onClick={() => handleChangeQty(item.id, -1)}>-</Button>
-                  <Text component="span" mx="sm">{item.qty}</Text>
-                  <Button size="xs" onClick={() => handleChangeQty(item.id, 1)}>+</Button>
-                </div>
-              </div>
-              <Group>
-                <Text fw={700}>
+              <Group spacing="xs" mb={6}>
+                <Button
+                  size="xs"
+                  color="green"
+                  variant="filled"
+                  onClick={() => handleChangeQty(item.id, -1)}
+                >
+                  –
+                </Button>
+                <Text fw={500} mx="xs">
+                  {item.qty}
+                </Text>
+                <Button
+                  size="xs"
+                  color="green"
+                  variant="filled"
+                  onClick={() => handleChangeQty(item.id, 1)}
+                >
+                  +
+                </Button>
+              </Group>
+
+              <Group spacing="sm" position="apart" align="center">
+                <Text fw={700} size="md" style={{ minWidth: 60 }}>
                   {(item.selectedWeight?.price ?? parseFloat(item.price)).toFixed(2)} лв.
                 </Text>
                 <Button
@@ -75,9 +97,13 @@ export function CartDrawer({
                   Премахни
                 </Button>
               </Group>
-            </Group>
+            </Box>
           ))}
-          <Text fw={700} mt="lg">Общо: {total.toFixed(2)} лв.</Text>
+
+          <Text fw={700} mt="lg">
+            Общо: {total.toFixed(2)} лв.
+          </Text>
+
           <form onSubmit={form.onSubmit(handleSubmitOrder)}>
             <TextInput
               label="Име и фамилия"
@@ -112,11 +138,17 @@ export function CartDrawer({
               {...form.getInputProps("notes")}
               mb="sm"
             />
-            <Button type="submit" fullWidth mt="md" color="green" loading={loadingOrder}>
+            <Button
+              type="submit"
+              fullWidth
+              mt="md"
+              color="green"
+              loading={loadingOrder}
+            >
               Изпрати поръчка
             </Button>
           </form>
-        </div>
+        </Box>
       )}
     </Drawer>
   );

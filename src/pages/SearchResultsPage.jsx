@@ -1,4 +1,3 @@
-// ✅ SearchResultsPage.jsx – адаптиран за selectedWeight
 import { useEffect, useState } from "react";
 import { useLocation } from "react-router-dom";
 import { SimpleGrid, Title, Loader, Text } from "@mantine/core";
@@ -57,7 +56,6 @@ export function SearchResultsPage({ onAddToCart }) {
           {results.map((p) => (
             <ProductCard
               key={p.id}
-              id={p.id}
               name={p.name}
               price={p.price}
               description={p.product_description}

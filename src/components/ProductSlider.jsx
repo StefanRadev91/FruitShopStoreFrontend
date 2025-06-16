@@ -31,7 +31,6 @@ export function ProductSlider({ title, products, onAddToCart }) {
               }}
             >
               <ProductCard
-                id={p.id}
                 name={p.name}
                 price={p.price}
                 description={p.product_description}
