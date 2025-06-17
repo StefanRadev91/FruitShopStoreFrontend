@@ -21,7 +21,7 @@ export function FeatureBanners() {
         <Link to="/about" key={index}>
           <Box
             style={{
-              width: 245,
+              minWidth: '245px',
               height: 120,
               borderRadius: 8,
               overflow: "hidden",

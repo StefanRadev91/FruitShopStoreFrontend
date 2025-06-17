@@ -27,28 +27,30 @@ export default function Footer() {
             gap={4}
             flex="1"
             order={{ base: 1, md: 0 }}
-            align="center"                // центрираме всичко хоризонтално
+            align={{ base: "center", md: "flex-start" }}
             style={{
               minWidth: 180,
               padding: "16px 0",
             }}
           >
-            <Title order={6} c="white" ta="center">
+            <Title order={6} c="white" ta={{ base: "center", md: "cemter" }}>
               Информация
             </Title>
-            <Link to="/delivery" style={{ ...linkStyle, textAlign: "center" }}>
-              Доставка
-            </Link>
-            <Link to="/terms" style={{ ...linkStyle, textAlign: "center" }}>
-              Общи условия
-            </Link>
-            <Link to="/idea" style={{ ...linkStyle, textAlign: "center" }}>
-              Нашата идея
-            </Link>
-            <Link to="/cookies" style={{ ...linkStyle, textAlign: "center" }}>
-              Ние използваме бисквитки
-            </Link>
+
+            <Text size="sm" ta={{ base: "center", md: "center" }}>
+              <Link to="/delivery" style={linkStyle}>Доставка</Link>
+            </Text>
+            <Text size="sm" ta={{ base: "center", md: "center" }}>
+              <Link to="/terms" style={linkStyle}>Общи условия</Link>
+            </Text>
+            <Text size="sm" ta={{ base: "center", md: "center" }}>
+              <Link to="/idea" style={linkStyle}>Нашата идея</Link>
+            </Text>
+            <Text size="sm" ta={{ base: "center", md: "center" }}>
+              <Link to="/cookies" style={linkStyle}>Ние използваме бисквитки</Link>
+            </Text>
           </Stack>
+
 
           {/* Централна колона */}
           <Box
@@ -96,19 +98,19 @@ export default function Footer() {
               padding: "16px 0",
             }}
           >
-            <Title order={6} c="white" ta={{ base: "center", md: "right" }}>
+            <Title order={6} c="white" ta={{ base: "center", md: "center" }}>
               Връзка с нас
             </Title>
-            <Text size="sm" ta={{ base: "center", md: "right" }}>
+            <Text size="sm" ta={{ base: "center", md: "center" }}>
               ФРЕСКО 2022 ООД
             </Text>
-            <Text size="sm" ta={{ base: "center", md: "right" }}>
+            <Text size="sm" ta={{ base: "center", md: "center" }}>
               Тел: +359 886 282 323
             </Text>
-            <Text size="sm" ta={{ base: "center", md: "right" }}>
+            <Text size="sm" ta={{ base: "center", md: "center" }}>
               гр. София
             </Text>
-            <Text size="sm" ta={{ base: "center", md: "right" }}>
+            <Text size="sm" ta={{ base: "center", md: "center" }}>
               ж.к. Христо Смирненски бл.74, ап.62
             </Text>
           </Stack>

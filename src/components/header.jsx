@@ -74,7 +74,7 @@ export function Header({ cart, onCartClick }) {
         }}
       >
         {/* Ляво: Начало + Бургер + Search */}
-        <Group spacing="xs" style={{ minWidth: 0, width: '25%' }}>
+        <Group spacing="xs" style={{ minWidth: 0, width: '33%' }}>
           <ActionIcon
             size="lg"
             color="gray"
@@ -100,14 +100,15 @@ export function Header({ cart, onCartClick }) {
             src={logo}
             alt="Дар от Земята"
             style={{
-              height: 80,
+              height: "100%",
+              maxHeight: "80px",
               display: "block",
             }}
           />
         </Box>
 
         {/* Дясно: За нас + Количка */}
-        <Group spacing="xs" style={{width: '25%', display: 'flex', justifyContent: 'end'}}>
+        <Group spacing="xs" style={{width: '37%', display: 'flex', justifyContent: 'end'}}>
           <Button
             variant="subtle"
             color="dark"

@@ -123,11 +123,6 @@ export function HomePage({ onAddToCart }) {
         products={featured}
         onAddToCart={handleAddToCart}
       />
-      {/* <ProductSlider
-        title="🆕 Най-нови продукти"
-        products={newProducts}
-        onAddToCart={handleAddToCart}
-      /> */}
     </>
   );
 }

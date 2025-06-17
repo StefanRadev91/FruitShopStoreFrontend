@@ -130,8 +130,8 @@ function App() {
         style={{
           minHeight: "100vh",
           background: "linear-gradient(120deg, #e6ffe6 0%, #f9fcff 100%)",
-          display: "flex",
-          flexDirection: "column",
+          // display: "flex",
+          // flexDirection: "column",
           maxWidth: "100vw",
           overflowX: "hidden",
         }}
@@ -172,9 +172,8 @@ function App() {
           form={form}
           total={total}
         />
-
-        <Footer />
       </Box>
+      <Footer />
     </BrowserRouter>
   );
 }

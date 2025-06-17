@@ -24,7 +24,12 @@ export function SearchInput() {
       onKeyDown={handleKeyDown}
       radius="md"
       size="sm"
-      style={{ width: 200 }}
+      sx={{
+        width: '100%',
+        '@media (min-width: 980px)': {
+          width: '200px',
+        },
+      }}
     />
   );
 }

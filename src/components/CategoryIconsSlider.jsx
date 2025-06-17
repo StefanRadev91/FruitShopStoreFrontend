@@ -28,11 +28,10 @@ const categories = [
 
 export function CategoryIconsSlider() {
   return (
-    <Box my="xl" px="md">
+    <Box my="xl" px="sm">
       <SimpleGrid
-        cols={5}
-        spacing={8}                         // numeric px gap между клетки
-        breakpoints={[{ maxWidth: "sm", cols: 3, spacing: 6 }]}
+        cols={{ base: 2, xs: 5, sm: 5, md: 5, lg: 5, xl: 5}}
+        spacing={8}                       
       >
         {categories.map((cat, i) => (
           <Link

@@ -1,5 +1,7 @@
 import { Box, Title, ScrollArea } from "@mantine/core";
 import { ProductCard } from "./ProductCard";
+import { Carousel } from "@mantine/carousel";
+import "@mantine/carousel/styles.css";
 
 export function ProductSlider({ title, products, onAddToCart }) {
   if (!products.length) return null;
@@ -9,18 +11,22 @@ export function ProductSlider({ title, products, onAddToCart }) {
       <Title order={2} mb={24} ta="center">
         {title}
       </Title>
-      <ScrollArea scrollbarSize={6} type="scroll" offsetScrollbars>
-        <Box
-          style={{
-            display: "flex",
-            gap: 16,
-            padding: "0 16px",
-            overflowX: "auto",
-          }}
-        >
-          {products.map((p) => (
+      <Carousel
+        withIndicators={false}
+        withControls={true}
+        height="auto"
+        slideSize="25%"
+        slideGap="md"
+        align="start"
+        loop
+        breakpoints={[
+          { maxWidth: 'md', slideSize: '50%' },
+          { maxWidth: 'sm', slideSize: '100%' },
+        ]}
+      >
+        {products.map((p) => (
+          <Carousel.Slide key={p.id}>
             <Box
-              key={p.id}
               style={{
                 minWidth: 260,
                 maxWidth: 260,
@@ -28,6 +34,7 @@ export function ProductSlider({ title, products, onAddToCart }) {
                 display: "flex",
                 flexDirection: "column",
                 justifyContent: "stretch",
+                margin: "0 auto",
               }}
             >
               <ProductCard
@@ -40,9 +47,10 @@ export function ProductSlider({ title, products, onAddToCart }) {
                 onAddToCart={() => onAddToCart(p)}
               />
             </Box>
-          ))}
-        </Box>
-      </ScrollArea>
+          </Carousel.Slide>
+        ))}
+      </Carousel>
+
     </Box>
   );
 }
