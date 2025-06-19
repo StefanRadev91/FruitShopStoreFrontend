@@ -21,6 +21,9 @@ export function ProductPage({ onAddToCart }) {
   const [selectedWeight, setSelectedWeight] = useState(null);
 
   useEffect(() => {
+    // Скролира най-горе при зареждане на страницата
+    window.scrollTo(0, 0);
+
     async function fetchProduct() {
       try {
         const res = await fetch(

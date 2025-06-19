@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useLocation } from "react-router-dom";
-import { SimpleGrid, Title, Loader, Text } from "@mantine/core";
+import { SimpleGrid, Title, Loader, Text, Box } from "@mantine/core";
 import { ProductCard } from "../components/ProductCard";
 
 export function SearchResultsPage({ onAddToCart }) {
@@ -10,7 +10,11 @@ export function SearchResultsPage({ onAddToCart }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (!query.trim()) return;
+    if (!query.trim()) {
+      setResults([]);
+      setLoading(false);
+      return;
+    }
 
     async function fetchResults() {
       try {
@@ -20,7 +24,12 @@ export function SearchResultsPage({ onAddToCart }) {
           )}`
         );
         const data = await res.json();
-        setResults(data.data || []);
+
+        const sorted = (data.data || []).sort((a, b) =>
+          a.name.localeCompare(b.name, "bg", { sensitivity: "base" })
+        );
+
+        setResults(sorted);
       } catch (error) {
         console.error("⚠️ Error fetching search results:", error);
       } finally {
@@ -35,11 +44,24 @@ export function SearchResultsPage({ onAddToCart }) {
     onAddToCart(product);
   };
 
-  if (loading) return <Loader />;
+  if (loading) {
+    return (
+      <Box
+        style={{
+          minHeight: 300,
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+        }}
+      >
+        <Loader />
+      </Box>
+    );
+  }
 
   return (
     <>
-      <Title order={2} mb="md" ta="center">
+      <Title order={2} mb="lg" ta="center">
         Резултати за: “{query}”
       </Title>
 
@@ -49,7 +71,7 @@ export function SearchResultsPage({ onAddToCart }) {
         </Text>
       ) : (
         <SimpleGrid
-          cols={2}
+          cols={{ base: 1, sm: 2, lg: 3, xl: 3 }}
           spacing="lg"
           breakpoints={[{ maxWidth: "sm", cols: 1 }]}
         >
