@@ -67,14 +67,14 @@ export function Header({ cart, onCartClick }) {
           minHeight: 90,
           display: "flex",
           alignItems: "center",
-          justifyContent: "space-between",
+          justifyContent: "stretch", // всички колони с еднаква ширина
           paddingLeft: 16,
           paddingRight: 16,
           flexWrap: "wrap",
         }}
       >
         {/* Ляво: Начало + Бургер + Search */}
-        <Group spacing="xs" style={{ minWidth: 0, width: '33%' }}>
+        <Group spacing="xs" style={{ flex: 1, minWidth: 0 }}>
           <ActionIcon
             size="lg"
             color="gray"
@@ -92,6 +92,9 @@ export function Header({ cart, onCartClick }) {
         {/* Център: Лого */}
         <Box
           style={{
+            flex: 1,
+            display: 'flex',
+            justifyContent: 'center',
             backgroundColor: "#fff",
             zIndex: 1,
           }}
@@ -99,25 +102,22 @@ export function Header({ cart, onCartClick }) {
           <img
             src={logo}
             alt="Дар от Земята"
-            style={{
-              height: "100%",
-              maxHeight: "80px",
-              display: "block",
-            }}
+            style={{ maxHeight: "80px", display: "block" }}
           />
         </Box>
 
         {/* Дясно: За нас + Количка */}
-        <Group spacing="xs" style={{width: '37%', display: 'flex', justifyContent: 'end'}}>
+        <Group
+          spacing="xs"
+          style={{ flex: 1, display: 'flex', justifyContent: 'flex-end' }}
+        >
           <Button
             variant="subtle"
             color="dark"
-            style={{
-              padding: 0,
-            }}
+            style={{ padding: 0 }}
             onClick={() => navigate("/about")}
           >
-              За нас
+            За нас
           </Button>
 
           <ActionIcon
@@ -155,7 +155,7 @@ export function Header({ cart, onCartClick }) {
 
         {/* Search на мобилно – пада отдолу */}
         {isMobile && (
-          <Box style={{ width: '100%', marginBottom: '16px'}}>
+          <Box style={{ width: '100%', marginBottom: '16px' }}>
             <SearchInput />
           </Box>
         )}
