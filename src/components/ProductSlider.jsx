@@ -1,4 +1,4 @@
-import { Box, Title, ScrollArea } from "@mantine/core";
+import { Box, Title } from "@mantine/core";
 import { ProductCard } from "./ProductCard";
 import { Carousel } from "@mantine/carousel";
 import "@mantine/carousel/styles.css";
@@ -38,7 +38,9 @@ export function ProductSlider({ title, products, onAddToCart }) {
               }}
             >
               <ProductCard
+                id={p.id}
                 name={p.name}
+                slug={p.slug}
                 price={p.price}
                 description={p.product_description}
                 image={p.image}
@@ -50,7 +52,6 @@ export function ProductSlider({ title, products, onAddToCart }) {
           </Carousel.Slide>
         ))}
       </Carousel>
-
     </Box>
   );
 }

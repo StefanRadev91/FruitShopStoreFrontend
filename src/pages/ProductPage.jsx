@@ -15,19 +15,20 @@ import {
 } from "@mantine/core";
 
 export function ProductPage({ onAddToCart }) {
-  const { name } = useParams();
+  const { slug } = useParams();
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
   const [selectedWeight, setSelectedWeight] = useState(null);
 
   useEffect(() => {
-    // Скролира най-горе при зареждане на страницата
     window.scrollTo(0, 0);
 
     async function fetchProduct() {
       try {
         const res = await fetch(
-          `https://fruitshopstore.onrender.com/api/products?filters[name][$eq]=${encodeURIComponent(name)}&populate=*`
+          `https://fruitshopstore.onrender.com/api/products?filters[slug][$eq]=${encodeURIComponent(
+            slug
+          )}&populate=*`
         );
         const data = await res.json();
         if (!data.data || data.data.length === 0)
@@ -42,7 +43,7 @@ export function ProductPage({ onAddToCart }) {
     }
 
     fetchProduct();
-  }, [name]);
+  }, [slug]);
 
   if (loading) {
     return (
@@ -78,6 +79,7 @@ export function ProductPage({ onAddToCart }) {
     const itemToAdd = {
       ...product,
       selectedWeight,
+      slug,
     };
     onAddToCart(itemToAdd);
   };
@@ -125,12 +127,12 @@ export function ProductPage({ onAddToCart }) {
                 data={[
                   {
                     value: "__original__",
-                    label: `${price} (оригинална цена)`,
+                    label: `${price} (оригинална цена)`
                   },
                   ...weight_variants.map((w) => ({
                     value: w.label,
-                    label: `${w.label} – ${w.price.toFixed(2)} лв.`,
-                  })),
+                    label: `${w.label} – ${w.price.toFixed(2)} лв.`
+                  }))
                 ]}
                 size="sm"
               />

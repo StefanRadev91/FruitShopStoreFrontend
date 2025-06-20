@@ -14,6 +14,7 @@ import { Link } from "react-router-dom";
 export function ProductCard({
   id,
   name,
+  slug,
   price,
   description,
   image,
@@ -33,6 +34,7 @@ export function ProductCard({
     const productToAdd = {
       id,
       name,
+      slug,
       image,
       category,
       price,
@@ -71,7 +73,7 @@ export function ProductCard({
       }}
     >
       <Link
-        to={`/product/${encodeURIComponent(name)}`}
+        to={`/product/${encodeURIComponent(slug)}`}
         style={{ textDecoration: "none", flexGrow: 1 }}
       >
         <Card.Section>
@@ -162,7 +164,7 @@ export function ProductCard({
             },
             ...weight_variants.map((w) => ({
               value: w.label,
-              label: `${w.label} – ${w.price.toFixed(2)} лв.`,
+              label: `${w.label} – ${w.price.toFixed(2)} лв.`, 
             })),
           ]}
           size="xs"

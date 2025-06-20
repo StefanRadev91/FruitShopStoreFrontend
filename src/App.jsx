@@ -152,7 +152,7 @@ function App() {
             <Route path="/salty" element={<CategoryPage category="Месни изделия" onAddToCart={handleAddToCart} />} />
             <Route path="/bio" element={<CategoryPage category="БИО" onAddToCart={handleAddToCart} />} />
             <Route path="/about" element={<AboutPage />} />
-            <Route path="/product/:name" element={<ProductPage onAddToCart={handleAddToCart} />} />
+            <Route path="/product/:slug" element={<ProductPage onAddToCart={handleAddToCart} />} />
             <Route path="/search" element={<SearchResultsPage onAddToCart={handleAddToCart} />} />
             <Route path="/delivery" element={<DeliveryPage />} />
             <Route path="/terms" element={<TermsPage />} />
