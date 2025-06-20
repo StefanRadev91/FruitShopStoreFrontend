@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useLocation } from "react-router-dom";
-import { SimpleGrid, Title, Loader, Text, Box } from "@mantine/core";
+import { SimpleGrid, Title, Text, Box } from "@mantine/core";
 import { ProductCard } from "../components/ProductCard";
 
 export function SearchResultsPage({ onAddToCart }) {
@@ -52,9 +52,33 @@ export function SearchResultsPage({ onAddToCart }) {
           display: "flex",
           justifyContent: "center",
           alignItems: "center",
+          flexDirection: "column",
         }}
       >
-        <Loader />
+        <img
+          src="https://cdn-icons-png.flaticon.com/512/590/590685.png"
+          alt="Зареждаме..."
+          style={{
+            width: 80,
+            height: 80,
+            animation: "bounce 1.2s ease-in-out infinite",
+          }}
+        />
+        <div style={{ marginTop: 12, fontSize: 16, color: "#888" }}>
+          Търсим плодове за теб...
+        </div>
+        <style>
+          {`
+            @keyframes bounce {
+              0%, 100% {
+                transform: translateY(0);
+              }
+              50% {
+                transform: translateY(-14px);
+              }
+            }
+          `}
+        </style>
       </Box>
     );
   }

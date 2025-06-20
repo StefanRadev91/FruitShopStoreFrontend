@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Title, SimpleGrid, Loader, Box, Container } from "@mantine/core";
+import { Box } from "@mantine/core";
 import { ProductSlider } from "../components/ProductSlider";
 import { FeatureBanners } from "../components/FeatureBanners";
 import { CategoryIconsSlider } from "../components/CategoryIconsSlider";
@@ -13,7 +13,6 @@ export function HomePage({ onAddToCart }) {
   useEffect(() => {
     async function fetchData() {
       try {
-        // ✅ Проверка дали има вече данни в sessionStorage
         const cachedFeatured = sessionStorage.getItem("featured_products");
         const cachedNew = sessionStorage.getItem("new_products");
 
@@ -21,11 +20,10 @@ export function HomePage({ onAddToCart }) {
           setFeatured(JSON.parse(cachedFeatured));
           setNewProducts(JSON.parse(cachedNew));
           setLoading(false);
-          preloadCategories(); // Продължаваме с категориите
+          preloadCategories();
           return;
         }
 
-        // ✅ Няма кеш — теглим от сървъра
         const resFeatured = await fetch(
           "https://fruitshopstore.onrender.com/api/products?populate=*&filters[featured]=true"
         );
@@ -101,10 +99,34 @@ export function HomePage({ onAddToCart }) {
           display: "flex",
           justifyContent: "center",
           alignItems: "center",
+          flexDirection: "column",
           minHeight: 300,
         }}
       >
-        <Loader />
+        <img
+          src="https://cdn-icons-png.flaticon.com/512/590/590685.png" // по-яка реалистична ягода
+          alt="Зареждаме..."
+          style={{
+            width: 80,
+            height: 80,
+            animation: "bounce 1.2s ease-in-out infinite",
+          }}
+        />
+        <div style={{ marginTop: 12, fontSize: 16, color: "#888" }}>
+          Зареждаме свежест...
+        </div>
+        <style>
+          {`
+            @keyframes bounce {
+              0%, 100% {
+                transform: translateY(0);
+              }
+              50% {
+                transform: translateY(-14px);
+              }
+            }
+          `}
+        </style>
       </Box>
     );
 

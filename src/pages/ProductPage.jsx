@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import {
-  Loader,
   Title,
   Box,
   Text,
@@ -53,9 +52,33 @@ export function ProductPage({ onAddToCart }) {
           display: "flex",
           justifyContent: "center",
           alignItems: "center",
+          flexDirection: "column",
         }}
       >
-        <Loader />
+        <img
+          src="https://cdn-icons-png.flaticon.com/512/590/590685.png"
+          alt="Зареждаме..."
+          style={{
+            width: 80,
+            height: 80,
+            animation: "bounce 1.2s ease-in-out infinite",
+          }}
+        />
+        <div style={{ marginTop: 12, fontSize: 16, color: "#888" }}>
+          Зареждаме продукта...
+        </div>
+        <style>
+          {`
+            @keyframes bounce {
+              0%, 100% {
+                transform: translateY(0);
+              }
+              50% {
+                transform: translateY(-14px);
+              }
+            }
+          `}
+        </style>
       </Box>
     );
   }
