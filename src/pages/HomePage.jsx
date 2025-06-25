@@ -6,6 +6,7 @@ import { CategoryIconsSlider } from "../components/CategoryIconsSlider";
 import { DeliveryBanners } from "../components/DeliveryBanners";
 
 export function HomePage({ onAddToCart }) {
+  const [promo, setPromo] = useState([]);
   const [featured, setFeatured] = useState([]);
   const [newProducts, setNewProducts] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -13,10 +14,12 @@ export function HomePage({ onAddToCart }) {
   useEffect(() => {
     async function fetchData() {
       try {
+        const cachedPromo = sessionStorage.getItem("promo_products");
         const cachedFeatured = sessionStorage.getItem("featured_products");
         const cachedNew = sessionStorage.getItem("new_products");
 
-        if (cachedFeatured && cachedNew) {
+        if (cachedPromo && cachedFeatured && cachedNew) {
+          setPromo(JSON.parse(cachedPromo));
           setFeatured(JSON.parse(cachedFeatured));
           setNewProducts(JSON.parse(cachedNew));
           setLoading(false);
@@ -24,6 +27,16 @@ export function HomePage({ onAddToCart }) {
           return;
         }
 
+        // Fetch promo products
+        const resPromo = await fetch(
+          "https://fruitshopstore.onrender.com/api/products?populate=*&filters[promo]=true"
+        );
+        const dataPromo = await resPromo.json();
+        const promoData = dataPromo.data || [];
+        setPromo(promoData);
+        sessionStorage.setItem("promo_products", JSON.stringify(promoData));
+
+        // Fetch featured products
         const resFeatured = await fetch(
           "https://fruitshopstore.onrender.com/api/products?populate=*&filters[featured]=true"
         );
@@ -32,6 +45,7 @@ export function HomePage({ onAddToCart }) {
         setFeatured(featuredData);
         sessionStorage.setItem("featured_products", JSON.stringify(featuredData));
 
+        // Fetch new products
         const resNew = await fetch(
           "https://fruitshopstore.onrender.com/api/products?populate=*&filters[new_product]=true"
         );
@@ -104,7 +118,7 @@ export function HomePage({ onAddToCart }) {
         }}
       >
         <img
-          src="https://cdn-icons-png.flaticon.com/512/590/590685.png" // по-яка реалистична ягода
+          src="https://cdn-icons-png.flaticon.com/512/590/590685.png"
           alt="Зареждаме..."
           style={{
             width: 80,
@@ -133,18 +147,35 @@ export function HomePage({ onAddToCart }) {
   return (
     <>
       <DeliveryBanners />
+
+      {/* Промо: светло син фон */}
+      <Box sx={{ backgroundColor: "#E3F7FF", py: 8 }}>
+        <ProductSlider
+          title="📣 Промо продукти"
+          products={promo}
+          onAddToCart={handleAddToCart}
+        />
+      </Box>
+
       <CategoryIconsSlider />
+
+      {/* Най-нови продукти */}
       <ProductSlider
         title="🆕 Най-нови продукти"
         products={newProducts}
         onAddToCart={handleAddToCart}
       />
+
       <FeatureBanners />
-      <ProductSlider
-        title="⭐ Най-продавани"
-        products={featured}
-        onAddToCart={handleAddToCart}
-      />
+
+      {/* Най-продавани: тъмно син фон */}
+      <Box sx={{ backgroundColor: "#0D3B66", py: 8 }}>
+        <ProductSlider
+          title="⭐ Най-продавани"
+          products={featured}
+          onAddToCart={handleAddToCart}
+        />
+      </Box>
     </>
   );
 }

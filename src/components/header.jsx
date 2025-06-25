@@ -102,7 +102,8 @@ export function Header({ cart, onCartClick }) {
           <img
             src={logo}
             alt="Дар от Земята"
-            style={{ maxHeight: "80px", display: "block" }}
+            style={{ maxHeight: "80px", display: "block", cursor: "pointer" }}
+            onClick={() => navigate("/")}
           />
         </Box>
 
@@ -115,7 +116,7 @@ export function Header({ cart, onCartClick }) {
             variant="subtle"
             color="dark"
             style={{ padding: 0 }}
-            onClick={() => navigate("/about")}
+            onClick={() => navigate("/idea")}
           >
             За нас
           </Button>
