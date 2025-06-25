@@ -6,22 +6,26 @@ import time from "../assets/icons-02.svg";
 import easy from "../assets/icons-03.svg";
 import variety from "../assets/icons-04.svg";
 
-const icons = [fresh, time, easy, variety];
+// Определяме към къде води всяка икона
+const banners = [
+  { src: fresh, link: "/idea" },
+  { src: time, link: "/delivery" },
+  { src: easy, link: "/delivery" },
+  { src: variety, link: "/idea" },
+];
 
 export function FeatureBanners() {
   return (
-    <Flex
-      justify="center"
-      wrap="wrap"
-      gap="xl"
-      my="xl"
-      px="md"
-    >
-      {icons.map((src, index) => (
-        <Link to="/about" key={index}>
+    <Flex justify="center" wrap="wrap" gap="xl" my="xl" px="md">
+      {banners.map((banner, index) => (
+        <Link
+          to={banner.link}
+          key={index}
+          onClick={() => window.scrollTo({ top: 0 })}
+        >
           <Box
             style={{
-              minWidth: '245px',
+              minWidth: "245px",
               height: 120,
               borderRadius: 8,
               overflow: "hidden",
@@ -32,13 +36,22 @@ export function FeatureBanners() {
               background: "white",
               transition: "transform 0.2s ease",
             }}
-            onMouseEnter={(e) => e.currentTarget.style.transform = "scale(1.03)"}
-            onMouseLeave={(e) => e.currentTarget.style.transform = "scale(1)"}
+            onMouseEnter={(e) =>
+              (e.currentTarget.style.transform = "scale(1.03)")
+            }
+            onMouseLeave={(e) =>
+              (e.currentTarget.style.transform = "scale(1)")
+            }
           >
             <img
-              src={src}
+              src={banner.src}
               alt={`feature-${index}`}
-              style={{ width: "115%", height: "auto", objectFit: "contain", padding: 10 }}
+              style={{
+                width: "115%",
+                height: "auto",
+                objectFit: "contain",
+                padding: 10,
+              }}
             />
           </Box>
         </Link>

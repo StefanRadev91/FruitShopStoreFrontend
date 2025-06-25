@@ -1,17 +1,23 @@
-import { Container, Title, Text } from "@mantine/core";
+import { Box, Title, Text, Stack } from "@mantine/core";
 
-export function AboutPage() {
+export default function AboutPage() {
   return (
-    <Container size="md" py="xl">
-      <Title order={1} mb="md">За нас</Title>
-      <Text mb="sm">
-        Телефон:
-        +359 886282323
-      </Text>
-      <Text>
-        DAROTZEMQTA.bg
-        ФРЕСКО 2022 ООД гр. София ж.к. Христо Смирненски бл.74, ап.62 ЕИК: 208236969
-      </Text>
-    </Container>
+    <Box py="xl" px="md" maw={800} mx="auto">
+      <Title order={2} mb="md">Доставка за ресторант или търговски обект</Title>
+      <Stack gap="md">
+        <Text>
+          Чрез Онлайн платформата Дар от Земята, можете лесно и удобно да направите поръчка за доставка само с няколко клика.
+        </Text>
+        <Text>
+          <strong>Доставка в София:</strong> понеделник – неделя<br />
+          <strong>/СОБСТВЕН ТРАНСПОРТ/</strong>
+        </Text>
+        <Text>
+          <strong>Часовите интервали, в които можеш да получиш поръчката си, са:</strong><br />
+          Заявки направени преди обяд се доставят на същия ден.<br />
+          Заявки направени след 12:00 ч. се изпълняват на следващия ден до обяд.
+        </Text>
+      </Stack>
+    </Box>
   );
 }

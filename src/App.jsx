@@ -8,7 +8,7 @@ import { Header } from "./components/header";
 import { CartDrawer } from "./components/CartDrawer";
 import { HomePage } from "./pages/HomePage";
 import { CategoryPage } from "./pages/CategoryPage";
-import { AboutPage } from "./pages/AboutPage";
+import AboutPage from "./pages/AboutPage";
 import Footer from "./components/footer";
 import { ProductPage } from "./pages/ProductPage";
 import { SearchResultsPage } from "./pages/SearchResultsPage";
