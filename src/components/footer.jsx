@@ -18,7 +18,13 @@ export default function Footer() {
         <Flex
           direction={{ base: "column", md: "row" }}
           justify="space-between"
-          align={{ base: "center", md: "center", sm: "center", lg: "flex-start", xl: "flex-start" }}
+          align={{
+            base: "center",
+            md: "center",
+            sm: "center",
+            lg: "flex-start",
+            xl: "flex-start",
+          }}
           wrap="wrap"
           gap="xl"
         >
@@ -38,19 +44,26 @@ export default function Footer() {
             </Title>
 
             <Text size="sm" ta={{ base: "center", md: "center" }}>
-              <Link to="/delivery" style={linkStyle}>Доставка</Link>
+              <Link to="/delivery" style={linkStyle} onClick={() => window.scrollTo({ top: 0 })}>
+                Доставка
+              </Link>
             </Text>
             <Text size="sm" ta={{ base: "center", md: "center" }}>
-              <Link to="/terms" style={linkStyle}>Общи условия</Link>
+              <Link to="/terms" style={linkStyle} onClick={() => window.scrollTo({ top: 0 })}>
+                Общи условия
+              </Link>
             </Text>
             <Text size="sm" ta={{ base: "center", md: "center" }}>
-              <Link to="/idea" style={linkStyle}>Нашата идея</Link>
+              <Link to="/idea" style={linkStyle} onClick={() => window.scrollTo({ top: 0 })}>
+                Нашата идея
+              </Link>
             </Text>
             <Text size="sm" ta={{ base: "center", md: "center" }}>
-              <Link to="/cookies" style={linkStyle}>Ние използваме бисквитки</Link>
+              <Link to="/cookies" style={linkStyle} onClick={() => window.scrollTo({ top: 0 })}>
+                Ние използваме бисквитки
+              </Link>
             </Text>
           </Stack>
-
 
           {/* Централна колона */}
           <Box
