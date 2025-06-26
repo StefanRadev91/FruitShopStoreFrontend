@@ -130,8 +130,6 @@ function App() {
         style={{
           minHeight: "100vh",
           background: "linear-gradient(120deg, #e6ffe6 0%, #f9fcff 100%)",
-          // display: "flex",
-          // flexDirection: "column",
           maxWidth: "100vw",
           overflowX: "hidden",
         }}
@@ -151,6 +149,7 @@ function App() {
             <Route path="/nuts" element={<CategoryPage category="Ядки" onAddToCart={handleAddToCart} />} />
             <Route path="/salty" element={<CategoryPage category="Месни изделия" onAddToCart={handleAddToCart} />} />
             <Route path="/bio" element={<CategoryPage category="БИО" onAddToCart={handleAddToCart} />} />
++           <Route path="/basic" element={<CategoryPage category="Основни продукти" onAddToCart={handleAddToCart} />} />
             <Route path="/about" element={<AboutPage />} />
             <Route path="/product/:slug" element={<ProductPage onAddToCart={handleAddToCart} />} />
             <Route path="/search" element={<SearchResultsPage onAddToCart={handleAddToCart} />} />

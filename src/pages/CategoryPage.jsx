@@ -1,3 +1,4 @@
+// src/pages/CategoryPage.jsx
 import { useEffect, useState } from "react";
 import { Title, SimpleGrid, Loader } from "@mantine/core";
 import { ProductCard } from "../components/ProductCard";
@@ -7,6 +8,9 @@ export function CategoryPage({ category, onAddToCart }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    // при всяка смяна на категория – скрол към най-горе
+    window.scrollTo({ top: 0, behavior: "smooth" });
+
     const cacheKey = `category_${category}`;
     const cached = sessionStorage.getItem(cacheKey);
 
@@ -64,7 +68,7 @@ export function CategoryPage({ category, onAddToCart }) {
             name={p.name}
             slug={p.slug}
             price={p.price}
-            promo_price={p.promo_price}               // подаваме промо-полето
+            promo_price={p.promo_price}
             description={p.product_description}
             image={p.image}
             category={p.category}

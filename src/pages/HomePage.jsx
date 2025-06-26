@@ -1,3 +1,4 @@
+// src/pages/HomePage.jsx
 import { useEffect, useState } from "react";
 import { Box } from "@mantine/core";
 import { ProductSlider } from "../components/ProductSlider";
@@ -69,14 +70,15 @@ export function HomePage({ onAddToCart }) {
     const categoryNames = [
       "Плодове",
       "Зеленчуци",
-      "Лют Свят",
+      "Лют свят",           // <-- малко "свят", съвпада с App.jsx
       "Напитки",
       "Сладко",
       "Подправки",
       "Рибни",
       "Ядки",
       "Месни изделия",
-      "БИО"
+      "БИО",
+      "Основни продукти",   // <-- добавено
     ];
 
     for (const name of categoryNames) {
@@ -90,11 +92,9 @@ export function HomePage({ onAddToCart }) {
           )}&pagination[limit]=200`
         );
         const data = await res.json();
-
         const sorted = (data.data || []).sort((a, b) =>
           a.name.localeCompare(b.name, "bg", { sensitivity: "base" })
         );
-
         sessionStorage.setItem(cacheKey, JSON.stringify(sorted));
       } catch (err) {
         console.warn("❗ Пропусната категория при кеширане:", name);

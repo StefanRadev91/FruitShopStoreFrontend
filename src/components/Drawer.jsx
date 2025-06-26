@@ -1,3 +1,4 @@
+// src/components/CategoryDrawer.jsx
 import { Drawer, Box, Stack } from "@mantine/core";
 import { useNavigate } from "react-router-dom";
 import {
@@ -7,7 +8,7 @@ import {
   FaLeaf,
   FaCandyCane,
   FaGlassWhiskey,
-  FaAppleAlt
+  FaAppleAlt,
 } from "react-icons/fa";
 import {
   GiSaltShaker,
@@ -15,18 +16,20 @@ import {
   GiMeat,
   GiChiliPepper
 } from "react-icons/gi";
+import { FaBowlRice } from "react-icons/fa6";
 
 const categories = [
-  { label: "Плодове", path: "/fruits", icon: <FaAppleAlt size={22} /> },
-  { label: "Зеленчуци", path: "/vegetables", icon: <FaCarrot size={22} /> },
-  { label: "Лют Свят", path: "/dairy", icon: <GiChiliPepper size={22} /> },
-  { label: "Напитки", path: "/drinks", icon: <FaGlassWhiskey size={22} /> },
-  { label: "Сладко", path: "/sweet", icon: <FaCandyCane size={22} /> },
-  { label: "Подправки", path: "/spices", icon: <GiSaltShaker size={22} /> },
-  { label: "Рибни", path: "/fish", icon: <FaFish size={22} /> },
-  { label: "Ядки", path: "/nuts", icon: <GiPeanut size={22} /> },
-  { label: "Месни изделия", path: "/salty", icon: <GiMeat size={22} /> },
-  { label: "БИО", path: "/bio", icon: <FaLeaf size={22} /> },
+  { label: "Плодове",          path: "/fruits",     icon: <FaAppleAlt size={22} /> },
+  { label: "Зеленчуци",        path: "/vegetables", icon: <FaCarrot size={22} /> },
+  { label: "Лют Свят",         path: "/dairy",      icon: <GiChiliPepper size={22} /> },
+  { label: "Напитки",          path: "/drinks",     icon: <FaGlassWhiskey size={22} /> },
+  { label: "Сладко",           path: "/sweet",      icon: <FaCandyCane size={22} /> },
+  { label: "Подправки",        path: "/spices",     icon: <GiSaltShaker size={22} /> },
+  { label: "Рибни",            path: "/fish",       icon: <FaFish size={22} /> },
+  { label: "Ядки",             path: "/nuts",       icon: <GiPeanut size={22} /> },
+  { label: "Месни изделия",    path: "/salty",      icon: <GiMeat size={22} /> },
+  { label: "БИО",              path: "/bio",        icon: <FaLeaf size={22} /> },
+  { label: "Основни продукти", path: "/basic",      icon: <FaBowlRice  size={22} /> }
 ];
 
 export function CategoryDrawer({ opened, onClose }) {
@@ -42,11 +45,9 @@ export function CategoryDrawer({ opened, onClose }) {
       withinPortal={false}
       lockScroll
       overlayProps={{ opacity: 0.1 }}
-      styles={{
-        title: { fontSize: 22, fontWeight: 600 },
-      }}
+      styles={{ title: { fontSize: 22, fontWeight: 600 } }}
     >
-      <Stack gap={10}>
+      <Stack spacing={10}>
         {categories.map((cat) => (
           <Box
             key={cat.label}
