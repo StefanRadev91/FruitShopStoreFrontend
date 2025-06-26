@@ -32,8 +32,7 @@ export function ProductPage({ onAddToCart }) {
         const data = await res.json();
         if (!data.data || data.data.length === 0)
           throw new Error("Продуктът не е намерен.");
-        const prod = data.data[0];
-        setProduct(prod);
+        setProduct(data.data[0]);
       } catch (error) {
         console.error("Грешка при зареждане на продукт:", error);
       } finally {
@@ -83,28 +82,39 @@ export function ProductPage({ onAddToCart }) {
     );
   }
 
-  if (!product) return <Text align="center">Продуктът не беше намерен.</Text>;
+  if (!product) {
+    return <Text align="center">Продуктът не беше намерен.</Text>;
+  }
 
   const {
     name: productName,
     price,
+    promo_price, // новото поле
     product_description,
     image,
     category,
     weight_variants = [],
   } = product;
 
+  // Създаваме URL за изображението
   const imageUrl = image?.[0]?.url?.startsWith("http")
     ? image[0].url
     : `https://fruitshopstore.onrender.com${image?.[0]?.url || ""}`;
 
+  // Изчисляваме оригинална и промо цена
+  const originalPrice = selectedWeight?.price ?? parseFloat(price);
+  const promoPrice = selectedWeight
+    ? selectedWeight.promo_price ?? null
+    : promo_price
+    ? parseFloat(promo_price)
+    : null;
+
   const handleAddClick = () => {
-    const itemToAdd = {
+    onAddToCart({
       ...product,
       selectedWeight,
-      slug,
-    };
-    onAddToCart(itemToAdd);
+      qty: 1,
+    });
   };
 
   return (
@@ -126,11 +136,22 @@ export function ProductPage({ onAddToCart }) {
           <Stack spacing="sm">
             <Title order={3}>{productName}</Title>
 
-            <Text size="xl" fw={700}>
-              {selectedWeight
-                ? `${selectedWeight.price.toFixed(2)} лв.`
-                : `${price}`}
-            </Text>
+            <div style={{ display: "flex", alignItems: "baseline", gap: promoPrice ? 4 : 8 }}>
+              {promoPrice ? (
+                <>
+                  <Text size="xl" fw={700} c="red">
+                    {promoPrice.toFixed(2)} лв.
+                  </Text>
+                  <Text size="md" style={{ textDecoration: "line-through", color: "#888" }}>
+                    {originalPrice.toFixed(2)} лв.
+                  </Text>
+                </>
+              ) : (
+                <Text size="xl" fw={700}>
+                  {originalPrice.toFixed(2)} лв.
+                </Text>
+              )}
+            </div>
 
             {weight_variants.length > 0 && (
               <Select
@@ -141,21 +162,15 @@ export function ProductPage({ onAddToCart }) {
                   if (val === "__original__") {
                     setSelectedWeight(null);
                   } else {
-                    const variant = weight_variants.find(
-                      (w) => w.label === val
-                    );
-                    setSelectedWeight(variant);
+                    setSelectedWeight(weight_variants.find((w) => w.label === val));
                   }
                 }}
                 data={[
-                  {
-                    value: "__original__",
-                    label: `${price} (оригинална цена)`
-                  },
+                  { value: "__original__", label: `${price} (оригинална цена)` },
                   ...weight_variants.map((w) => ({
                     value: w.label,
-                    label: `${w.label} – ${w.price.toFixed(2)} лв.`
-                  }))
+                    label: `${w.label} – ${w.price.toFixed(2)} лв.`,
+                  })),
                 ]}
                 size="sm"
               />
@@ -165,13 +180,7 @@ export function ProductPage({ onAddToCart }) {
               В наличност
             </Badge>
 
-            <Button
-              color="orange"
-              size="md"
-              radius="md"
-              w={160}
-              onClick={handleAddClick}
-            >
+            <Button color="orange" size="md" radius="md" w={160} onClick={handleAddClick}>
               Купи
             </Button>
           </Stack>
@@ -184,8 +193,7 @@ export function ProductPage({ onAddToCart }) {
         </Title>
         {Array.isArray(product_description) ? (
           product_description.map((desc, index) => {
-            if (typeof desc === "string")
-              return <Text key={index}>{desc}</Text>;
+            if (typeof desc === "string") return <Text key={index}>{desc}</Text>;
             if (desc.children && Array.isArray(desc.children)) {
               return (
                 <Text key={index} mt="sm">

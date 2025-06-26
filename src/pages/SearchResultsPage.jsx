@@ -65,20 +65,14 @@ export function SearchResultsPage({ onAddToCart }) {
           }}
         />
         <div style={{ marginTop: 12, fontSize: 16, color: "#888" }}>
-          Търсим плодове за теб...
+          Търсим продукти за теб...
         </div>
-        <style>
-          {`
-            @keyframes bounce {
-              0%, 100% {
-                transform: translateY(0);
-              }
-              50% {
-                transform: translateY(-14px);
-              }
-            }
-          `}
-        </style>
+        <style>{`
+          @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-14px); }
+          }
+        `}</style>
       </Box>
     );
   }
@@ -106,6 +100,7 @@ export function SearchResultsPage({ onAddToCart }) {
               name={p.name}
               slug={p.slug}
               price={p.price}
+              promo_price={p.promo_price}                    // подаваме промо цена
               description={p.product_description}
               image={p.image}
               category={p.category?.data?.attributes || p.category}

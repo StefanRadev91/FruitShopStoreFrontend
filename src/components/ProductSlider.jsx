@@ -13,27 +13,27 @@ export function ProductSlider({ title, products, onAddToCart }) {
       </Title>
       <Carousel
         withIndicators={false}
-        withControls={true}
+        withControls
         height="auto"
         slideSize="25%"
         slideGap="md"
         align="start"
         loop
         breakpoints={[
-          { maxWidth: 'md', slideSize: '50%' },
-          { maxWidth: 'sm', slideSize: '100%' },
+          { maxWidth: "md", slideSize: "50%" },
+          { maxWidth: "sm", slideSize: "100%" },
         ]}
       >
         {products.map((p) => (
           <Carousel.Slide key={p.id}>
             <Box
               style={{
-                minWidth: 260,
-                maxWidth: 260,
+                minWidth: 290,
+                maxWidth: 290,
                 height: 360,
                 display: "flex",
                 flexDirection: "column",
-                justifyContent: "stretch",
+                justifyContent: "flex-start", // картата започва отвън, за да не притиска бутона
                 margin: "0 auto",
               }}
             >
@@ -42,11 +42,13 @@ export function ProductSlider({ title, products, onAddToCart }) {
                 name={p.name}
                 slug={p.slug}
                 price={p.price}
+                promo_price={p.promo_price}
                 description={p.product_description}
                 image={p.image}
                 category={p.category}
-                weight={p.weight}
+                weight_variants={[]}    // махаме dropdown-а
                 onAddToCart={() => onAddToCart(p)}
+                compact                  // включваме компактния режим за spacing
               />
             </Box>
           </Carousel.Slide>

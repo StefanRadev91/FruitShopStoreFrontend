@@ -19,8 +19,15 @@ export function CartDrawer({
   loadingOrder,
   form,
 }) {
+  // Обща сума: promo_price → variant.price → base price
   const total = cart.reduce((acc, item) => {
-    const unitPrice = item.selectedWeight?.price ?? parseFloat(item.price);
+    const unitPrice =
+      item.promo_price
+        ? parseFloat(item.promo_price)
+        : item.selectedWeight?.price
+        ? item.selectedWeight.price
+        : parseFloat(item.price);
+
     return acc + unitPrice * item.qty;
   }, 0);
 
@@ -44,61 +51,69 @@ export function CartDrawer({
         <Text>Количката е празна.</Text>
       ) : (
         <Box>
-          {cart.map((item) => (
-            <Box key={item.id + (item.selectedWeight?.label || "")} mb="lg">
-              <Text fw={600} size="sm" mb={4}>
-                {item.name}
-              </Text>
+          {cart.map((item) => {
+            const unitPrice =
+              item.promo_price
+                ? parseFloat(item.promo_price)
+                : item.selectedWeight?.price
+                ? item.selectedWeight.price
+                : parseFloat(item.price);
 
-              <Group spacing="xs" mb={6}>
-                <Badge color="green" radius="sm">
-                  {item.category?.Name}
-                </Badge>
+            return (
+              <Box key={item.id + (item.selectedWeight?.label || "")} mb="lg">
+                <Text fw={600} size="sm" mb={4}>
+                  {item.name}
+                </Text>
 
-                {item.selectedWeight?.label && (
-                  <Badge color="gray" variant="outline" radius="sm">
-                    {item.selectedWeight.label}
+                <Group spacing="xs" mb={6}>
+                  <Badge color="green" radius="sm">
+                    {item.category?.Name}
                   </Badge>
-                )}
-              </Group>
+                  {item.selectedWeight?.label && (
+                    <Badge color="gray" variant="outline" radius="sm">
+                      {item.selectedWeight.label}
+                    </Badge>
+                  )}
+                </Group>
 
-              <Group spacing="xs" mb={6}>
-                <Button
-                  size="xs"
-                  color="green"
-                  variant="filled"
-                  onClick={() => handleChangeQty(item.id, -1)}
-                >
-                  –
-                </Button>
-                <Text fw={500} mx="xs">
-                  {item.qty}
-                </Text>
-                <Button
-                  size="xs"
-                  color="green"
-                  variant="filled"
-                  onClick={() => handleChangeQty(item.id, 1)}
-                >
-                  +
-                </Button>
-              </Group>
+                <Group spacing="xs" mb={6}>
+                  <Button
+                    size="xs"
+                    color="green"
+                    variant="filled"
+                    onClick={() => handleChangeQty(item.id, -1)}
+                  >
+                    –
+                  </Button>
+                  <Text fw={500} mx="xs">
+                    {item.qty}
+                  </Text>
+                  <Button
+                    size="xs"
+                    color="green"
+                    variant="filled"
+                    onClick={() => handleChangeQty(item.id, 1)}
+                  >
+                    +
+                  </Button>
+                </Group>
 
-              <Group spacing="sm" position="apart" align="center">
-                <Text fw={700} size="md" style={{ minWidth: 60 }}>
-                  {(item.selectedWeight?.price ?? parseFloat(item.price)).toFixed(2)} лв.
-                </Text>
-                <Button
-                  size="xs"
-                  color="red"
-                  variant="outline"
-                  onClick={() => handleRemoveFromCart(item.id)}
-                >
-                  Премахни
-                </Button>
-              </Group>
-            </Box>
-          ))}
+                <Group spacing="sm" position="apart" align="center">
+                  <Text fw={700} size="md" style={{ minWidth: 60 }}>
+                    {unitPrice.toFixed(2)} лв.
+                  </Text>
+                  <Button
+                    size="xs"
+                    color="red"
+                    variant="outline"
+                    onClick={() => handleRemoveFromCart(item.id)}
+                  >
+                    Премахни
+                  </Button>
+                </Group>
+              </Box>
+            );
+          })}
 
           <Text fw={700} mt="lg">
             Общо: {total.toFixed(2)} лв.

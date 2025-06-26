@@ -55,9 +55,7 @@ export function CategoryPage({ category, onAddToCart }) {
       <SimpleGrid
         cols={{ base: 1, sm: 2, lg: 3, xl: 3 }}
         spacing="lg"
-        breakpoints={[
-          { maxWidth: 'sm', cols: 1 }
-        ]}
+        breakpoints={[{ maxWidth: 'sm', cols: 1 }]}
       >
         {products.map((p) => (
           <ProductCard
@@ -66,6 +64,7 @@ export function CategoryPage({ category, onAddToCart }) {
             name={p.name}
             slug={p.slug}
             price={p.price}
+            promo_price={p.promo_price}               // подаваме промо-полето
             description={p.product_description}
             image={p.image}
             category={p.category}

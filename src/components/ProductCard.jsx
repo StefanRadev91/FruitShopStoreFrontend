@@ -16,6 +16,7 @@ export function ProductCard({
   name,
   slug,
   price,
+  promo_price,            // проп за промо цена
   description,
   image,
   category,
@@ -30,33 +31,35 @@ export function ProductCard({
   const [showScrollHint, setShowScrollHint] = useState(false);
   const descRef = useRef(null);
 
+  // оригинална цена (variant или основна)
+  const originalPrice = selectedWeight?.price ?? parseFloat(price);
+  // най-подходяща промо цена, ако има
+  const promoPrice =
+    (selectedWeight && selectedWeight.promo_price) ||
+    (promo_price ? parseFloat(promo_price) : null);
+
   const handleAddClick = () => {
-    const productToAdd = {
+    onAddToCart({
       id,
       name,
       slug,
       image,
       category,
       price,
+      promo_price,
       selectedWeight,
-    };
-    onAddToCart(productToAdd);
+    });
   };
 
   useEffect(() => {
     const el = descRef.current;
     if (!el) return;
-
-    const shouldScroll = el.scrollHeight > el.clientHeight;
-    setShowScrollHint(shouldScroll);
-
-    const handleScroll = () => {
-      const atBottom = el.scrollTop + el.clientHeight >= el.scrollHeight - 1;
-      setShowScrollHint(!atBottom && shouldScroll);
-    };
-
-    el.addEventListener("scroll", handleScroll);
-    return () => el.removeEventListener("scroll", handleScroll);
+    const canScroll = el.scrollHeight > el.clientHeight;
+    setShowScrollHint(canScroll);
+    const onScroll = () =>
+      setShowScrollHint(el.scrollTop + el.clientHeight < el.scrollHeight - 1);
+    el.addEventListener("scroll", onScroll);
+    return () => el.removeEventListener("scroll", onScroll);
   }, [description]);
 
   return (
@@ -164,7 +167,7 @@ export function ProductCard({
             },
             ...weight_variants.map((w) => ({
               value: w.label,
-              label: `${w.label} – ${w.price.toFixed(2)} лв.`, 
+              label: `${w.label} – ${w.price.toFixed(2)} лв.`,
             })),
           ]}
           size="xs"
@@ -174,13 +177,32 @@ export function ProductCard({
 
       <Group
         justify="space-between"
-        mt="md"
         wrap="nowrap"
         style={{ marginTop: "auto", paddingTop: 8 }}
       >
-        <Text size="lg" fw={700}>
-          {(selectedWeight?.price ?? parseFloat(price)).toFixed(2)} лв.
-        </Text>
+        <div
+          style={{
+            display: "flex",
+            alignItems: "baseline",
+            gap: promoPrice ? 2 : 8,     // по-малко разстояние, ако е промо
+          }}
+        >
+          {promoPrice ? (
+            <>
+              <Text size="lg" fw={700} c="red">
+                {promoPrice.toFixed(2)} лв.
+              </Text>
+              <Text size="sm" style={{ textDecoration: "line-through", color: "#888" }}>
+                {originalPrice.toFixed(2)} лв.
+              </Text>
+            </>
+          ) : (
+            <Text size="lg" fw={700}>
+              {originalPrice.toFixed(2)} лв.
+            </Text>
+          )}
+        </div>
+
         <Button
           variant="light"
           color="green"
