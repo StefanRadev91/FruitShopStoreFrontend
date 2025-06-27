@@ -1,6 +1,6 @@
 // src/pages/CategoryPage.jsx
 import { useEffect, useState } from "react";
-import { Title, SimpleGrid, Loader } from "@mantine/core";
+import { Title, SimpleGrid } from "@mantine/core";
 import { ProductCard } from "../components/ProductCard";
 
 export function CategoryPage({ category, onAddToCart }) {
@@ -49,17 +49,51 @@ export function CategoryPage({ category, onAddToCart }) {
     onAddToCart(product);
   };
 
-  if (loading) return <Loader />;
+  if (loading) {
+    return (
+      <div
+        style={{
+          minHeight: 300,
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          flexDirection: "column",
+        }}
+      >
+        <img
+          src="https://cdn-icons-png.flaticon.com/512/590/590685.png"
+          alt="Зареждаме..."
+          style={{
+            width: 80,
+            height: 80,
+            animation: "bounce 1.2s ease-in-out infinite",
+          }}
+        />
+        <div style={{ marginTop: 12, fontSize: 16, color: "#888" }}>
+          Зареждаме категорията...
+        </div>
+        <style>
+          {`
+            @keyframes bounce {
+              0%, 100% { transform: translateY(0); }
+              50%       { transform: translateY(-14px); }
+            }
+          `}
+        </style>
+      </div>
+    );
+  }
 
   return (
     <>
       <Title order={2} mb="lg" ta="center">
         {category}
       </Title>
+
       <SimpleGrid
         cols={{ base: 1, sm: 2, lg: 3, xl: 3 }}
         spacing="lg"
-        breakpoints={[{ maxWidth: 'sm', cols: 1 }]}
+        breakpoints={[{ maxWidth: "sm", cols: 1 }]}
       >
         {products.map((p) => (
           <ProductCard
