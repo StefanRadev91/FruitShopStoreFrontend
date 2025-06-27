@@ -1,4 +1,3 @@
-// src/pages/HomePage.jsx
 import { useEffect, useState } from "react";
 import { Box } from "@mantine/core";
 import { ProductSlider } from "../components/ProductSlider";
@@ -28,31 +27,26 @@ export function HomePage({ onAddToCart }) {
           return;
         }
 
-        // Fetch promo products
-        const resPromo = await fetch(
-          "https://fruitshopstore.onrender.com/api/products?populate=*&filters[promo]=true"
-        );
+        const [resPromo, resFeatured, resNew] = await Promise.all([
+          fetch("https://fruitshopstore.onrender.com/api/products?populate=*&filters[promo]=true"),
+          fetch("https://fruitshopstore.onrender.com/api/products?populate=*&filters[featured]=true"),
+          fetch("https://fruitshopstore.onrender.com/api/products?populate=*&filters[new_product]=true"),
+        ]);
+
         const dataPromo = await resPromo.json();
-        const promoData = dataPromo.data || [];
-        setPromo(promoData);
-        sessionStorage.setItem("promo_products", JSON.stringify(promoData));
-
-        // Fetch featured products
-        const resFeatured = await fetch(
-          "https://fruitshopstore.onrender.com/api/products?populate=*&filters[featured]=true"
-        );
         const dataFeatured = await resFeatured.json();
-        const featuredData = dataFeatured.data || [];
-        setFeatured(featuredData);
-        sessionStorage.setItem("featured_products", JSON.stringify(featuredData));
-
-        // Fetch new products
-        const resNew = await fetch(
-          "https://fruitshopstore.onrender.com/api/products?populate=*&filters[new_product]=true"
-        );
         const dataNew = await resNew.json();
+
+        const promoData = dataPromo.data || [];
+        const featuredData = dataFeatured.data || [];
         const newData = dataNew.data || [];
+
+        setPromo(promoData);
+        setFeatured(featuredData);
         setNewProducts(newData);
+
+        sessionStorage.setItem("promo_products", JSON.stringify(promoData));
+        sessionStorage.setItem("featured_products", JSON.stringify(featuredData));
         sessionStorage.setItem("new_products", JSON.stringify(newData));
 
         preloadCategories();
@@ -70,7 +64,7 @@ export function HomePage({ onAddToCart }) {
     const categoryNames = [
       "Плодове",
       "Зеленчуци",
-      "Лют свят",           // <-- малко "свят", съвпада с App.jsx
+      "Лют свят",
       "Напитки",
       "Сладко",
       "Подправки",
@@ -78,7 +72,7 @@ export function HomePage({ onAddToCart }) {
       "Ядки",
       "Месни изделия",
       "БИО",
-      "Основни продукти",   // <-- добавено
+      "Основни продукти",
     ];
 
     for (const name of categoryNames) {
@@ -148,31 +142,31 @@ export function HomePage({ onAddToCart }) {
     <>
       <DeliveryBanners />
 
-      {/* Промо: светло син фон */}
+      {/* Промо продукти – подредени по последна модификация */}
       <Box sx={{ backgroundColor: "#E3F7FF", py: 8 }}>
         <ProductSlider
           title="📣 Промо продукти"
-          products={promo}
+          products={[...promo].sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt))}
           onAddToCart={handleAddToCart}
         />
       </Box>
 
       <CategoryIconsSlider />
 
-      {/* Най-нови продукти */}
+      {/* Най-нови продукти – също по updatedAt */}
       <ProductSlider
         title="🆕 Най-нови продукти"
-        products={newProducts}
+        products={[...newProducts].sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt))}
         onAddToCart={handleAddToCart}
       />
 
       <FeatureBanners />
 
-      {/* Най-продавани: тъмно син фон */}
+      {/* Най-продавани – също по updatedAt */}
       <Box sx={{ backgroundColor: "#0D3B66", py: 8 }}>
         <ProductSlider
           title="⭐ Най-продавани"
-          products={featured}
+          products={[...featured].sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt))}
           onAddToCart={handleAddToCart}
         />
       </Box>
