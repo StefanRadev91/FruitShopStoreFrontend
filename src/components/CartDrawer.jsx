@@ -1,3 +1,4 @@
+// src/components/CartDrawer.jsx - актуализирана версия
 import {
   Drawer,
   Text,
@@ -8,6 +9,7 @@ import {
   Textarea,
   Box,
 } from "@mantine/core";
+import { PriceDisplay, convertBGNToEUR } from "./PriceDisplay";
 
 export function CartDrawer({
   cartOpened,
@@ -30,6 +32,8 @@ export function CartDrawer({
 
     return acc + unitPrice * item.qty;
   }, 0);
+
+  const totalEUR = convertBGNToEUR(total);
 
   return (
     <Drawer
@@ -58,6 +62,9 @@ export function CartDrawer({
                 : item.selectedWeight?.price
                 ? item.selectedWeight.price
                 : parseFloat(item.price);
+
+            const originalPrice = item.selectedWeight?.price ?? parseFloat(item.price);
+            const promoPrice = item.promo_price ? parseFloat(item.promo_price) : null;
 
             return (
               <Box key={item.id + (item.selectedWeight?.label || "")} mb="lg">
@@ -99,9 +106,14 @@ export function CartDrawer({
                 </Group>
 
                 <Group spacing="sm" position="apart" align="center">
-                  <Text fw={700} size="md" style={{ minWidth: 60 }}>
-                    {unitPrice.toFixed(2)} лв.
-                  </Text>
+                  {/* Използваме PriceDisplay компонента за показване на цените */}
+                  <PriceDisplay
+                    priceBGN={originalPrice}
+                    promoPriceBGN={promoPrice}
+                    size="sm"
+                    compact={true}
+                  />
+                  
                   <Button
                     size="xs"
                     color="red"
@@ -111,58 +123,81 @@ export function CartDrawer({
                     Премахни
                   </Button>
                 </Group>
+
+                {/* Ред общо за продукта */}
+                <Text size="xs" c="dimmed" mt={4}>
+                  Общо: {(unitPrice * item.qty).toFixed(2)} лв. ({(convertBGNToEUR(unitPrice * item.qty)).toFixed(2)} €)
+                </Text>
               </Box>
             );
           })}
 
-          <Text fw={700} mt="lg">
-            Общо: {total.toFixed(2)} лв.
-          </Text>
+          {/* Обща сума */}
+          <Box
+            style={{
+              borderTop: "1px solid #eee",
+              paddingTop: "1rem",
+              marginTop: "1rem",
+            }}
+          >
+            <Group position="apart" mb="md">
+              <Text fw={700} size="lg">
+                Общо:
+              </Text>
+              <Box>
+                <Text fw={700} size="lg">
+                  {total.toFixed(2)} лв.
+                </Text>
+                <Text size="sm" c="dimmed" ta="right">
+                  ({totalEUR.toFixed(2)} €)
+                </Text>
+              </Box>
+            </Group>
 
-          <form onSubmit={form.onSubmit(handleSubmitOrder)}>
             <TextInput
               label="Име и фамилия"
-              placeholder="Иван Иванов"
-              withAsterisk
+              placeholder="Въведете име и фамилия"
               {...form.getInputProps("name")}
               mb="sm"
             />
             <TextInput
               label="Телефон"
-              placeholder="0888123456"
-              withAsterisk
+              placeholder="Въведете телефон"
               {...form.getInputProps("phone")}
               mb="sm"
             />
             <TextInput
-              label="Адрес"
-              placeholder="гр. София, ул. Пример 1"
-              withAsterisk
+              label="Адрес за доставка"
+              placeholder="Въведете адрес"
               {...form.getInputProps("address")}
               mb="sm"
             />
             <TextInput
-              label="Email"
-              placeholder="client@email.com"
+              label="Имейл (по желание)"
+              placeholder="Въведете имейл"
               {...form.getInputProps("email")}
               mb="sm"
             />
             <Textarea
-              label="Бележка (по избор)"
-              placeholder="Допълнителна информация..."
+              label="Бележки (по желание)"
+              placeholder="Допълнителни указания..."
               {...form.getInputProps("notes")}
-              mb="sm"
+              mb="md"
             />
+
             <Button
-              type="submit"
               fullWidth
-              mt="md"
+              size="md"
               color="green"
               loading={loadingOrder}
+              onClick={() => {
+                if (form.validate().hasErrors) return;
+                handleSubmitOrder(form.values);
+              }}
             >
-              Изпрати поръчка
+              Поръчай срещу {total.toFixed(2)} лв. ({totalEUR.toFixed(2)} €)
             </Button>
-          </form>
+          </Box>
         </Box>
       )}
     </Drawer>

@@ -1,3 +1,4 @@
+// src/components/ProductCard.jsx - актуализирана версия
 import { useEffect, useRef, useState } from "react";
 import {
   Card,
@@ -10,18 +11,20 @@ import {
   Select,
 } from "@mantine/core";
 import { Link } from "react-router-dom";
+import { PriceDisplay } from "./PriceDisplay";
 
 export function ProductCard({
   id,
   name,
   slug,
   price,
-  promo_price,            // проп за промо цена
+  promo_price,
   description,
   image,
   category,
   weight_variants = [],
   onAddToCart,
+  compact = false,
 }) {
   const imageUrl = image?.[0]?.url?.startsWith("http")
     ? image[0].url
@@ -69,7 +72,7 @@ export function ProductCard({
       radius="md"
       withBorder
       style={{
-        height: 440,
+        height: compact ? 380 : 440,  // Увеличено за компактен режим
         display: "flex",
         flexDirection: "column",
         justifyContent: "space-between",
@@ -94,7 +97,7 @@ export function ProductCard({
           style={{
             flexGrow: 1,
             justifyContent: "flex-start",
-            minHeight: 130,
+            minHeight: compact ? 100 : 130,
           }}
         >
           <Text fw={500} lineClamp={2} size="sm" c="blue" title={name}>
@@ -109,7 +112,7 @@ export function ProductCard({
             ref={descRef}
             style={{
               position: "relative",
-              maxHeight: "2.8em",
+              maxHeight: compact ? "2.4em" : "2.8em", // По-малко място в compact режим
               overflowY: "auto",
               paddingRight: 4,
               fontSize: "0.875rem",
@@ -147,7 +150,7 @@ export function ProductCard({
         </Stack>
       </Link>
 
-      {weight_variants.length > 0 && (
+      {!compact && weight_variants.length > 0 && (
         <Select
           label="Избери друг грамаж (по желание)"
           placeholder="Избери..."
@@ -163,7 +166,7 @@ export function ProductCard({
           data={[
             {
               value: "__original__",
-              label: `${price} (оригинална цена)`,
+              label: `${price} лв. (оригинална цена)`,
             },
             ...weight_variants.map((w) => ({
               value: w.label,
@@ -176,39 +179,34 @@ export function ProductCard({
       )}
 
       <Group
-        justify="space-between"
+        justify={compact ? "center" : "space-between"} // Центрираме всичко в compact режим
         wrap="nowrap"
-        style={{ marginTop: "auto", paddingTop: 8 }}
+        style={{ 
+          marginTop: compact ? "8px" : "auto",
+          paddingTop: compact ? 4 : 8,
+          flexDirection: compact ? "column" : "row", // Вертикално подравняване в compact
+          gap: compact ? 4 : 8
+        }}
       >
-        <div
-          style={{
-            display: "flex",
-            alignItems: "baseline",
-            gap: promoPrice ? 2 : 8,     // по-малко разстояние, ако е промо
-          }}
-        >
-          {promoPrice ? (
-            <>
-              <Text size="lg" fw={700} c="red">
-                {promoPrice.toFixed(2)} лв.
-              </Text>
-              <Text size="sm" style={{ textDecoration: "line-through", color: "#888" }}>
-                {originalPrice.toFixed(2)} лв.
-              </Text>
-            </>
-          ) : (
-            <Text size="lg" fw={700}>
-              {originalPrice.toFixed(2)} лв.
-            </Text>
-          )}
-        </div>
+        {/* Заменяме старата логика за цени с новия PriceDisplay компонент */}
+        <PriceDisplay
+          priceBGN={originalPrice}
+          promoPriceBGN={promoPrice}
+          size={compact ? "md" : "lg"}
+          compact={compact}
+        />
 
         <Button
           variant="light"
           color="green"
           radius="md"
           onClick={handleAddClick}
-          style={{ whiteSpace: "nowrap" }}
+          size={compact ? "sm" : "md"}
+          style={{ 
+            whiteSpace: "nowrap",
+            alignSelf: compact ? "stretch" : "auto", // Разтяга бутона в compact
+            marginTop: compact ? 2 : 0
+          }}
         >
           Добави
         </Button>

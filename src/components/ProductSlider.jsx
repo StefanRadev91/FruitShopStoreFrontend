@@ -33,7 +33,7 @@ export function ProductSlider({ title, products, onAddToCart }) {
           <Carousel.Slide key={p.id}>
             <Box
               style={{
-                minWidth: 290,
+                minWidth: 270,
                 maxWidth: 290,
                 height: 360,
                 display: "flex",

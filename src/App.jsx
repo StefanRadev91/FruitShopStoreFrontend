@@ -139,6 +139,8 @@ function App() {
         <Container size="lg" py="xl" style={{ flex: 1 }}>
           <Routes>
             <Route path="/" element={<HomePage onAddToCart={handleAddToCart} />} />
+            
+            {/* Главни категории - стари routes */}
             <Route path="/fruits" element={<CategoryPage category="Плодове" onAddToCart={handleAddToCart} />} />
             <Route path="/vegetables" element={<CategoryPage category="Зеленчуци" onAddToCart={handleAddToCart} />} />
             <Route path="/dairy" element={<CategoryPage category="Лют свят" onAddToCart={handleAddToCart} />} />
@@ -149,7 +151,12 @@ function App() {
             <Route path="/nuts" element={<CategoryPage category="Ядки" onAddToCart={handleAddToCart} />} />
             <Route path="/salty" element={<CategoryPage category="Месни изделия" onAddToCart={handleAddToCart} />} />
             <Route path="/bio" element={<CategoryPage category="БИО" onAddToCart={handleAddToCart} />} />
-+           <Route path="/basic" element={<CategoryPage category="Основни продукти" onAddToCart={handleAddToCart} />} />
+            <Route path="/basic" element={<CategoryPage category="Основни продукти" onAddToCart={handleAddToCart} />} />
+            
+            {/* НОВ route за подкатегории */}
+            <Route path="/category/:subcategory" element={<CategoryPage onAddToCart={handleAddToCart} />} />
+            
+            {/* Останали страници */}
             <Route path="/about" element={<AboutPage />} />
             <Route path="/product/:slug" element={<ProductPage onAddToCart={handleAddToCart} />} />
             <Route path="/search" element={<SearchResultsPage onAddToCart={handleAddToCart} />} />

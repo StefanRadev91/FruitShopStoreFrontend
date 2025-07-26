@@ -1,3 +1,4 @@
+// src/pages/ProductPage.jsx - актуализирана версия
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import {
@@ -12,6 +13,7 @@ import {
   Badge,
   Select,
 } from "@mantine/core";
+import { PriceDisplay } from "../components/PriceDisplay";
 
 export function ProductPage({ onAddToCart }) {
   const { slug } = useParams();
@@ -89,7 +91,7 @@ export function ProductPage({ onAddToCart }) {
   const {
     name: productName,
     price,
-    promo_price, // новото поле
+    promo_price,
     product_description,
     image,
     category,
@@ -136,22 +138,13 @@ export function ProductPage({ onAddToCart }) {
           <Stack spacing="sm">
             <Title order={3}>{productName}</Title>
 
-            <div style={{ display: "flex", alignItems: "baseline", gap: promoPrice ? 4 : 8 }}>
-              {promoPrice ? (
-                <>
-                  <Text size="xl" fw={700} c="red">
-                    {promoPrice.toFixed(2)} лв.
-                  </Text>
-                  <Text size="md" style={{ textDecoration: "line-through", color: "#888" }}>
-                    {originalPrice.toFixed(2)} лв.
-                  </Text>
-                </>
-              ) : (
-                <Text size="xl" fw={700}>
-                  {originalPrice.toFixed(2)} лв.
-                </Text>
-              )}
-            </div>
+            {/* Заменяме старата логика за цени с новия PriceDisplay компонент */}
+            <PriceDisplay
+              priceBGN={originalPrice}
+              promoPriceBGN={promoPrice}
+              size="xl"
+              compact={false}
+            />
 
             {weight_variants.length > 0 && (
               <Select
@@ -166,7 +159,7 @@ export function ProductPage({ onAddToCart }) {
                   }
                 }}
                 data={[
-                  { value: "__original__", label: `${price} (оригинална цена)` },
+                  { value: "__original__", label: `${price} лв. (оригинална цена)` },
                   ...weight_variants.map((w) => ({
                     value: w.label,
                     label: `${w.label} – ${w.price.toFixed(2)} лв.`,
@@ -191,19 +184,12 @@ export function ProductPage({ onAddToCart }) {
         <Title order={4} mb="sm">
           Описание на продукта
         </Title>
-        {Array.isArray(product_description) ? (
-          product_description.map((desc, index) => {
-            if (typeof desc === "string") return <Text key={index}>{desc}</Text>;
-            if (desc.children && Array.isArray(desc.children)) {
-              return (
-                <Text key={index} mt="sm">
-                  {desc.children.map((c) => c.text || "").join("")}
-                </Text>
-              );
-            }
-            return null;
-          })
-        ) : (
+        {Array.isArray(product_description) ?
+          product_description.map((block, index) => (
+            <Text key={index} mb="sm">
+              {block?.children?.[0]?.text || ""}
+            </Text>
+          )) : (
           <Text>{product_description}</Text>
         )}
       </Box>
