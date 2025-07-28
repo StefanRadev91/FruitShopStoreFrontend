@@ -1,7 +1,7 @@
 // src/pages/CategoryPage.jsx - почистена версия
 import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
-import { Title, SimpleGrid } from "@mantine/core";
+import { Title, SimpleGrid, Text } from "@mantine/core";
 import { ProductCard } from "../components/ProductCard";
 
 export function CategoryPage({ category: propCategory, onAddToCart }) {
