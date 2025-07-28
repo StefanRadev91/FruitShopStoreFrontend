@@ -36,10 +36,12 @@ export function ProductCard({
 
   // оригинална цена (variant или основна)
   const originalPrice = selectedWeight?.price ?? parseFloat(price);
-  // най-подходяща промо цена, ако има
-  const promoPrice =
-    (selectedWeight && selectedWeight.promo_price) ||
-    (promo_price ? parseFloat(promo_price) : null);
+  // промо цена само ако има за конкретния variant, иначе основната промо цена
+  const promoPrice = selectedWeight
+    ? selectedWeight.promo_price ?? null
+    : promo_price
+    ? parseFloat(promo_price)
+    : null;
 
   const handleAddClick = () => {
     onAddToCart({

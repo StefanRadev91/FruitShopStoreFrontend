@@ -21,15 +21,16 @@ export function CartDrawer({
   loadingOrder,
   form,
 }) {
-  // Обща сума: promo_price → variant.price → base price
+  // Обща сума: използваме правилната логика за цени
   const total = cart.reduce((acc, item) => {
-    const unitPrice =
-      item.promo_price
-        ? parseFloat(item.promo_price)
-        : item.selectedWeight?.price
-        ? item.selectedWeight.price
-        : parseFloat(item.price);
-
+    const originalPrice = item.selectedWeight?.price ?? parseFloat(item.price);
+    const promoPrice = item.selectedWeight
+      ? item.selectedWeight.promo_price ?? null
+      : item.promo_price
+      ? parseFloat(item.promo_price)
+      : null;
+    
+    const unitPrice = promoPrice ?? originalPrice;
     return acc + unitPrice * item.qty;
   }, 0);
 
@@ -56,15 +57,14 @@ export function CartDrawer({
       ) : (
         <Box>
           {cart.map((item) => {
-            const unitPrice =
-              item.promo_price
-                ? parseFloat(item.promo_price)
-                : item.selectedWeight?.price
-                ? item.selectedWeight.price
-                : parseFloat(item.price);
-
             const originalPrice = item.selectedWeight?.price ?? parseFloat(item.price);
-            const promoPrice = item.promo_price ? parseFloat(item.promo_price) : null;
+            const promoPrice = item.selectedWeight
+              ? item.selectedWeight.promo_price ?? null
+              : item.promo_price
+              ? parseFloat(item.promo_price)
+              : null;
+            
+            const unitPrice = promoPrice ?? originalPrice;
 
             return (
               <Box key={item.id + (item.selectedWeight?.label || "")} mb="lg">
