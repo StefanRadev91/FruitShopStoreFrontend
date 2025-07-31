@@ -26,7 +26,7 @@ const categoryMapping = {
   "Зеленчуци": { icon: IconCarrot, link: "/vegetables" },
   "Лют свят": { icon: IconFlame, link: "/dairy" },
   "Напитки": { icon: IconBottle, link: "/drinks" },
-  "Сладко": { icon: IconCandy, link: "/sweet" },
+  "Сладко и Солено": { icon: IconCandy, link: "/sweet" },
   "Подправки": { icon: IconSalt, link: "/spices" },
   "Рибни": { icon: IconFish, link: "/fish" },
   "Ядки": { icon: IconNut, link: "/nuts" },
