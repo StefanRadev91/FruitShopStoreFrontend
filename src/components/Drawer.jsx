@@ -1,12 +1,11 @@
 // src/components/Drawer.jsx - актуализирана версия
 import { useState, useEffect } from "react";
-import { Drawer, Box, Stack, Badge, Button, Collapse, Group, Text } from "@mantine/core";
+import { Drawer, Box, Stack, Badge, Text, Portal } from "@mantine/core";
 import { useNavigate } from "react-router-dom";
-import { IconChevronDown, IconChevronRight, IconTags } from "@tabler/icons-react";
+import { IconChevronRight } from "@tabler/icons-react";
 import {
   FaCarrot,
   FaFish,
-  FaCheese,
   FaLeaf,
   FaCandyCane,
   FaGlassWhiskey,
@@ -52,7 +51,24 @@ const iconMapping = {
 };
 
 function CategoryItem({ category, navigate, onClose }) {
-  const [expanded, setExpanded] = useState(false);
+  const [hoveredSubcategories, setHoveredSubcategories] = useState(false);
+  const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
+  const [categoryPosition, setCategoryPosition] = useState({ x: 0, y: 0 });
+  const [hoverTimeout, setHoverTimeout] = useState(null);
+
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth <= 768);
+    };
+
+    window.addEventListener('resize', handleResize);
+    return () => {
+      window.removeEventListener('resize', handleResize);
+      if (hoverTimeout) {
+        clearTimeout(hoverTimeout);
+      }
+    };
+  }, [hoverTimeout]);
 
   const handleMainClick = () => {
     navigate(category.path);
@@ -64,82 +80,265 @@ function CategoryItem({ category, navigate, onClose }) {
     onClose();
   };
 
-  const toggleExpanded = (e) => {
-    e.stopPropagation();
-    setExpanded(!expanded);
+
+  const handleCategoryHover = (e) => {
+    if (category.subcategories?.length > 0 && !isMobile) {
+      // Clear any existing timeout
+      if (hoverTimeout) {
+        clearTimeout(hoverTimeout);
+        setHoverTimeout(null);
+      }
+      
+      const rect = e.currentTarget.getBoundingClientRect();
+      setCategoryPosition({
+        x: rect.right + 8,
+        y: rect.top
+      });
+      setHoveredSubcategories(true);
+    }
+  };
+
+  const handleCategoryLeave = () => {
+    if (!isMobile) {
+      // Add delay before hiding
+      const timeout = setTimeout(() => {
+        setHoveredSubcategories(false);
+      }, 200); // 200ms delay
+      setHoverTimeout(timeout);
+    }
+  };
+
+  const handleOverlayEnter = () => {
+    if (!isMobile) {
+      // Clear timeout when entering overlay
+      if (hoverTimeout) {
+        clearTimeout(hoverTimeout);
+        setHoverTimeout(null);
+      }
+      setHoveredSubcategories(true);
+    }
+  };
+
+  const handleOverlayLeave = () => {
+    if (!isMobile) {
+      setHoveredSubcategories(false);
+    }
+  };
+
+  const handleCategoryClick = (e) => {
+    if (isMobile && category.subcategories?.length > 0) {
+      e.preventDefault();
+      setHoveredSubcategories(!hoveredSubcategories);
+    } else {
+      handleMainClick();
+    }
   };
 
   return (
-    <Box>
+    <Box
+      style={{ 
+        position: "relative",
+        zIndex: hoveredSubcategories ? 1001 : 1
+      }}
+      onMouseEnter={(e) => !isMobile && handleCategoryHover(e)}
+      onMouseLeave={() => !isMobile && handleCategoryLeave()}
+    >
       {/* Главна категория */}
-      <Group spacing="xs" wrap="nowrap">
-        {/* Стрелка за разгъване ако има подкатегории */}
-        {category.subcategories && category.subcategories.length > 0 && (
-          <Button
-            variant="subtle"
-            size="xs"
-            p={2}
-            onClick={toggleExpanded}
-            style={{ minWidth: 20, height: 20 }}
-          >
-            {expanded ? <IconChevronDown size={12} /> : <IconChevronRight size={12} />}
-          </Button>
-        )}
-
-        {/* Основната категория (същия стил като преди) */}
-        <Box
-          onClick={handleMainClick}
-          style={{
-            display: "flex",
-            alignItems: "center",
-            gap: 12,
-            padding: "10px 14px",
-            borderRadius: 8,
-            backgroundColor: "#f9f9f9",
-            cursor: "pointer",
-            transition: "all 0.2s ease",
-            fontWeight: 500,
-            flex: 1
+      <Box
+        onClick={handleCategoryClick}
+        style={{
+          display: "flex",
+          alignItems: "center",
+          gap: 12,
+          padding: "16px 20px",
+          borderRadius: 12,
+          backgroundColor: "#ffffff",
+          border: "1px solid #f0f0f0",
+          cursor: "pointer",
+          transition: "all 0.3s ease",
+          fontWeight: 500,
+          boxShadow: "0 2px 8px rgba(0,0,0,0.04)",
+          position: "relative",
+          ":hover": {
+            backgroundColor: "#f8f9fa",
+            transform: "translateY(-1px)",
+            boxShadow: "0 4px 12px rgba(0,0,0,0.08)"
+          }
+        }}
+        onMouseDown={(e) => e.preventDefault()}
+      >
+        {category.icon}
+        <Text 
+          style={{ 
+            flex: 1, 
+            fontSize: "16px",
+            color: "#2c2e33"
           }}
-          onMouseDown={(e) => e.preventDefault()}
         >
-          {category.icon}
-          <Text style={{ flex: 1 }}>{category.label}</Text>
-          {/* Badge с брой подкатегории */}
-          {category.subcategories && category.subcategories.length > 0 && (
-            <Badge size="xs" color="orange" variant="filled">
+          {category.label}
+        </Text>
+        
+        {/* Стрелка вдясно за категории с подкатегории */}
+        {category.subcategories && category.subcategories.length > 0 && (
+          <>
+            <Badge 
+              size="sm" 
+              color="blue" 
+              variant="light"
+              style={{
+                fontSize: "11px",
+                fontWeight: 600
+              }}
+            >
               {category.subcategories.length}
             </Badge>
-          )}
-        </Box>
-      </Group>
+            <IconChevronRight 
+              size={16} 
+              style={{ 
+                color: "#868e96",
+                transition: "transform 0.2s ease",
+                transform: hoveredSubcategories ? "rotate(90deg)" : "rotate(0deg)"
+              }} 
+            />
+          </>
+        )}
+      </Box>
 
-      {/* Подкатегории */}
-      {category.subcategories && category.subcategories.length > 0 && (
-        <Collapse in={expanded}>
-          <Box ml={24} mt="xs" pl="xs" style={{ borderLeft: "2px solid #e3f2fd" }}>
-            <Stack spacing={4}>
+      {/* Overlay меню за подкатегории */}
+      {category.subcategories && category.subcategories.length > 0 && hoveredSubcategories && (
+        isMobile ? (
+          <Box
+            style={{
+              position: "absolute",
+              left: "0",
+              top: "100%",
+              marginTop: "8px",
+              backgroundColor: "#ffffff",
+              border: "1px solid #e9ecef",
+              borderRadius: "12px",
+              boxShadow: "0 8px 32px rgba(0,0,0,0.15)",
+              padding: "8px",
+              minWidth: "100%",
+              width: "calc(100% - 16px)",
+              zIndex: 999999,
+              animation: "slideInDown 0.2s ease-out",
+              transform: "translateX(0)",
+              opacity: 1,
+              pointerEvents: "auto"
+            }}
+          >
+            <Stack spacing={2}>
               {category.subcategories.map((subcategory) => (
-                <Button
+                <Box
                   key={subcategory.id}
-                  variant="subtle"
-                  color="blue"
-                  size="xs"
-                  leftSection={<IconTags size={12} />}
                   onClick={() => handleSubcategoryClick(subcategory.Name)}
                   style={{
-                    justifyContent: "flex-start",
-                    height: 28,
-                    fontSize: 12
+                    padding: "10px 12px",
+                    borderRadius: "8px",
+                    cursor: "pointer",
+                    transition: "all 0.15s ease",
+                    fontSize: "14px",
+                    fontWeight: 400,
+                    color: "#495057",
+                    backgroundColor: "transparent"
+                  }}
+                  onMouseEnter={(e) => {
+                    e.target.style.backgroundColor = "#f8f9fa";
+                    e.target.style.color = "#212529";
+                    e.target.style.transform = "translateX(4px)";
+                  }}
+                  onMouseLeave={(e) => {
+                    e.target.style.backgroundColor = "transparent";
+                    e.target.style.color = "#495057";
+                    e.target.style.transform = "translateX(0)";
                   }}
                 >
                   {subcategory.Name}
-                </Button>
+                </Box>
               ))}
             </Stack>
           </Box>
-        </Collapse>
+        ) : (
+          <Portal>
+            <Box
+              style={{
+                position: "fixed",
+                left: `${categoryPosition.x}px`,
+                top: `${categoryPosition.y}px`,
+                backgroundColor: "#ffffff",
+                border: "1px solid #e9ecef",
+                borderRadius: "12px",
+                boxShadow: "0 8px 32px rgba(0,0,0,0.15)",
+                padding: "8px",
+                minWidth: "200px",
+                maxWidth: "300px",
+                zIndex: 999999,
+                animation: "slideInRight 0.2s ease-out",
+                transform: "translateX(0)",
+                opacity: 1,
+                pointerEvents: "auto"
+              }}
+              onMouseEnter={handleOverlayEnter}
+              onMouseLeave={handleOverlayLeave}
+            >
+              <Stack spacing={2}>
+                {category.subcategories.map((subcategory) => (
+                  <Box
+                    key={subcategory.id}
+                    onClick={() => handleSubcategoryClick(subcategory.Name)}
+                    style={{
+                      padding: "10px 12px",
+                      borderRadius: "8px",
+                      cursor: "pointer",
+                      transition: "all 0.15s ease",
+                      fontSize: "14px",
+                      fontWeight: 400,
+                      color: "#495057",
+                      backgroundColor: "transparent"
+                    }}
+                    onMouseEnter={(e) => {
+                      e.target.style.backgroundColor = "#f8f9fa";
+                      e.target.style.color = "#212529";
+                      e.target.style.transform = "translateX(4px)";
+                    }}
+                    onMouseLeave={(e) => {
+                      e.target.style.backgroundColor = "transparent";
+                      e.target.style.color = "#495057";
+                      e.target.style.transform = "translateX(0)";
+                    }}
+                  >
+                    {subcategory.Name}
+                  </Box>
+                ))}
+              </Stack>
+            </Box>
+          </Portal>
+        )
       )}
+
+      {/* CSS Анимации */}
+      <style jsx>{`
+        @keyframes slideInRight {
+          from {
+            opacity: 0;
+            transform: translateX(-10px);
+          }
+          to {
+            opacity: 1;
+            transform: translateX(0);
+          }
+        }
+        @keyframes slideInDown {
+          from {
+            opacity: 0;
+            transform: translateY(-10px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+      `}</style>
     </Box>
   );
 }
@@ -188,15 +387,42 @@ export function CategoryDrawer({ opened, onClose }) {
       onClose={onClose}
       title="Асортимент"
       size="sm"
-      padding="md"
-      withinPortal={false}
+      padding="lg"
+      withinPortal={true}
       lockScroll
-      overlayProps={{ opacity: 0.1 }}
-      styles={{ title: { fontSize: 22, fontWeight: 600 } }}
+      overlayProps={{ opacity: 0.15 }}
+      styles={{ 
+        title: { 
+          fontSize: 24, 
+          fontWeight: 700,
+          color: "#2c2e33",
+          marginBottom: "20px"
+        },
+        content: {
+          backgroundColor: "#fafafa"
+        },
+        body: {
+          overflowY: "auto",
+          maxHeight: "calc(100vh - 120px)"
+        },
+        inner: {
+          zIndex: 1000
+        }
+      }}
     >
-      <Stack spacing={8}>
+      <Stack spacing={12}>
         {loading && (
-          <Text size="sm" c="dimmed" ta="center">Актуализираме менюто...</Text>
+          <Text 
+            size="sm" 
+            c="dimmed" 
+            ta="center"
+            style={{ 
+              padding: "20px",
+              fontStyle: "italic"
+            }}
+          >
+            Актуализираме менюто...
+          </Text>
         )}
         {categories.map((cat) => (
           <CategoryItem
