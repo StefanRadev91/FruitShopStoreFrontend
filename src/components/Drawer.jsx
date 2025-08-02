@@ -1,5 +1,5 @@
 // src/components/Drawer.jsx - актуализирана версия
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Drawer, Box, Stack, Badge, Text, Portal } from "@mantine/core";
 import { useNavigate } from "react-router-dom";
 import { IconChevronRight } from "@tabler/icons-react";
@@ -50,11 +50,15 @@ const iconMapping = {
   "Основни продукти": { icon: <FaBowlRice size={22} />, path: "/basic" }
 };
 
-function CategoryItem({ category, navigate, onClose }) {
+function CategoryItem({ category, navigate, onClose, isLastCategory, categoryIndex, totalCategories }) {
   const [hoveredSubcategories, setHoveredSubcategories] = useState(false);
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
   const [categoryPosition, setCategoryPosition] = useState({ x: 0, y: 0 });
   const [hoverTimeout, setHoverTimeout] = useState(null);
+  const categoryRef = useRef(null);
+  
+  // Проверяваме дали тази категория трябва да разпъва подкатегориите нагоре
+  const shouldExpandUpward = totalCategories - categoryIndex <= 4; // последните 4 категории
 
   useEffect(() => {
     const handleResize = () => {
@@ -90,9 +94,10 @@ function CategoryItem({ category, navigate, onClose }) {
       }
       
       const rect = e.currentTarget.getBoundingClientRect();
+      // Позиционираме dropdown-а спрямо стрелката
       setCategoryPosition({
         x: rect.right + 8,
-        y: rect.top
+        y: shouldExpandUpward ? rect.bottom - 10 : rect.top - 10 // за upward разпъване позиционираме от дъното
       });
       setHoveredSubcategories(true);
     }
@@ -125,23 +130,56 @@ function CategoryItem({ category, navigate, onClose }) {
     }
   };
 
-  const handleCategoryClick = (e) => {
+  const handleCategoryClick = () => {
+    // На мобилно винаги отиваме в категорията
+    handleMainClick();
+  };
+
+  const handleArrowClick = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    
     if (isMobile && category.subcategories?.length > 0) {
-      e.preventDefault();
-      setHoveredSubcategories(!hoveredSubcategories);
-    } else {
-      handleMainClick();
+      const newState = !hoveredSubcategories;
+      setHoveredSubcategories(newState);
+      
+      
+      // Auto-scroll само за категории които разпъват надолу
+      if (newState && !shouldExpandUpward && isLastCategory) {
+        setTimeout(() => {
+          // Търсим drawer body контейнера
+          const selectors = [
+            '.mantine-Drawer-body',
+            '[data-mantine-component="Drawer"] .mantine-Drawer-body',
+            '.mantine-Stack-root',
+            '[role="dialog"] [data-mantine-scrollarea]'
+          ];
+          
+          let drawerBody = null;
+          for (const selector of selectors) {
+            drawerBody = document.querySelector(selector);
+            if (drawerBody) break;
+          }
+          
+          if (drawerBody) {
+            // Скролваме до края само за последната категория която разпъва надолу
+            drawerBody.scrollTo({
+              top: drawerBody.scrollHeight,
+              behavior: 'smooth'
+            });
+          }
+        }, 250);
+      }
     }
   };
 
   return (
     <Box
+      ref={categoryRef}
       style={{ 
         position: "relative",
         zIndex: hoveredSubcategories ? 1001 : 1
       }}
-      onMouseEnter={(e) => !isMobile && handleCategoryHover(e)}
-      onMouseLeave={() => !isMobile && handleCategoryLeave()}
     >
       {/* Главна категория */}
       <Box
@@ -192,14 +230,33 @@ function CategoryItem({ category, navigate, onClose }) {
             >
               {category.subcategories.length}
             </Badge>
-            <IconChevronRight 
-              size={16} 
-              style={{ 
-                color: "#868e96",
-                transition: "transform 0.2s ease",
-                transform: hoveredSubcategories ? "rotate(90deg)" : "rotate(0deg)"
-              }} 
-            />
+            <Box
+              onClick={handleArrowClick}
+              onMouseEnter={(e) => !isMobile && handleCategoryHover(e)}
+              onMouseLeave={() => !isMobile && handleCategoryLeave()}
+              style={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                cursor: "pointer",
+                padding: "8px",
+                borderRadius: "6px",
+                backgroundColor: hoveredSubcategories ? "rgba(0,0,0,0.1)" : "rgba(0,0,0,0.05)",
+                transition: "all 0.2s ease",
+                minWidth: "36px",
+                minHeight: "36px"
+              }}
+              onMouseDown={(e) => e.preventDefault()}
+            >
+              <IconChevronRight 
+                size={20} 
+                style={{ 
+                  color: "#495057",
+                  transition: "transform 0.2s ease",
+                  transform: hoveredSubcategories ? "rotate(90deg)" : "rotate(0deg)"
+                }} 
+              />
+            </Box>
           </>
         )}
       </Box>
@@ -211,8 +268,10 @@ function CategoryItem({ category, navigate, onClose }) {
             style={{
               position: "absolute",
               left: "0",
-              top: "100%",
-              marginTop: "8px",
+              top: shouldExpandUpward ? "auto" : "100%",
+              bottom: shouldExpandUpward ? "100%" : "auto",
+              marginTop: shouldExpandUpward ? "0" : "8px",
+              marginBottom: shouldExpandUpward ? "8px" : "0",
               backgroundColor: "#ffffff",
               border: "1px solid #e9ecef",
               borderRadius: "12px",
@@ -220,15 +279,18 @@ function CategoryItem({ category, navigate, onClose }) {
               padding: "8px",
               minWidth: "100%",
               width: "calc(100% - 16px)",
+              maxHeight: "40vh", // Ограничаваме височината
+              overflowY: "auto", // Добавяме scroll
+              WebkitOverflowScrolling: "touch", // Smooth scroll на iOS
               zIndex: 999999,
-              animation: "slideInDown 0.2s ease-out",
+              animation: shouldExpandUpward ? "slideInUp 0.2s ease-out" : "slideInDown 0.2s ease-out",
               transform: "translateX(0)",
               opacity: 1,
               pointerEvents: "auto"
             }}
           >
             <Stack spacing={2}>
-              {category.subcategories.map((subcategory) => (
+              {category.subcategories.slice(0, 50).map((subcategory) => ( // Ограничаваме до 50 подкатегории
                 <Box
                   key={subcategory.id}
                   onClick={() => handleSubcategoryClick(subcategory.Name)}
@@ -256,6 +318,19 @@ function CategoryItem({ category, navigate, onClose }) {
                   {subcategory.Name}
                 </Box>
               ))}
+              {category.subcategories.length > 50 && (
+                <Box
+                  style={{
+                    padding: "8px 12px",
+                    textAlign: "center",
+                    fontSize: "12px",
+                    color: "#868e96",
+                    fontStyle: "italic"
+                  }}
+                >
+                  ... и още {category.subcategories.length - 50}
+                </Box>
+              )}
             </Stack>
           </Box>
         ) : (
@@ -264,7 +339,8 @@ function CategoryItem({ category, navigate, onClose }) {
               style={{
                 position: "fixed",
                 left: `${categoryPosition.x}px`,
-                top: `${categoryPosition.y}px`,
+                top: shouldExpandUpward ? "auto" : `${categoryPosition.y}px`,
+                bottom: shouldExpandUpward ? `calc(100vh - ${categoryPosition.y}px)` : "auto",
                 backgroundColor: "#ffffff",
                 border: "1px solid #e9ecef",
                 borderRadius: "12px",
@@ -272,8 +348,10 @@ function CategoryItem({ category, navigate, onClose }) {
                 padding: "8px",
                 minWidth: "200px",
                 maxWidth: "300px",
+                maxHeight: "60vh", // Ограничаваме височината
+                overflowY: "auto", // Добавяме scroll
                 zIndex: 999999,
-                animation: "slideInRight 0.2s ease-out",
+                animation: shouldExpandUpward ? "slideInUp 0.2s ease-out" : "slideInRight 0.2s ease-out",
                 transform: "translateX(0)",
                 opacity: 1,
                 pointerEvents: "auto"
@@ -282,7 +360,7 @@ function CategoryItem({ category, navigate, onClose }) {
               onMouseLeave={handleOverlayLeave}
             >
               <Stack spacing={2}>
-                {category.subcategories.map((subcategory) => (
+                {category.subcategories.slice(0, 50).map((subcategory) => ( // Ограничаваме до 50
                   <Box
                     key={subcategory.id}
                     onClick={() => handleSubcategoryClick(subcategory.Name)}
@@ -310,6 +388,19 @@ function CategoryItem({ category, navigate, onClose }) {
                     {subcategory.Name}
                   </Box>
                 ))}
+                {category.subcategories.length > 50 && (
+                  <Box
+                    style={{
+                      padding: "8px 12px",
+                      textAlign: "center",
+                      fontSize: "12px",
+                      color: "#868e96",
+                      fontStyle: "italic"
+                    }}
+                  >
+                    ... и още {category.subcategories.length - 50}
+                  </Box>
+                )}
               </Stack>
             </Box>
           </Portal>
@@ -338,6 +429,16 @@ function CategoryItem({ category, navigate, onClose }) {
             transform: translateY(0);
           }
         }
+        @keyframes slideInUp {
+          from {
+            opacity: 0;
+            transform: translateY(10px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
       `}</style>
     </Box>
   );
@@ -347,6 +448,16 @@ export function CategoryDrawer({ opened, onClose }) {
   const navigate = useNavigate();
   const [categories, setCategories] = useState(staticCategories);
   const [loading, setLoading] = useState(false);
+  const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
+
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth <= 768);
+    };
+
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   useEffect(() => {
     async function loadCategories() {
@@ -388,8 +499,7 @@ export function CategoryDrawer({ opened, onClose }) {
       title="Асортимент"
       size="sm"
       padding="lg"
-      withinPortal={true}
-      lockScroll
+      withinPortal={false}
       overlayProps={{ opacity: 0.15 }}
       styles={{ 
         title: { 
@@ -403,36 +513,46 @@ export function CategoryDrawer({ opened, onClose }) {
         },
         body: {
           overflowY: "auto",
-          maxHeight: "calc(100vh - 120px)"
+          maxHeight: "calc(100vh - 100px)",
+          WebkitOverflowScrolling: "touch",
+          overscrollBehavior: "contain",
+          touchAction: "pan-y",
+          paddingBottom: isMobile ? "2.5rem" : "1rem", // Различен padding за mobile/desktop
+          minHeight: "auto"
         },
         inner: {
           zIndex: 1000
         }
       }}
     >
-      <Stack spacing={12}>
-        {loading && (
-          <Text 
-            size="sm" 
-            c="dimmed" 
-            ta="center"
-            style={{ 
-              padding: "20px",
-              fontStyle: "italic"
-            }}
-          >
-            Актуализираме менюто...
-          </Text>
-        )}
-        {categories.map((cat) => (
-          <CategoryItem
-            key={cat.id || cat.label}
-            category={cat}
-            navigate={navigate}
-            onClose={onClose}
-          />
-        ))}
-      </Stack>
+      <Box style={{ paddingBottom: isMobile ? "1.5rem" : "0.5rem" }}>
+        <Stack spacing={12}>
+          {loading && (
+            <Text 
+              size="sm" 
+              c="dimmed" 
+              ta="center"
+              style={{ 
+                padding: "20px",
+                fontStyle: "italic"
+              }}
+            >
+              Актуализираме менюто...
+            </Text>
+          )}
+          {categories.map((cat, index) => (
+            <CategoryItem
+              key={cat.id || cat.label}
+              category={cat}
+              navigate={navigate}
+              onClose={onClose}
+              isLastCategory={index === categories.length - 1}
+              categoryIndex={index}
+              totalCategories={categories.length}
+            />
+          ))}
+        </Stack>
+      </Box>
     </Drawer>
   );
 }
