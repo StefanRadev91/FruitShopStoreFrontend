@@ -27,7 +27,7 @@ const categoryMapping = {
   "Лют свят": { icon: IconFlame, link: "/dairy" },
   "Напитки": { icon: IconBottle, link: "/drinks" },
   "Сладко и Солено": { icon: IconCandy, link: "/sweet" },
-  "Подправки": { icon: IconSalt, link: "/spices" },
+  "Кафе и Подправки": { icon: IconSalt, link: "/spices" },
   "Рибни": { icon: IconFish, link: "/fish" },
   "Ядки": { icon: IconNut, link: "/nuts" },
   "Месни изделия": { icon: IconMeat, link: "/salty" },
