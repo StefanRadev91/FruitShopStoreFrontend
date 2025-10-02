@@ -31,9 +31,9 @@ export function HomePage({ onAddToCart }) {
         }
 
         const [resPromo, resFeatured, resNew] = await Promise.all([
-          fetch("https://fruitshopstore.onrender.com/api/products?populate=*&filters[promo]=true"),
-          fetch("https://fruitshopstore.onrender.com/api/products?populate=*&filters[featured]=true"),
-          fetch("https://fruitshopstore.onrender.com/api/products?populate=*&filters[new_product]=true"),
+          fetch("https://fruitshopstore.onrender.com/api/products?populate=*&filters[promo]=true&pagination[limit]=200"),
+          fetch("https://fruitshopstore.onrender.com/api/products?populate=*&filters[featured]=true&pagination[limit]=200"),
+          fetch("https://fruitshopstore.onrender.com/api/products?populate=*&filters[new_product]=true&pagination[limit]=200"),
         ]);
 
         const dataPromo = await resPromo.json();
