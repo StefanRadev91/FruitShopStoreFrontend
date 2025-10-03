@@ -155,14 +155,14 @@ export function CartDrawer({
             </Group>
 
             <TextInput
-              label="Име и фамилия"
-              placeholder="Въведете име и фамилия (задължително поле)"
+              label="Име и фамилия (задължително поле)"
+              placeholder="Въведете име и фамилия"
               {...form.getInputProps("name")}
               mb="sm"
             />
             <TextInput
-              label="Телефон"
-              placeholder="Въведете телефон (задължително поле)"
+              label="Телефон (задължително поле)"
+              placeholder="Въведете телефон"
               {...form.getInputProps("phone")}
               mb="sm"
             />
