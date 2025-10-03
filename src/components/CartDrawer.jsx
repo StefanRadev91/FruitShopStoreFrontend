@@ -156,24 +156,24 @@ export function CartDrawer({
 
             <TextInput
               label="Име и фамилия"
-              placeholder="Въведете име и фамилия"
+              placeholder="Въведете име и фамилия (задължително поле)"
               {...form.getInputProps("name")}
               mb="sm"
             />
             <TextInput
               label="Телефон"
-              placeholder="Въведете телефон"
+              placeholder="Въведете телефон (задължително поле)"
               {...form.getInputProps("phone")}
               mb="sm"
             />
             <TextInput
-              label="Адрес за доставка"
+              label="Адрес за доставка (задължително поле)"
               placeholder="Въведете адрес"
               {...form.getInputProps("address")}
               mb="sm"
             />
             <TextInput
-              label="Имейл (по желание)"
+              label="Имейл (задължително поле)"
               placeholder="Въведете имейл"
               {...form.getInputProps("email")}
               mb="sm"
