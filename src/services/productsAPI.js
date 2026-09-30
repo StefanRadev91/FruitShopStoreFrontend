@@ -57,6 +57,47 @@ async function fetchCatalog() {
   return pages.flat();
 }
 
+// Описанията се теглят отделно и на заден план (след като каталогът вече е показан),
+// за да се отварят страниците на продуктите веднага.
+const DESC_KEY = "descriptions_v1";
+
+async function fetchDescriptionPage(page) {
+  const res = await fetch(
+    `${BASE_URL}/api/products?fields[0]=slug&fields[1]=product_description&pagination[page]=${page}&pagination[pageSize]=${PAGE_SIZE}`
+  );
+  if (!res.ok) throw new Error(`HTTP ${res.status}`);
+  return res.json();
+}
+
+async function prefetchDescriptions() {
+  try {
+    const first = await Promise.all([1, 2, 3].map(fetchDescriptionPage));
+    const pages = first.map((r) => r.data || []);
+    const pageCount = Math.ceil((first[0].meta?.pagination?.total ?? 0) / PAGE_SIZE);
+    if (pageCount > 3) {
+      const rest = await Promise.all(
+        Array.from({ length: pageCount - 3 }, (_, i) => fetchDescriptionPage(i + 4))
+      );
+      rest.forEach((r) => pages.push(r.data || []));
+    }
+    const map = {};
+    pages.flat().forEach((p) => {
+      map[p.slug] = p.product_description;
+    });
+    localStorage.setItem(DESC_KEY, JSON.stringify(map));
+  } catch {
+    /* не е критично – страницата на продукта ще си дръпне описанието сама */
+  }
+}
+
+function readDescription(slug) {
+  try {
+    return JSON.parse(localStorage.getItem(DESC_KEY) || "{}")[slug];
+  } catch {
+    return undefined;
+  }
+}
+
 let catalogPromise = null;
 
 export function getCatalog({ force = false } = {}) {
@@ -68,6 +109,7 @@ export function getCatalog({ force = false } = {}) {
         } catch {
           /* пълен storage – не е проблем */
         }
+        setTimeout(prefetchDescriptions, 500);
         return data;
       })
       .catch((err) => {
@@ -88,7 +130,10 @@ function readSnapshot() {
 }
 
 export function findInSnapshot(slug) {
-  return readSnapshot()?.find((p) => p.slug === slug) || null;
+  const product = readSnapshot()?.find((p) => p.slug === slug);
+  if (!product) return null;
+  const product_description = readDescription(slug);
+  return product_description ? { ...product, product_description } : product;
 }
 
 // Показва веднага последно видяния каталог (ако има) и го опреснява във фонов режим.

@@ -20,7 +20,7 @@ export function ProductPage({ onAddToCart }) {
   const { slug } = useParams();
   // Показваме веднага продукта от каталога (без описание), а пълните данни идват във фонов режим.
   const [product, setProduct] = useState(() => findInSnapshot(slug));
-  const [fullLoaded, setFullLoaded] = useState(false);
+  const [fullLoaded, setFullLoaded] = useState(() => !!product?.product_description);
   const [loading, setLoading] = useState(product === null);
   const [selectedWeight, setSelectedWeight] = useState(null);
 
@@ -29,7 +29,7 @@ export function ProductPage({ onAddToCart }) {
     const seed = findInSnapshot(slug);
     setProduct(seed);
     setLoading(seed === null);
-    setFullLoaded(false);
+    setFullLoaded(!!seed?.product_description);
 
     async function fetchProduct() {
       try {
