@@ -82,7 +82,8 @@ export function ProductCard({
       radius="md"
       withBorder
       style={{
-        height: descriptionText ? (compact ? 380 : 440) : compact ? 300 : 380,
+        height: descriptionText ? (compact ? 380 : 440) : compact ? 300 : "auto",
+        gap: 12,
         display: "flex",
         flexDirection: "column",
         justifyContent: "space-between",
