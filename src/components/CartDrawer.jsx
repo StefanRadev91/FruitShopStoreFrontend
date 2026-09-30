@@ -9,7 +9,8 @@ import {
   Textarea,
   Box,
 } from "@mantine/core";
-import { PriceDisplay, formatEUR } from "./PriceDisplay";
+import { PriceDisplay, toEUR } from "./PriceDisplay";
+import { cartKey } from "../services/cart";
 
 export function CartDrawer({
   cartOpened,
@@ -31,7 +32,7 @@ export function CartDrawer({
       : null;
     
     const unitPrice = promoPrice ?? originalPrice;
-    return acc + unitPrice * item.qty;
+    return acc + toEUR(unitPrice) * item.qty;
   }, 0);
 
   return (
@@ -65,7 +66,7 @@ export function CartDrawer({
             const unitPrice = promoPrice ?? originalPrice;
 
             return (
-              <Box key={item.id + (item.selectedWeight?.label || "")} mb="lg">
+              <Box key={cartKey(item)} mb="lg">
                 <Text fw={600} size="sm" mb={4}>
                   {item.name}
                 </Text>
@@ -86,7 +87,7 @@ export function CartDrawer({
                     size="xs"
                     color="green"
                     variant="filled"
-                    onClick={() => handleChangeQty(item.id, -1)}
+                    onClick={() => handleChangeQty(cartKey(item), -1)}
                   >
                     –
                   </Button>
@@ -97,7 +98,7 @@ export function CartDrawer({
                     size="xs"
                     color="green"
                     variant="filled"
-                    onClick={() => handleChangeQty(item.id, 1)}
+                    onClick={() => handleChangeQty(cartKey(item), 1)}
                   >
                     +
                   </Button>
@@ -116,7 +117,7 @@ export function CartDrawer({
                     size="xs"
                     color="red"
                     variant="outline"
-                    onClick={() => handleRemoveFromCart(item.id)}
+                    onClick={() => handleRemoveFromCart(cartKey(item))}
                   >
                     Премахни
                   </Button>
@@ -124,7 +125,7 @@ export function CartDrawer({
 
                 {/* Ред общо за продукта */}
                 <Text size="xs" c="dimmed" mt={4}>
-                  Общо: {formatEUR(unitPrice * item.qty)}
+                  Общо: {(toEUR(unitPrice) * item.qty).toFixed(2)} €
                 </Text>
               </Box>
             );
@@ -144,7 +145,7 @@ export function CartDrawer({
               </Text>
               <Box>
                 <Text fw={700} size="lg">
-                  {formatEUR(total)}
+                  {total.toFixed(2)} €
                 </Text>
               </Box>
             </Group>
@@ -190,7 +191,7 @@ export function CartDrawer({
                 handleSubmitOrder(form.values);
               }}
             >
-              Поръчай срещу {formatEUR(total)}
+              Поръчай срещу {total.toFixed(2)} €
             </Button>
           </Box>
         </Box>

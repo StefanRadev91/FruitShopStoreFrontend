@@ -3,11 +3,12 @@ import { useMemo } from "react";
 import { useParams } from "react-router-dom";
 import { Title, SimpleGrid, Text } from "@mantine/core";
 import { ProductCard } from "../components/ProductCard";
+import { CatalogError } from "../components/CatalogError";
 import { useCatalog, sortByName } from "../services/productsAPI";
 
 export function CategoryPage({ category: propCategory, onAddToCart }) {
   const { subcategory } = useParams();
-  const { products: catalog, loading } = useCatalog();
+  const { products: catalog, loading, error, reload } = useCatalog();
 
   // Приоритет: 1) prop category (за старите routes), 2) subcategory param (за новите)
   const categoryName = propCategory || (subcategory ? decodeURIComponent(subcategory) : "");
@@ -20,6 +21,8 @@ export function CategoryPage({ category: propCategory, onAddToCart }) {
   const handleAddToCart = (product) => {
     onAddToCart(product);
   };
+
+  if (error && catalog.length === 0) return <CatalogError onRetry={reload} />;
 
   if (loading) {
     return (

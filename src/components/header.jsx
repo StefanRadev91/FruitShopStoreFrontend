@@ -11,6 +11,7 @@ import { useDisclosure, useMediaQuery } from "@mantine/hooks";
 import { useNavigate } from "react-router-dom";
 import logo from "../assets/logo.webp";
 import { clearCatalogCache } from "../services/productsAPI";
+import { clearCategoriesCache } from "../services/categoriesAPI";
 import { CategoryDrawer } from "./Drawer";
 import { SearchInput } from "./SearchInput";
 
@@ -48,6 +49,7 @@ export function Header({ cart, onCartClick }) {
               onClick={() => {
                 sessionStorage.clear();
                 clearCatalogCache();
+                clearCategoriesCache();
                 window.location.reload();
               }}
               variant="transparent"

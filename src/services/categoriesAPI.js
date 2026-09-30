@@ -30,6 +30,14 @@ export async function getMainCategories() {
 const MAIN_CATEGORIES_KEY = "main_categories_v2";
 let mainCategoriesRequest = null;
 
+export function clearCategoriesCache() {
+  try {
+    localStorage.removeItem(MAIN_CATEGORIES_KEY);
+  } catch {
+    /* ignore */
+  }
+}
+
 export function getCachedMainCategories() {
   try {
     const raw = localStorage.getItem(MAIN_CATEGORIES_KEY);

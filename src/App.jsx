@@ -5,6 +5,7 @@ import { notifications } from "@mantine/notifications";
 import { useForm } from "@mantine/form";
 
 import { Header } from "./components/header";
+import { cartKey } from "./services/cart";
 import { CartDrawer } from "./components/CartDrawer";
 import { HomePage } from "./pages/HomePage";
 const CategoryPage = lazy(() => import("./pages/CategoryPage").then((m) => ({ default: m.CategoryPage })));
@@ -42,10 +43,10 @@ function App() {
 
   function handleAddToCart(product) {
     setCart((prevCart) => {
-      const existing = prevCart.find((item) => item.id === product.id);
+      const existing = prevCart.find((item) => cartKey(item) === cartKey(product));
       if (existing) {
         return prevCart.map((item) =>
-          item.id === product.id ? { ...item, qty: item.qty + 1 } : item
+          cartKey(item) === cartKey(product) ? { ...item, qty: item.qty + 1 } : item
         );
       }
       return [...prevCart, { ...product, qty: 1 }];
@@ -53,14 +54,14 @@ function App() {
   }
 
   function handleRemoveFromCart(productId) {
-    setCart((prevCart) => prevCart.filter((item) => item.id !== productId));
+    setCart((prevCart) => prevCart.filter((item) => cartKey(item) !== productId));
   }
 
   function handleChangeQty(productId, diff) {
     setCart((prevCart) =>
       prevCart
         .map((item) =>
-          item.id === productId
+          cartKey(item) === productId
             ? { ...item, qty: Math.max(1, item.qty + diff) }
             : item
         )

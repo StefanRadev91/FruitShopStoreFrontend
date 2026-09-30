@@ -32,6 +32,7 @@ export function ProductPage({ onAddToCart }) {
     setLoading(seed === null);
     setFullLoaded(!!seed?.product_description);
     setHiResLoaded(false);
+    let cancelled = false;
 
     async function fetchProduct() {
       try {
@@ -43,16 +44,21 @@ export function ProductPage({ onAddToCart }) {
         const data = await res.json();
         if (!data.data || data.data.length === 0)
           throw new Error("Продуктът не е намерен.");
+        if (cancelled) return;
         setProduct(data.data[0]);
         setFullLoaded(true);
       } catch (error) {
         console.error("Грешка при зареждане на продукт:", error);
+        if (!cancelled) setFullLoaded(true); // не оставяме "Зареждаме описанието..." завинаги
       } finally {
-        setLoading(false);
+        if (!cancelled) setLoading(false);
       }
     }
 
     fetchProduct();
+    return () => {
+      cancelled = true;
+    };
   }, [slug]);
 
   if (loading) {

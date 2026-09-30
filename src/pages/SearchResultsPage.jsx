@@ -2,12 +2,13 @@ import { useMemo } from "react";
 import { useLocation } from "react-router-dom";
 import { SimpleGrid, Title, Text, Box } from "@mantine/core";
 import { ProductCard } from "../components/ProductCard";
+import { CatalogError } from "../components/CatalogError";
 import { useCatalog, sortByName } from "../services/productsAPI";
 
 export function SearchResultsPage({ onAddToCart }) {
   const location = useLocation();
   const query = new URLSearchParams(location.search).get("q") || "";
-  const { products, loading } = useCatalog();
+  const { products, loading, error, reload } = useCatalog();
 
   const results = useMemo(() => {
     const q = query.trim().toLowerCase();
@@ -18,6 +19,8 @@ export function SearchResultsPage({ onAddToCart }) {
   const handleAddToCart = (product) => {
     onAddToCart(product);
   };
+
+  if (error && products.length === 0) return <CatalogError onRetry={reload} />;
 
   if (loading) {
     return (

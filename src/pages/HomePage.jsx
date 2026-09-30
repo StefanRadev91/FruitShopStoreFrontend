@@ -5,10 +5,11 @@ import { ProductSlider } from "../components/ProductSlider";
 import { FeatureBanners } from "../components/FeatureBanners";
 import { CategoryIconsSlider } from "../components/CategoryIconsSlider";
 import { DeliveryBanners } from "../components/DeliveryBanners";
+import { CatalogError } from "../components/CatalogError";
 import { useCatalog } from "../services/productsAPI";
 
 export function HomePage({ onAddToCart }) {
-  const { products, loading } = useCatalog();
+  const { products, loading, error, reload } = useCatalog();
 
   const promo = useMemo(() => products.filter((p) => p.promo === true), [products]);
   const featured = useMemo(() => products.filter((p) => p.featured === true), [products]);
@@ -17,6 +18,8 @@ export function HomePage({ onAddToCart }) {
   const handleAddToCart = (product) => {
     onAddToCart(product);
   };
+
+  if (error && products.length === 0) return <CatalogError onRetry={reload} />;
 
   if (loading)
     return (

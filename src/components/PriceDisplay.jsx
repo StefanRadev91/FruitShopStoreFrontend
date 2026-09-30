@@ -8,7 +8,13 @@ export function convertBGNToEUR(priceBGN) {
   return priceBGN / BGN_PER_EUR;
 }
 
+// Закръглена до цент цена в евро (число), за да се събират редовете в количката точно.
+export function toEUR(priceBGN) {
+  return Number.isFinite(priceBGN) ? Math.round(convertBGNToEUR(priceBGN) * 100) / 100 : 0;
+}
+
 export function formatEUR(priceBGN) {
+  if (!Number.isFinite(priceBGN)) return "—";
   return `${convertBGNToEUR(priceBGN).toFixed(2)} €`;
 }
 
