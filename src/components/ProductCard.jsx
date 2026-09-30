@@ -35,6 +35,9 @@ export function ProductCard({
     if (large) new window.Image().src = large;
   };
 
+  const descriptionText = Array.isArray(description)
+    ? description[0]?.children?.[0]?.text
+    : description;
   const [selectedWeight, setSelectedWeight] = useState(null);
   const [showScrollHint, setShowScrollHint] = useState(false);
   const descRef = useRef(null);
@@ -79,7 +82,7 @@ export function ProductCard({
       radius="md"
       withBorder
       style={{
-        height: compact ? 380 : 440,  // Увеличено за компактен режим
+        height: descriptionText ? (compact ? 380 : 440) : compact ? 300 : 380,
         display: "flex",
         flexDirection: "column",
         justifyContent: "space-between",
@@ -107,7 +110,7 @@ export function ProductCard({
           style={{
             flexGrow: 1,
             justifyContent: "flex-start",
-            minHeight: compact ? 100 : 130,
+            minHeight: descriptionText ? (compact ? 100 : 130) : 0,
           }}
         >
           <Text fw={500} lineClamp={2} size="sm" c="blue" title={name}>
@@ -118,6 +121,7 @@ export function ProductCard({
             {category?.Name || "Категория"}
           </Badge>
 
+          {descriptionText && (
           <div
             ref={descRef}
             style={{
@@ -133,16 +137,11 @@ export function ProductCard({
                 WebkitMaskImage: "linear-gradient(to bottom, black 60%, transparent 100%)",
               }),
             }}
-            title={
-              Array.isArray(description)
-                ? description[0]?.children?.[0]?.text
-                : description
-            }
+            title={descriptionText}
           >
-            {Array.isArray(description)
-              ? description[0]?.children?.[0]?.text
-              : description}
+            {descriptionText}
           </div>
+          )}
 
           {showScrollHint && (
             <div

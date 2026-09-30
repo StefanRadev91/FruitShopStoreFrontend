@@ -19,43 +19,39 @@ export function ProductSlider({ title, products, onAddToCart }) {
       <Carousel
         withIndicators={false}
         withControls
+        controlsOffset={0}
         height="auto"
-        slideSize="25%"
+        slideSize={{ base: "100%", xs: "50%", sm: "33.3333%", md: "25%" }}
         slideGap="md"
-        align="start"
-        loop
-        breakpoints={[
-          { maxWidth: "md", slideSize: "50%" },
-          { maxWidth: "sm", slideSize: "100%" },
-        ]}
+        emblaOptions={{ align: "start", loop: false, containScroll: "trimSnaps", slidesToScroll: 1 }}
+        styles={{
+          root: { padding: "0 26px" },
+          control: {
+            background: "#fff",
+            border: "none",
+            boxShadow: "0 4px 14px rgba(0,0,0,0.18)",
+            width: 38,
+            height: 38,
+            opacity: 1,
+          },
+          viewport: { padding: "6px 4px 12px" },
+        }}
       >
         {sortedProducts.map((p) => (
           <Carousel.Slide key={p.id}>
-            <Box
-              style={{
-                minWidth: 270,
-                maxWidth: 290,
-                height: 360,
-                display: "flex",
-                flexDirection: "column",
-                justifyContent: "flex-start",
-                margin: "0 auto",
-              }}
-            >
-              <ProductCard
-                id={p.id}
-                name={p.name}
-                slug={p.slug}
-                price={p.price}
-                promo_price={p.promo_price}
-                description={p.product_description}
-                image={p.image}
-                category={p.category}
-                weight_variants={[]} // остава си празно
-                onAddToCart={() => onAddToCart(p)}
-                compact
-              />
-            </Box>
+            <ProductCard
+              id={p.id}
+              name={p.name}
+              slug={p.slug}
+              price={p.price}
+              promo_price={p.promo_price}
+              description={p.product_description}
+              image={p.image}
+              category={p.category}
+              weight_variants={[]} // остава си празно
+              onAddToCart={() => onAddToCart(p)}
+              compact
+            />
           </Carousel.Slide>
         ))}
       </Carousel>
