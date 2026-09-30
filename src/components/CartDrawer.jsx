@@ -9,7 +9,7 @@ import {
   Textarea,
   Box,
 } from "@mantine/core";
-import { PriceDisplay, convertBGNToEUR } from "./PriceDisplay";
+import { PriceDisplay, formatEUR } from "./PriceDisplay";
 
 export function CartDrawer({
   cartOpened,
@@ -33,8 +33,6 @@ export function CartDrawer({
     const unitPrice = promoPrice ?? originalPrice;
     return acc + unitPrice * item.qty;
   }, 0);
-
-  const totalEUR = convertBGNToEUR(total);
 
   return (
     <Drawer
@@ -126,7 +124,7 @@ export function CartDrawer({
 
                 {/* Ред общо за продукта */}
                 <Text size="xs" c="dimmed" mt={4}>
-                  Общо: {(unitPrice * item.qty).toFixed(2)} лв. ({(convertBGNToEUR(unitPrice * item.qty)).toFixed(2)} €)
+                  Общо: {formatEUR(unitPrice * item.qty)}
                 </Text>
               </Box>
             );
@@ -146,10 +144,7 @@ export function CartDrawer({
               </Text>
               <Box>
                 <Text fw={700} size="lg">
-                  {total.toFixed(2)} лв.
-                </Text>
-                <Text size="sm" c="dimmed" ta="right">
-                  ({totalEUR.toFixed(2)} €)
+                  {formatEUR(total)}
                 </Text>
               </Box>
             </Group>
@@ -195,7 +190,7 @@ export function CartDrawer({
                 handleSubmitOrder(form.values);
               }}
             >
-              Поръчай срещу {total.toFixed(2)} лв. ({totalEUR.toFixed(2)} €)
+              Поръчай срещу {formatEUR(total)}
             </Button>
           </Box>
         </Box>

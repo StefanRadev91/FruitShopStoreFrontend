@@ -11,7 +11,7 @@ import {
   Select,
 } from "@mantine/core";
 import { Link } from "react-router-dom";
-import { PriceDisplay } from "./PriceDisplay";
+import { PriceDisplay, formatEUR } from "./PriceDisplay";
 import { imageUrl } from "../services/productsAPI";
 
 export function ProductCard({
@@ -176,11 +176,11 @@ export function ProductCard({
           data={[
             {
               value: "__original__",
-              label: `${price} лв. (оригинална цена)`,
+              label: `${formatEUR(parseFloat(price))} (оригинална цена)`,
             },
             ...weight_variants.map((w) => ({
               value: w.label,
-              label: `${w.label} – ${w.price.toFixed(2)} лв.`,
+              label: `${w.label} – ${formatEUR(w.price)}`,
             })),
           ]}
           size="xs"

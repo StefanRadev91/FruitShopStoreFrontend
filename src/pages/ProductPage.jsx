@@ -14,7 +14,7 @@ import {
   Badge,
   Select,
 } from "@mantine/core";
-import { PriceDisplay } from "../components/PriceDisplay";
+import { PriceDisplay, formatEUR } from "../components/PriceDisplay";
 
 export function ProductPage({ onAddToCart }) {
   const { slug } = useParams();
@@ -184,10 +184,10 @@ export function ProductPage({ onAddToCart }) {
                   }
                 }}
                 data={[
-                  { value: "__original__", label: `${price} лв. (оригинална цена)` },
+                  { value: "__original__", label: `${formatEUR(parseFloat(price))} (оригинална цена)` },
                   ...weight_variants.map((w) => ({
                     value: w.label,
-                    label: `${w.label} – ${w.price.toFixed(2)} лв.`,
+                    label: `${w.label} – ${formatEUR(w.price)}`,
                   })),
                 ]}
                 size="sm"
