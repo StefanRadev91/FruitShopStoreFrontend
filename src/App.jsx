@@ -5,7 +5,7 @@ import { notifications } from "@mantine/notifications";
 import { useForm } from "@mantine/form";
 
 import { Header } from "./components/header";
-import { cartKey } from "./services/cart";
+import { cartKey, orderPrice } from "./services/cart";
 import { CartDrawer } from "./components/CartDrawer";
 import { HomePage } from "./pages/HomePage";
 const CategoryPage = lazy(() => import("./pages/CategoryPage").then((m) => ({ default: m.CategoryPage })));
@@ -90,7 +90,7 @@ function App() {
         id: item.id,
         name: item.name,
         qty: item.qty,
-        price: item.selectedWeight?.price ?? item.price,
+        price: orderPrice(item),
         weight: item.selectedWeight?.label ?? "оригинален грамаж",
       })),
     };
