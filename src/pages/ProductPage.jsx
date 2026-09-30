@@ -1,5 +1,5 @@
 // src/pages/ProductPage.jsx - актуализирана версия
-import { imageUrl } from "../services/productsAPI";
+import { imageUrl, findInSnapshot } from "../services/productsAPI";
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import {
@@ -18,12 +18,18 @@ import { PriceDisplay } from "../components/PriceDisplay";
 
 export function ProductPage({ onAddToCart }) {
   const { slug } = useParams();
-  const [product, setProduct] = useState(null);
-  const [loading, setLoading] = useState(true);
+  // Показваме веднага продукта от каталога (без описание), а пълните данни идват във фонов режим.
+  const [product, setProduct] = useState(() => findInSnapshot(slug));
+  const [fullLoaded, setFullLoaded] = useState(false);
+  const [loading, setLoading] = useState(product === null);
   const [selectedWeight, setSelectedWeight] = useState(null);
 
   useEffect(() => {
     window.scrollTo(0, 0);
+    const seed = findInSnapshot(slug);
+    setProduct(seed);
+    setLoading(seed === null);
+    setFullLoaded(false);
 
     async function fetchProduct() {
       try {
@@ -36,6 +42,7 @@ export function ProductPage({ onAddToCart }) {
         if (!data.data || data.data.length === 0)
           throw new Error("Продуктът не е намерен.");
         setProduct(data.data[0]);
+        setFullLoaded(true);
       } catch (error) {
         console.error("Грешка при зареждане на продукт:", error);
       } finally {
@@ -183,7 +190,9 @@ export function ProductPage({ onAddToCart }) {
         <Title order={4} mb="sm">
           Описание на продукта
         </Title>
-        {Array.isArray(product_description) ?
+        {!fullLoaded && !product_description ? (
+          <Text c="dimmed">Зареждаме описанието...</Text>
+        ) : Array.isArray(product_description) ?
           product_description.map((block, index) => (
             <Text key={index} mb="sm">
               {block?.children?.[0]?.text || ""}

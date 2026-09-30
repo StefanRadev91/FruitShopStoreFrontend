@@ -87,6 +87,10 @@ function readSnapshot() {
   }
 }
 
+export function findInSnapshot(slug) {
+  return readSnapshot()?.find((p) => p.slug === slug) || null;
+}
+
 // Показва веднага последно видяния каталог (ако има) и го опреснява във фонов режим.
 export function useCatalog() {
   const [products, setProducts] = useState(readSnapshot);
