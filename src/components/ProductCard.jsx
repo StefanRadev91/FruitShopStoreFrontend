@@ -29,6 +29,12 @@ export function ProductCard({
 }) {
   const imageSrc = imageUrl(image, 360);
 
+  // Докато курсорът е над картата, свалям едрата снимка, за да е готова при отваряне на продукта.
+  const prefetchLargeImage = () => {
+    const large = imageUrl(image, 800);
+    if (large) new window.Image().src = large;
+  };
+
   const [selectedWeight, setSelectedWeight] = useState(null);
   const [showScrollHint, setShowScrollHint] = useState(false);
   const descRef = useRef(null);
@@ -80,6 +86,8 @@ export function ProductCard({
       }}
     >
       <Link
+        onMouseEnter={prefetchLargeImage}
+        onTouchStart={prefetchLargeImage}
         to={`/product/${encodeURIComponent(slug)}`}
         style={{ textDecoration: "none", flexGrow: 1 }}
       >

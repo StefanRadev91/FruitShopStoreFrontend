@@ -20,6 +20,7 @@ export function ProductPage({ onAddToCart }) {
   const { slug } = useParams();
   // Показваме веднага продукта от каталога (без описание), а пълните данни идват във фонов режим.
   const [product, setProduct] = useState(() => findInSnapshot(slug));
+  const [hiResLoaded, setHiResLoaded] = useState(false);
   const [fullLoaded, setFullLoaded] = useState(() => !!product?.product_description);
   const [loading, setLoading] = useState(product === null);
   const [selectedWeight, setSelectedWeight] = useState(null);
@@ -30,6 +31,7 @@ export function ProductPage({ onAddToCart }) {
     setProduct(seed);
     setLoading(seed === null);
     setFullLoaded(!!seed?.product_description);
+    setHiResLoaded(false);
 
     async function fetchProduct() {
       try {
@@ -108,6 +110,7 @@ export function ProductPage({ onAddToCart }) {
 
   // Създаваме URL за изображението
   const imageSrc = imageUrl(image, 800);
+  const previewSrc = imageUrl(image, 360);
 
   // Изчисляваме оригинална и промо цена
   const originalPrice = selectedWeight?.price ?? parseFloat(price);
@@ -129,15 +132,31 @@ export function ProductPage({ onAddToCart }) {
     <Container size="md" py="xl">
       <Grid gutter="xl">
         <Grid.Col span={{ base: 12, md: 5 }}>
-          <Image
-            src={imageSrc}
-            alt={productName}
-            radius="md"
-            fit="contain"
-            h={320}
-            w="100%"
-            withPlaceholder
-          />
+          {/* Малката версия (вече е в кеша от картата) се вижда веднага, а едрата се наслагва след като се зареди */}
+          <Box style={{ position: "relative", height: 320, width: "100%" }}>
+            <Image
+              src={previewSrc}
+              alt={productName}
+              fit="contain"
+              h={320}
+              w="100%"
+              style={{ position: "absolute", inset: 0 }}
+            />
+            <Image
+              src={imageSrc}
+              alt={productName}
+              fit="contain"
+              h={320}
+              w="100%"
+              onLoad={() => setHiResLoaded(true)}
+              style={{
+                position: "absolute",
+                inset: 0,
+                opacity: hiResLoaded ? 1 : 0,
+                transition: "opacity 0.2s",
+              }}
+            />
+          </Box>
         </Grid.Col>
 
         <Grid.Col span={{ base: 12, md: 7 }}>
