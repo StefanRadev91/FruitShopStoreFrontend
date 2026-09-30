@@ -25,19 +25,61 @@ export async function getMainCategories() {
   }
 }
 
-// ⭐ НОВА ФУНКЦИЯ - Вземи главни категории с кеширане
-export async function getMainCategoriesWithCache() {
-  const cached = sessionStorage.getItem("main_categories");
-  if (cached) {
-    console.log("📋 Използвам кеширани главни категории");
-    return JSON.parse(cached);
+// Главни категории: показваме веднага запазеното от предишно посещение (localStorage)
+// и го опресняваме на заден план. Заявката е лека – само Name и подкатегориите им.
+const MAIN_CATEGORIES_KEY = "main_categories_v2";
+let mainCategoriesRequest = null;
+
+export function getCachedMainCategories() {
+  try {
+    const raw = localStorage.getItem(MAIN_CATEGORIES_KEY);
+    return raw ? JSON.parse(raw) : null;
+  } catch {
+    return null;
   }
-  
-  console.log("🔄 Зареждам главни категории от API...");
-  const categories = await getMainCategories();
-  sessionStorage.setItem("main_categories", JSON.stringify(categories));
-  return categories;
 }
+
+function refreshMainCategories() {
+  if (!mainCategoriesRequest) {
+    mainCategoriesRequest = fetch(
+      `${BASE_URL}/categories?filters[parent][$null]=true&fields[0]=Name&populate[subcategories][fields][0]=Name`
+    )
+      .then((res) => {
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        return res.json();
+      })
+      .then((json) => {
+        const categories = json.data || [];
+        try {
+          localStorage.setItem(MAIN_CATEGORIES_KEY, JSON.stringify(categories));
+        } catch {
+          /* ignore */
+        }
+        return categories;
+      })
+      .finally(() => {
+        mainCategoriesRequest = null;
+      });
+  }
+  return mainCategoriesRequest;
+}
+
+export async function getMainCategoriesWithCache() {
+  const cached = getCachedMainCategories();
+  if (cached) {
+    refreshMainCategories().catch(() => {});
+    return cached;
+  }
+  try {
+    return await refreshMainCategories();
+  } catch (error) {
+    console.error("Грешка при зареждане на главни категории:", error);
+    return [];
+  }
+}
+
+// Започваме да теглим категориите още при старта на приложението.
+getMainCategoriesWithCache();
 
 // Вземи подкатегориите на дадена главна категория
 export async function getSubcategories(parentCategoryName) {
