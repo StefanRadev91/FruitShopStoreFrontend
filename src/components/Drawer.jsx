@@ -130,8 +130,18 @@ function CategoryItem({ category, navigate, onClose, isLastCategory, categoryInd
     }
   };
 
-  const handleCategoryClick = () => {
-    // На мобилно винаги отиваме в категорията
+  const hasSubcategories = category.subcategories?.length > 0;
+
+  const handleCategoryClick = (e) => {
+    // Категория с подкатегории не води към страница (там няма продукти) – отваря списъка с подкатегории.
+    if (hasSubcategories) {
+      if (isMobile) {
+        handleArrowClick(e);
+      } else {
+        handleCategoryHover(e);
+      }
+      return;
+    }
     handleMainClick();
   };
 
@@ -184,6 +194,8 @@ function CategoryItem({ category, navigate, onClose, isLastCategory, categoryInd
       {/* Главна категория */}
       <Box
         onClick={handleCategoryClick}
+        onMouseEnter={(e) => hasSubcategories && !isMobile && handleCategoryHover(e)}
+        onMouseLeave={() => hasSubcategories && !isMobile && handleCategoryLeave()}
         style={{
           display: "flex",
           alignItems: "center",
@@ -232,8 +244,6 @@ function CategoryItem({ category, navigate, onClose, isLastCategory, categoryInd
             </Badge>
             <Box
               onClick={handleArrowClick}
-              onMouseEnter={(e) => !isMobile && handleCategoryHover(e)}
-              onMouseLeave={() => !isMobile && handleCategoryLeave()}
               style={{
                 display: "flex",
                 alignItems: "center",

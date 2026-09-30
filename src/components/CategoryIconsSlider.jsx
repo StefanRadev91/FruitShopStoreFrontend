@@ -72,7 +72,11 @@ function CategoryItem({ category, onSubcategoryClick }) {
   };
   
   const handleIconClick = () => {
-    // Винаги отива към категория при клик на иконата
+    // Категория с подкатегории не води към страница (там няма продукти) – отваря подкатегориите.
+    if (category.subcategoriesCount > 0) {
+      if (isMobile) setExpanded((v) => !v);
+      return;
+    }
     navigate(category.link);
     scrollToTop();
   };
