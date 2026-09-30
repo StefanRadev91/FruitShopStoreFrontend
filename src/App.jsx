@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, lazy, Suspense } from "react";
 import { Container, Box } from "@mantine/core";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { notifications } from "@mantine/notifications";
@@ -7,15 +7,15 @@ import { useForm } from "@mantine/form";
 import { Header } from "./components/header";
 import { CartDrawer } from "./components/CartDrawer";
 import { HomePage } from "./pages/HomePage";
-import { CategoryPage } from "./pages/CategoryPage";
-import AboutPage from "./pages/AboutPage";
+const CategoryPage = lazy(() => import("./pages/CategoryPage").then((m) => ({ default: m.CategoryPage })));
+const AboutPage = lazy(() => import("./pages/AboutPage"));
 import Footer from "./components/footer";
-import { ProductPage } from "./pages/ProductPage";
-import { SearchResultsPage } from "./pages/SearchResultsPage";
-import DeliveryPage from "./pages/DeliveryPage";
-import TermsPage from "./pages/TermsPage";
-import IdeaPage from "./pages/IdeaPage";
-import CookiesPage from "./pages/CookiesPage";
+const ProductPage = lazy(() => import("./pages/ProductPage").then((m) => ({ default: m.ProductPage })));
+const SearchResultsPage = lazy(() => import("./pages/SearchResultsPage").then((m) => ({ default: m.SearchResultsPage })));
+const DeliveryPage = lazy(() => import("./pages/DeliveryPage"));
+const TermsPage = lazy(() => import("./pages/TermsPage"));
+const IdeaPage = lazy(() => import("./pages/IdeaPage"));
+const CookiesPage = lazy(() => import("./pages/CookiesPage"));
 
 function App() {
   const [cart, setCart] = useState([]);
@@ -137,6 +137,7 @@ function App() {
         <Header cart={cart} onCartClick={() => setCartOpened(true)} />
 
         <Container size="lg" py="xl" style={{ flex: 1 }}>
+          <Suspense fallback={null}>
           <Routes>
             <Route path="/" element={<HomePage onAddToCart={handleAddToCart} />} />
             
@@ -165,6 +166,7 @@ function App() {
             <Route path="/idea" element={<IdeaPage />} />
             <Route path="/cookies" element={<CookiesPage />} />
           </Routes>
+          </Suspense>
         </Container>
 
         <CartDrawer

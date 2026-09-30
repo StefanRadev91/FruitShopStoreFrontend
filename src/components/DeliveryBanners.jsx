@@ -1,7 +1,7 @@
 import { Box, Flex, Text } from "@mantine/core";
 import { useNavigate } from "react-router-dom";
-import officeImg from "../assets/office.png";
-import restaurantImg from "../assets/restorant.jpg";
+import officeImg from "../assets/office.webp";
+import restaurantImg from "../assets/restorant.webp";
 
 export function DeliveryBanners() {
   const navigate = useNavigate();

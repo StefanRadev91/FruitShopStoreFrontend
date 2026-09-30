@@ -9,7 +9,8 @@ import {
 import { IconShoppingCart, IconHome, IconX } from "@tabler/icons-react";
 import { useDisclosure, useMediaQuery } from "@mantine/hooks";
 import { useNavigate } from "react-router-dom";
-import logo from "../assets/logo.png";
+import logo from "../assets/logo.webp";
+import { clearCatalogCache } from "../services/productsAPI";
 import { CategoryDrawer } from "./Drawer";
 import { SearchInput } from "./SearchInput";
 
@@ -46,6 +47,7 @@ export function Header({ cart, onCartClick }) {
             <ActionIcon
               onClick={() => {
                 sessionStorage.clear();
+                clearCatalogCache();
                 window.location.reload();
               }}
               variant="transparent"

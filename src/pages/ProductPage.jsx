@@ -1,4 +1,5 @@
 // src/pages/ProductPage.jsx - актуализирана версия
+import { imageUrl } from "../services/productsAPI";
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import {
@@ -99,9 +100,7 @@ export function ProductPage({ onAddToCart }) {
   } = product;
 
   // Създаваме URL за изображението
-  const imageUrl = image?.[0]?.url?.startsWith("http")
-    ? image[0].url
-    : `https://fruitshopstore.onrender.com${image?.[0]?.url || ""}`;
+  const imageSrc = imageUrl(image, 800);
 
   // Изчисляваме оригинална и промо цена
   const originalPrice = selectedWeight?.price ?? parseFloat(price);
@@ -124,7 +123,7 @@ export function ProductPage({ onAddToCart }) {
       <Grid gutter="xl">
         <Grid.Col span={{ base: 12, md: 5 }}>
           <Image
-            src={imageUrl}
+            src={imageSrc}
             alt={productName}
             radius="md"
             fit="contain"

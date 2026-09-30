@@ -1,44 +1,19 @@
-import { useEffect, useState } from "react";
+import { useMemo } from "react";
 import { useLocation } from "react-router-dom";
 import { SimpleGrid, Title, Text, Box } from "@mantine/core";
 import { ProductCard } from "../components/ProductCard";
+import { useCatalog, sortByName } from "../services/productsAPI";
 
 export function SearchResultsPage({ onAddToCart }) {
   const location = useLocation();
   const query = new URLSearchParams(location.search).get("q") || "";
-  const [results, setResults] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const { products, loading } = useCatalog();
 
-  useEffect(() => {
-    if (!query.trim()) {
-      setResults([]);
-      setLoading(false);
-      return;
-    }
-
-    async function fetchResults() {
-      try {
-        const res = await fetch(
-          `https://fruitshopstore.onrender.com/api/products?populate=*&filters[name][$containsi]=${encodeURIComponent(
-            query
-          )}`
-        );
-        const data = await res.json();
-
-        const sorted = (data.data || []).sort((a, b) =>
-          a.name.localeCompare(b.name, "bg", { sensitivity: "base" })
-        );
-
-        setResults(sorted);
-      } catch (error) {
-        console.error("⚠️ Error fetching search results:", error);
-      } finally {
-        setLoading(false);
-      }
-    }
-
-    fetchResults();
-  }, [query]);
+  const results = useMemo(() => {
+    const q = query.trim().toLowerCase();
+    if (!q) return [];
+    return sortByName(products.filter((p) => p.name.toLowerCase().includes(q)));
+  }, [products, query]);
 
   const handleAddToCart = (product) => {
     onAddToCart(product);

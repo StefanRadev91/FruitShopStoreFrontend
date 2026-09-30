@@ -1,70 +1,21 @@
 // src/pages/CategoryPage.jsx - почистена версия
-import { useState, useEffect } from "react";
+import { useMemo } from "react";
 import { useParams } from "react-router-dom";
 import { Title, SimpleGrid, Text } from "@mantine/core";
 import { ProductCard } from "../components/ProductCard";
+import { useCatalog, sortByName } from "../services/productsAPI";
 
 export function CategoryPage({ category: propCategory, onAddToCart }) {
   const { subcategory } = useParams();
-  const [products, setProducts] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [categoryName, setCategoryName] = useState("");
+  const { products: catalog, loading } = useCatalog();
 
-  useEffect(() => {
-    async function fetchProducts() {
-      try {
-        setLoading(true);
-        
-        let targetCategoryName;
-        
-        // Приоритет: 1) prop category (за старите routes), 2) subcategory param (за новите)
-        if (propCategory) {
-          targetCategoryName = propCategory;
-        } else if (subcategory) {
-          targetCategoryName = decodeURIComponent(subcategory);
-        }
-        
-        setCategoryName(targetCategoryName);
-        
-        // Проверяваме за кеширани данни ПЪРВО
-        const cacheKey = `category_products_${targetCategoryName}`;
-        const cachedProducts = sessionStorage.getItem(cacheKey);
-        
-        if (cachedProducts) {
-          const parsedProducts = JSON.parse(cachedProducts);
-          setProducts(parsedProducts);
-          setLoading(false);
-          return;
-        }
-        
-        // Ако няма кеш, зареждаме от API
-        const res = await fetch(
-          `https://fruitshopstore.onrender.com/api/products?filters[category][Name][$eq]=${encodeURIComponent(targetCategoryName)}&populate=*&pagination[limit]=200`
-        );
-        const data = await res.json();
-        
-        if (data.data) {
-          const sortedProducts = data.data.sort((a, b) =>
-            a.name.localeCompare(b.name, "bg", { sensitivity: "base" })
-          );
-          
-          // Кешираме резултата
-          sessionStorage.setItem(cacheKey, JSON.stringify(sortedProducts));
-          setProducts(sortedProducts);
-        } else {
-          setProducts([]);
-        }
-        
-      } catch (error) {
-        console.error("❌ Грешка при зареждане на продукти:", error);
-        setProducts([]);
-      } finally {
-        setLoading(false);
-      }
-    }
+  // Приоритет: 1) prop category (за старите routes), 2) subcategory param (за новите)
+  const categoryName = propCategory || (subcategory ? decodeURIComponent(subcategory) : "");
 
-    fetchProducts();
-  }, [propCategory, subcategory]);
+  const products = useMemo(
+    () => sortByName(catalog.filter((p) => p.category?.Name === categoryName)),
+    [catalog, categoryName]
+  );
 
   const handleAddToCart = (product) => {
     onAddToCart(product);

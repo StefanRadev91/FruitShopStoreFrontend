@@ -12,6 +12,7 @@ import {
 } from "@mantine/core";
 import { Link } from "react-router-dom";
 import { PriceDisplay } from "./PriceDisplay";
+import { imageUrl } from "../services/productsAPI";
 
 export function ProductCard({
   id,
@@ -26,9 +27,7 @@ export function ProductCard({
   onAddToCart,
   compact = false,
 }) {
-  const imageUrl = image?.[0]?.url?.startsWith("http")
-    ? image[0].url
-    : `https://fruitshopstore.onrender.com${image?.[0]?.url || ""}`;
+  const imageSrc = imageUrl(image, 360);
 
   const [selectedWeight, setSelectedWeight] = useState(null);
   const [showScrollHint, setShowScrollHint] = useState(false);
@@ -86,7 +85,8 @@ export function ProductCard({
       >
         <Card.Section>
           <Image
-            src={imageUrl}
+            src={imageSrc}
+            loading="lazy"
             height={120}
             fit="contain"
             alt={name}
