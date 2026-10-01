@@ -68,7 +68,7 @@ export function HomePage({ onAddToCart }) {
       {/* Промо продукти – подредени по последна модификация */}
       <Box sx={{ backgroundColor: "#E3F7FF", py: 8 }}>
         <ProductSlider
-          title="📣 Промо продукти"
+          variant="promo"
           products={[...promo].sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt))}
           onAddToCart={handleAddToCart}
         />
@@ -76,7 +76,7 @@ export function HomePage({ onAddToCart }) {
 
       {/* Най-нови продукти – също по updatedAt */}
       <ProductSlider
-        title="🆕 Най-нови продукти"
+        variant="new"
         products={[...newProducts].sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt))}
         onAddToCart={handleAddToCart}
       />
@@ -86,7 +86,7 @@ export function HomePage({ onAddToCart }) {
       {/* Най-продавани – също по updatedAt */}
       <Box sx={{ backgroundColor: "#0D3B66", py: 8 }}>
         <ProductSlider
-          title="⭐ Най-продавани"
+          variant="best"
           products={[...featured].sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt))}
           onAddToCart={handleAddToCart}
         />

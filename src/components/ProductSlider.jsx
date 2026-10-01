@@ -1,9 +1,92 @@
-import { Box, Title } from "@mantine/core";
+import { Box, Text, Title } from "@mantine/core";
+import { IconRosetteDiscount, IconSparkles, IconTrophy } from "@tabler/icons-react";
 import { ProductCard } from "./ProductCard";
 import { Carousel } from "@mantine/carousel";
 import "@mantine/carousel/styles.css";
 
-export function ProductSlider({ title, products, onAddToCart }) {
+const HEADINGS = {
+  promo: {
+    icon: IconRosetteDiscount,
+    eyebrow: "Специални оферти",
+    title: "Промо продукти",
+    subtitle: "Свежи продукти на специална цена – докато трае промоцията",
+    from: "#ff8a4c",
+    to: "#f03e3e",
+  },
+  new: {
+    icon: IconSparkles,
+    eyebrow: "Прясно добавени",
+    title: "Най-нови продукти",
+    subtitle: "Последните попълнения в нашия асортимент",
+    from: "#51cf66",
+    to: "#12b886",
+  },
+  best: {
+    icon: IconTrophy,
+    eyebrow: "Избор на клиентите",
+    title: "Най-продавани",
+    subtitle: "Любимите продукти на нашите клиенти",
+    from: "#ffc53d",
+    to: "#f08c00",
+  },
+};
+
+function SectionHeading({ variant }) {
+  const { icon: Icon, eyebrow, title, subtitle, from, to } = HEADINGS[variant];
+  return (
+    <Box ta="center" mb={28} px="sm">
+      <Box
+        style={{
+          width: 56,
+          height: 56,
+          margin: "0 auto 14px",
+          borderRadius: 18,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          background: `linear-gradient(135deg, ${from}, ${to})`,
+          boxShadow: `0 10px 24px -8px ${to}`,
+          transform: "rotate(-4deg)",
+        }}
+      >
+        <Icon size={30} color="#fff" stroke={1.8} />
+      </Box>
+      <Text
+        size="xs"
+        fw={700}
+        tt="uppercase"
+        style={{ letterSpacing: "0.16em", color: to, marginBottom: 4 }}
+      >
+        {eyebrow}
+      </Text>
+      <Title
+        order={2}
+        style={{
+          fontSize: "clamp(1.6rem, 4vw, 2.1rem)",
+          fontWeight: 800,
+          letterSpacing: "-0.02em",
+          color: "#16301f",
+        }}
+      >
+        {title}
+      </Title>
+      <Box
+        style={{
+          width: 56,
+          height: 4,
+          borderRadius: 4,
+          margin: "12px auto 10px",
+          background: `linear-gradient(90deg, ${from}, ${to})`,
+        }}
+      />
+      <Text size="sm" c="dimmed" maw={460} mx="auto">
+        {subtitle}
+      </Text>
+    </Box>
+  );
+}
+
+export function ProductSlider({ variant, products, onAddToCart }) {
   if (!products.length) return null;
 
   // Подреждане по последна модификация (най-новите отпред)
@@ -13,9 +96,7 @@ export function ProductSlider({ title, products, onAddToCart }) {
 
   return (
     <Box mt={40} mb={40}>
-      <Title order={2} mb={24} ta="center">
-        {title}
-      </Title>
+      <SectionHeading variant={variant} />
       <Carousel
         withIndicators={false}
         withControls
