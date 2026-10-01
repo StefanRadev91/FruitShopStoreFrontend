@@ -1,11 +1,12 @@
 // src/pages/HomePage.jsx
 import { useMemo } from "react";
-import { Box } from "@mantine/core";
+import { Box, VisuallyHidden } from "@mantine/core";
 import { ProductSlider } from "../components/ProductSlider";
 import { FeatureBanners } from "../components/FeatureBanners";
 import { CategoryIconsSlider } from "../components/CategoryIconsSlider";
 import { DeliveryBanners } from "../components/DeliveryBanners";
 import { CatalogError } from "../components/CatalogError";
+import { Seo } from "../seo/Seo";
 import { useCatalog } from "../services/productsAPI";
 
 export function HomePage({ onAddToCart }) {
@@ -61,22 +62,26 @@ export function HomePage({ onAddToCart }) {
 
   return (
     <>
+      <Seo path="/" />
+      <VisuallyHidden component="h1">
+        Дар от Земята – натурални продукти от български ферми
+      </VisuallyHidden>
       <DeliveryBanners />
+
+      <CategoryIconsSlider />
 
       {/* Промо продукти – подредени по последна модификация */}
       <Box sx={{ backgroundColor: "#E3F7FF", py: 8 }}>
         <ProductSlider
-          title="📣 Промо продукти"
+          variant="promo"
           products={[...promo].sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt))}
           onAddToCart={handleAddToCart}
         />
       </Box>
 
-      <CategoryIconsSlider />
-
       {/* Най-нови продукти – също по updatedAt */}
       <ProductSlider
-        title="🆕 Най-нови продукти"
+        variant="new"
         products={[...newProducts].sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt))}
         onAddToCart={handleAddToCart}
       />
@@ -86,7 +91,7 @@ export function HomePage({ onAddToCart }) {
       {/* Най-продавани – също по updatedAt */}
       <Box sx={{ backgroundColor: "#0D3B66", py: 8 }}>
         <ProductSlider
-          title="⭐ Най-продавани"
+          variant="best"
           products={[...featured].sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt))}
           onAddToCart={handleAddToCart}
         />

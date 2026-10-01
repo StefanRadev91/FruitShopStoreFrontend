@@ -3,6 +3,8 @@ import { useMemo } from "react";
 import { useParams } from "react-router-dom";
 import { Title, SimpleGrid, Text } from "@mantine/core";
 import { ProductCard } from "../components/ProductCard";
+import { Seo, breadcrumbJsonLd } from "../seo/Seo";
+import { categoryPath } from "../seo/categoryRoutes";
 import { CatalogError } from "../components/CatalogError";
 import { useCatalog, sortByName } from "../services/productsAPI";
 
@@ -59,10 +61,26 @@ export function CategoryPage({ category: propCategory, onAddToCart }) {
     );
   }
 
+  const path = categoryPath(categoryName);
+
   return (
     <>
+      <Seo
+        title={`${categoryName} – купи онлайн`}
+        description={
+          products.length > 0
+            ? `${categoryName} – ${products.length} продукта от български ферми. Свежи и натурални, с доставка до дома или офиса. Поръчай онлайн от Дар от Земята.`
+            : `${categoryName} – Дар от Земята`
+        }
+        path={path}
+        noindex={products.length === 0}
+        jsonLd={breadcrumbJsonLd([
+          { name: "Начало", path: "/" },
+          { name: categoryName, path },
+        ])}
+      />
       {/* Заглавие */}
-      <Title order={2} mb="lg" ta="center">
+      <Title order={1} size="h2" mb="lg" ta="center">
         {categoryName}
       </Title>
 

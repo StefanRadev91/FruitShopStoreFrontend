@@ -1,10 +1,12 @@
 // src/pages/IdeaPage.jsx
+import { Seo } from "../seo/Seo";
 import { Box, Title, Text } from "@mantine/core";
 
 export default function IdeaPage() {
   return (
     <Box py="xl" px="md" maw={900} mx="auto">
-      <Title order={2} mb="md">Нашата идея</Title>
+      <Seo title="Нашата идея" path="/idea" description="Научи повече за Дар от Земята – натурални продукти директно от български ферми, без посредници и без компромиси." />
+      <Title order={1} size="h2" mb="md">Нашата идея</Title>
       <Text component="div" size="md" style={{ whiteSpace: "pre-line", lineHeight: 1.6 }}>
         {`ДАР ОТ ЗЕМЯТА е онлайн ПЛАТФОРМА , предлагаща истински продукти от различни ферми.
 

@@ -2,6 +2,7 @@ import { useMemo } from "react";
 import { useLocation } from "react-router-dom";
 import { SimpleGrid, Title, Text, Box } from "@mantine/core";
 import { ProductCard } from "../components/ProductCard";
+import { Seo } from "../seo/Seo";
 import { CatalogError } from "../components/CatalogError";
 import { useCatalog, sortByName } from "../services/productsAPI";
 
@@ -57,7 +58,8 @@ export function SearchResultsPage({ onAddToCart }) {
 
   return (
     <>
-      <Title order={2} mb="lg" ta="center">
+      <Seo title="Търсене" path="/search" noindex />
+      <Title order={1} size="h2" mb="lg" ta="center">
         Резултати за: “{query}”
       </Title>
 

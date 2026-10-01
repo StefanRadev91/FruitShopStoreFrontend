@@ -1,4 +1,5 @@
 import { Box, Title, Text } from "@mantine/core";
+import { Seo } from "../seo/Seo";
 
 const termsText = `
 🟢 Общи условия за ползване и пазаруване в Онлайн магазин www.darotzemqta.bg
@@ -59,7 +60,8 @@ const termsText = `
 export default function TermsPage() {
   return (
     <Box py="xl" px="md" maw={900} mx="auto">
-      <Title order={2} mb="md">Общи условия</Title>
+      <Seo title="Общи условия" path="/terms" description="Общи условия за ползване на онлайн магазина Дар от Земята и за изпълнение на поръчки." />
+      <Title order={1} size="h2" mb="md">Общи условия</Title>
       <Text
         component="div"
         size="sm"

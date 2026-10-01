@@ -1,7 +1,7 @@
 // src/pages/ProductPage.jsx - актуализирана версия
-import { imageUrl, findInSnapshot } from "../services/productsAPI";
-import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { imageUrl, findInSnapshot, useCatalog } from "../services/productsAPI";
+import { useEffect, useMemo, useState } from "react";
+import { Link, useParams } from "react-router-dom";
 import {
   Title,
   Box,
@@ -14,7 +14,19 @@ import {
   Badge,
   Select,
 } from "@mantine/core";
-import { PriceDisplay, formatEUR } from "../components/PriceDisplay";
+import { PriceDisplay, formatEUR, toEUR } from "../components/PriceDisplay";
+import { Seo, SITE_URL, breadcrumbJsonLd } from "../seo/Seo";
+import { categoryPath } from "../seo/categoryRoutes";
+import { ProductSlider } from "../components/ProductSlider";
+
+const RELATED_COUNT = 10;
+
+// Стабилно "разбъркване" по slug, за да не се сменят предложенията при всяко рендиране.
+function hashCode(str) {
+  let h = 0;
+  for (let i = 0; i < str.length; i++) h = (h * 31 + str.charCodeAt(i)) | 0;
+  return h;
+}
 
 export function ProductPage({ onAddToCart }) {
   const { slug } = useParams();
@@ -24,6 +36,19 @@ export function ProductPage({ onAddToCart }) {
   const [fullLoaded, setFullLoaded] = useState(() => !!product?.product_description);
   const [loading, setLoading] = useState(product === null);
   const [selectedWeight, setSelectedWeight] = useState(null);
+  const { products: catalog } = useCatalog();
+
+  // Други продукти от същата категория; ако са малко – допълваме с най-продаваните.
+  const categoryName = product?.category?.Name;
+  const related = useMemo(() => {
+    if (!product) return [];
+    const others = catalog.filter((p) => p.slug && p.slug !== product.slug);
+    const sameCategory = categoryName ? others.filter((p) => p.category?.Name === categoryName) : [];
+    const pool = sameCategory.length >= 3 ? sameCategory : [...sameCategory, ...others.filter((p) => p.featured && !sameCategory.includes(p))];
+    return pool
+      .sort((a, b) => hashCode(product.slug + a.slug) - hashCode(product.slug + b.slug))
+      .slice(0, RELATED_COUNT);
+  }, [catalog, product, categoryName]);
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -101,7 +126,20 @@ export function ProductPage({ onAddToCart }) {
   }
 
   if (!product) {
-    return <Text align="center">Продуктът не беше намерен.</Text>;
+    return (
+      <Container size="md" py="xl" ta="center">
+        <Seo title="Продуктът не е намерен" path={`/product/${slug}`} noindex />
+        <Title order={1} size="h3" mb="sm">
+          Продуктът не беше намерен
+        </Title>
+        <Text c="dimmed" mb="md">
+          Възможно е да е свален от продажба или линкът да е грешен.
+        </Text>
+        <Button component={Link} to="/" color="green" variant="light">
+          Към началната страница
+        </Button>
+      </Container>
+    );
   }
 
   const {
@@ -134,8 +172,57 @@ export function ProductPage({ onAddToCart }) {
     });
   };
 
+  // --- SEO: описание, структурирани данни (цената е в евро, както се вижда на сайта) ---
+  const productPath = `/product/${slug}`;
+  const descriptionText = Array.isArray(product_description)
+    ? product_description.map((b) => b?.children?.[0]?.text || "").filter(Boolean).join(" ")
+    : product_description || "";
+  const basePrice = (() => {
+    const promo = promo_price ? parseFloat(promo_price) : NaN;
+    return Number.isFinite(promo) ? promo : parseFloat(price);
+  })();
+  const seoImage = image?.[0]?.url
+    ? image[0].url.startsWith("http")
+      ? image[0].url
+      : imageUrl(image, 800)
+    : undefined;
+  const seoDescription =
+    descriptionText ||
+    `${productName} – купи онлайн от Дар от Земята. Натурални продукти от български ферми с доставка до дома или офиса.`;
+  const productJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "Product",
+    name: productName,
+    description: seoDescription.slice(0, 500),
+    ...(seoImage && { image: [seoImage] }),
+    ...(category?.Name && { category: category.Name }),
+    url: `${SITE_URL}${productPath}`,
+    ...(Number.isFinite(basePrice) && {
+      offers: {
+        "@type": "Offer",
+        url: `${SITE_URL}${productPath}`,
+        priceCurrency: "EUR",
+        price: toEUR(basePrice).toFixed(2),
+        availability: "https://schema.org/InStock",
+        seller: { "@type": "Organization", name: "Дар от Земята" },
+      },
+    }),
+  };
+  const breadcrumbs = breadcrumbJsonLd([
+    { name: "Начало", path: "/" },
+    ...(category?.Name ? [{ name: category.Name, path: categoryPath(category.Name) }] : []),
+    { name: productName, path: productPath },
+  ]);
+
   return (
     <Container size="md" py="xl">
+      <Seo
+        title={productName}
+        description={seoDescription}
+        path={productPath}
+        image={seoImage}
+        jsonLd={[productJsonLd, breadcrumbs]}
+      />
       <Grid gutter="xl">
         <Grid.Col span={{ base: 12, md: 5 }}>
           {/* Малката версия (вече е в кеша от картата) се вижда веднага, а едрата се наслагва след като се зареди */}
@@ -167,7 +254,7 @@ export function ProductPage({ onAddToCart }) {
 
         <Grid.Col span={{ base: 12, md: 7 }}>
           <Stack spacing="sm">
-            <Title order={3}>{productName}</Title>
+            <Title order={1} size="h3">{productName}</Title>
 
             {/* Заменяме старата логика за цени с новия PriceDisplay компонент */}
             <PriceDisplay
@@ -211,6 +298,7 @@ export function ProductPage({ onAddToCart }) {
         </Grid.Col>
       </Grid>
 
+      {(!fullLoaded || product_description) && (
       <Box mt="xl">
         <Title order={4} mb="sm">
           Описание на продукта
@@ -226,6 +314,18 @@ export function ProductPage({ onAddToCart }) {
           <Text>{product_description}</Text>
         )}
       </Box>
+      )}
+
+      {related.length > 0 && (
+        <Box mt={48}>
+          <ProductSlider
+            variant="similar"
+            products={related}
+            onAddToCart={onAddToCart}
+            slideSize={{ base: "100%", xs: "50%", sm: "33.3333%" }}
+          />
+        </Box>
+      )}
     </Container>
   );
 }

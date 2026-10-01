@@ -17,6 +17,7 @@ const DeliveryPage = lazy(() => import("./pages/DeliveryPage"));
 const TermsPage = lazy(() => import("./pages/TermsPage"));
 const IdeaPage = lazy(() => import("./pages/IdeaPage"));
 const CookiesPage = lazy(() => import("./pages/CookiesPage"));
+const NotFoundPage = lazy(() => import("./pages/NotFoundPage"));
 
 function App() {
   const [cart, setCart] = useState([]);
@@ -166,6 +167,7 @@ function App() {
             <Route path="/terms" element={<TermsPage />} />
             <Route path="/idea" element={<IdeaPage />} />
             <Route path="/cookies" element={<CookiesPage />} />
+            <Route path="*" element={<NotFoundPage />} />
           </Routes>
           </Suspense>
         </Container>
