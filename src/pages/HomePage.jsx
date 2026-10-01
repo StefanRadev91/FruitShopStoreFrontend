@@ -63,6 +63,8 @@ export function HomePage({ onAddToCart }) {
     <>
       <DeliveryBanners />
 
+      <CategoryIconsSlider />
+
       {/* Промо продукти – подредени по последна модификация */}
       <Box sx={{ backgroundColor: "#E3F7FF", py: 8 }}>
         <ProductSlider
@@ -71,8 +73,6 @@ export function HomePage({ onAddToCart }) {
           onAddToCart={handleAddToCart}
         />
       </Box>
-
-      <CategoryIconsSlider />
 
       {/* Най-нови продукти – също по updatedAt */}
       <ProductSlider
