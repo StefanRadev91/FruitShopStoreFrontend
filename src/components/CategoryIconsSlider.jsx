@@ -18,6 +18,7 @@ import {
   IconChevronDown,
 } from "@tabler/icons-react";
 import { getMainCategoriesWithCache, getCachedMainCategories } from "../services/categoriesAPI";
+import { useCanHover } from "../hooks/useCanHover";
 
 // Мапинг от API име към икона и линк
 const categoryMapping = {
@@ -38,7 +39,7 @@ const MENU_WIDTH = 220;
 
 function CategoryItem({ category, onSubcategoryClick }) {
   const [open, setOpen] = useState(false);
-  const [isTouch, setIsTouch] = useState(window.innerWidth <= 768);
+  const isTouch = !useCanHover();
   const [menuPosition, setMenuPosition] = useState({ x: 0, y: 0 });
   const hideTimeout = useRef(null);
   const rootRef = useRef(null);
@@ -46,14 +47,7 @@ function CategoryItem({ category, onSubcategoryClick }) {
   const navigate = useNavigate();
   const hasSubcategories = category.subcategoriesCount > 0;
 
-  useEffect(() => {
-    const handleResize = () => setIsTouch(window.innerWidth <= 768);
-    window.addEventListener("resize", handleResize);
-    return () => {
-      window.removeEventListener("resize", handleResize);
-      clearTimeout(hideTimeout.current);
-    };
-  }, []);
+  useEffect(() => () => clearTimeout(hideTimeout.current), []);
 
   const scrollToTop = () => window.scrollTo({ top: 0, behavior: "smooth" });
 
@@ -72,7 +66,8 @@ function CategoryItem({ category, onSubcategoryClick }) {
   const handleClick = () => {
     // Категория с подкатегории не води към страница (там няма продукти) – отваря подкатегориите.
     if (hasSubcategories) {
-      if (open) setOpen(false);
+      // С мишка менюто вече се отваря при задържане – кликът го оставя отворено.
+      if (open && isTouch) setOpen(false);
       else openMenu();
       return;
     }

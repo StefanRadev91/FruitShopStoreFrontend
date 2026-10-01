@@ -19,6 +19,7 @@ import {
 } from "react-icons/gi";
 import { FaBowlRice } from "react-icons/fa6";
 import { getMainCategoriesWithCache } from "../services/categoriesAPI";
+import { useCanHover } from "../hooks/useCanHover";
 
 // Статични категории (fallback)
 const staticCategories = [
@@ -53,6 +54,7 @@ const iconMapping = {
 function CategoryItem({ category, navigate, onClose, isLastCategory, categoryIndex, totalCategories }) {
   const [hoveredSubcategories, setHoveredSubcategories] = useState(false);
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
+  const canHover = useCanHover();
   const [categoryPosition, setCategoryPosition] = useState({ x: 0, y: 0 });
   const [hoverTimeout, setHoverTimeout] = useState(null);
   const categoryRef = useRef(null);
@@ -135,7 +137,10 @@ function CategoryItem({ category, navigate, onClose, isLastCategory, categoryInd
   const handleCategoryClick = (e) => {
     // Категория с подкатегории не води към страница (там няма продукти) – отваря списъка с подкатегории.
     if (hasSubcategories) {
-      if (isMobile) {
+      if (isMobile && canHover) {
+        clearTimeout(hoverTimeout);
+        setHoveredSubcategories(true); // с мишка вече се е отворило при задържане
+      } else if (isMobile) {
         handleArrowClick(e);
       } else {
         handleCategoryHover(e);
@@ -186,6 +191,18 @@ function CategoryItem({ category, navigate, onClose, isLastCategory, categoryInd
   return (
     <Box
       ref={categoryRef}
+      onMouseEnter={() => {
+        if (hasSubcategories && isMobile && canHover) {
+          clearTimeout(hoverTimeout);
+          setHoverTimeout(null);
+          setHoveredSubcategories(true);
+        }
+      }}
+      onMouseLeave={() => {
+        if (hasSubcategories && isMobile && canHover) {
+          setHoverTimeout(setTimeout(() => setHoveredSubcategories(false), 200));
+        }
+      }}
       style={{ 
         position: "relative",
         zIndex: hoveredSubcategories ? 1001 : 1
