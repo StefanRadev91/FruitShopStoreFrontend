@@ -103,12 +103,11 @@ function CategoryItem({ category, onSubcategoryClick }) {
       onMouseEnter={handleEnter}
       onMouseLeave={handleLeave}
       style={{
-        flex: "1 0 92px",
         textAlign: "center",
-        scrollSnapAlign: "start",
         cursor: "pointer",
       }}
       onClick={handleClick}
+      className="category-item"
     >
       <Stack align="center" gap={6}>
         <Box style={{ position: "relative" }}>
@@ -282,21 +281,15 @@ export function CategoryIconsSlider() {
           to { opacity: 1; transform: translateY(0); }
         }
         .category-menu-item:hover { background-color: #f1f8f1; color: #212529; }
-        .category-row { scrollbar-width: none; }
-        .category-row::-webkit-scrollbar { display: none; }
+        /* Равни редове: 4+4+3 на телефон, 6+5 на таблет, един ред на голям екран */
+        .category-row { display: flex; flex-wrap: wrap; justify-content: center; gap: 16px 0; padding: 10px 4px 8px; }
+        .category-item { flex: 0 0 25%; min-width: 0; }
+        @media (max-width: 339px) { .category-item { flex-basis: 33.3333%; } }
+        @media (min-width: 600px) { .category-item { flex-basis: 16.6666%; } }
+        @media (min-width: 1180px) { .category-item { flex: 1 0 92px; } }
       `}</style>
-      {/* Един ред под банерите; на тесни екрани се плъзга хоризонтално */}
-      <Box
-        className="category-row"
-        style={{
-          display: "flex",
-          gap: 8,
-          overflowX: "auto",
-          padding: "10px 8px 8px",
-          scrollSnapType: "x proximity",
-          WebkitOverflowScrolling: "touch",
-        }}
-      >
+      {/* Един ред под банерите на голям екран, на по-малки – равномерно пренареден */}
+      <Box className="category-row">
         {categories.map((category) => (
           <CategoryItem
             key={category.id}
