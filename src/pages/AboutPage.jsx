@@ -1,9 +1,11 @@
 import { Box, Title, Text, Stack } from "@mantine/core";
+import { Seo } from "../seo/Seo";
 
 export default function AboutPage() {
   return (
     <Box py="xl" px="md" maw={800} mx="auto">
-      <Title order={2} mb="md">Доставка за ресторант или търговски обект</Title>
+      <Seo title="Доставка за ресторанти и търговски обекти" path="/about" description="Поръчай продукти от Дар от Земята за ресторант или търговски обект – доставка в София от понеделник до неделя със собствен транспорт." />
+      <Title order={1} size="h2" mb="md">Доставка за ресторант или търговски обект</Title>
       <Stack gap="md">
         <Text>
           Чрез Онлайн платформата Дар от Земята, можете лесно и удобно да направите поръчка за доставка само с няколко клика.

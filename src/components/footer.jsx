@@ -1,8 +1,26 @@
 import { FaFacebookF, FaInstagram } from "react-icons/fa";
 import { Box, Flex, Text, Group, Stack, Title } from "@mantine/core";
 import { Link } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { getMainCategoriesWithCache, getCachedMainCategories } from "../services/categoriesAPI";
+import { categoryPath } from "../seo/categoryRoutes";
+
+// Плосък списък: категориите без подкатегории + всички подкатегории.
+function flattenCategories(categories) {
+  return (categories || []).flatMap((c) =>
+    c.subcategories?.length ? c.subcategories.map((s) => s.Name) : [c.Name]
+  );
+}
 
 export default function Footer() {
+  const [categoryNames, setCategoryNames] = useState(() => flattenCategories(getCachedMainCategories()));
+
+  useEffect(() => {
+    getMainCategoriesWithCache()
+      .then((cats) => setCategoryNames(flattenCategories(cats)))
+      .catch(() => {});
+  }, []);
+
   return (
     <Box
       component="footer"
@@ -128,6 +146,30 @@ export default function Footer() {
             </Text>
           </Stack>
         </Flex>
+
+        {categoryNames.length > 0 && (
+          <Box
+            component="nav"
+            aria-label="Категории"
+            style={{ borderTop: "1px solid rgba(255,255,255,0.15)", marginTop: 16, paddingTop: 16, textAlign: "center" }}
+          >
+            <Text size="xs" fw={700} tt="uppercase" style={{ letterSpacing: "0.12em", opacity: 0.8 }} mb={8}>
+              Категории
+            </Text>
+            <Box style={{ display: "flex", flexWrap: "wrap", justifyContent: "center", gap: "6px 18px" }}>
+              {categoryNames.map((name) => (
+                <Link
+                  key={name}
+                  to={categoryPath(name)}
+                  style={{ ...linkStyle, fontSize: "0.8125rem", opacity: 0.9, marginBottom: 0 }}
+                  onClick={() => window.scrollTo({ top: 0 })}
+                >
+                  {name}
+                </Link>
+              ))}
+            </Box>
+          </Box>
+        )}
       </Box>
     </Box>
   );

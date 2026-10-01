@@ -1,9 +1,11 @@
 import { Box, Title, Text, Stack } from "@mantine/core";
+import { Seo } from "../seo/Seo";
 
 export default function DeliveryPage() {
   return (
     <Box py="xl" px="md" maw={800} mx="auto">
-      <Title order={2} mb="md">Доставка за дома или офиса</Title>
+      <Seo title="Доставка за дома и офиса" path="/delivery" description="Условия за доставка до дома или офиса в София: безплатна доставка над 20.45 €, избор на часови интервал и доставка от понеделник до неделя." />
+      <Title order={1} size="h2" mb="md">Доставка за дома или офиса</Title>
       <Stack gap="md">
         <Text>
           Чрез Онлайн платформата Дар от Земята , можете лесно и удобно да направите поръчка за доставка само с няколко клика.

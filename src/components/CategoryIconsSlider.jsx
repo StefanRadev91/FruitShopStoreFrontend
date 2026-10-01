@@ -1,7 +1,7 @@
 // src/components/CategoryIconsSlider.jsx
 import { useState, useEffect, useRef } from "react";
 import { Box, Text, ThemeIcon, Stack, Badge, Portal } from "@mantine/core";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import {
   IconApple,
   IconCarrot,
@@ -19,6 +19,7 @@ import {
 } from "@tabler/icons-react";
 import { getMainCategoriesWithCache, getCachedMainCategories } from "../services/categoriesAPI";
 import { useCanHover } from "../hooks/useCanHover";
+import { categoryPath } from "../seo/categoryRoutes";
 
 // Мапинг от API име към икона и линк
 const categoryMapping = {
@@ -44,7 +45,6 @@ function CategoryItem({ category, onSubcategoryClick }) {
   const hideTimeout = useRef(null);
   const rootRef = useRef(null);
   const IconComponent = category.icon;
-  const navigate = useNavigate();
   const hasSubcategories = category.subcategoriesCount > 0;
 
   useEffect(() => () => clearTimeout(hideTimeout.current), []);
@@ -71,7 +71,7 @@ function CategoryItem({ category, onSubcategoryClick }) {
       else openMenu();
       return;
     }
-    navigate(category.link);
+    // Категория без подкатегории е истинска връзка (<a href>) – навигацията я прави Link.
     scrollToTop();
   };
 
@@ -97,9 +97,12 @@ function CategoryItem({ category, onSubcategoryClick }) {
       ref={rootRef}
       onMouseEnter={handleEnter}
       onMouseLeave={handleLeave}
+      {...(hasSubcategories ? {} : { component: Link, to: category.link })}
       style={{
         textAlign: "center",
         cursor: "pointer",
+        textDecoration: "none",
+        color: "inherit",
       }}
       onClick={handleClick}
       className="category-item"
@@ -201,12 +204,17 @@ function CategoryItem({ category, onSubcategoryClick }) {
             {category.subcategories.map((subcategory) => (
               <Box
                 key={subcategory.id}
+                component="a"
+                href={categoryPath(subcategory.Name)}
                 onClick={(e) => {
+                  e.preventDefault();
                   e.stopPropagation();
                   handleSubcategoryClick(subcategory.Name);
                 }}
                 className="category-menu-item"
                 style={{
+                  display: "block",
+                  textDecoration: "none",
                   padding: "10px 12px",
                   borderRadius: 8,
                   cursor: "pointer",

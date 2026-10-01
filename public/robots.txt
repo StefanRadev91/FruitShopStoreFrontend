@@ -1,4 +1,4 @@
 User-agent: *
-Disallow:
+Disallow: /search
 
-Sitemap: https://www.darotzemqta.bg/sitemap.xml
+Sitemap: https://darotzemqta.bg/sitemap.xml

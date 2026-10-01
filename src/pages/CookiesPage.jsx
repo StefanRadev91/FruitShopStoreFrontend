@@ -1,10 +1,12 @@
 // src/pages/CookiesPage.jsx
+import { Seo } from "../seo/Seo";
 import { Box, Title, Text } from "@mantine/core";
 
 export default function CookiesPage() {
   return (
     <Box py="xl" px="md" maw={900} mx="auto">
-      <Title order={2} mb="md">Ние използваме бисквитки</Title>
+      <Seo title="Политика за бисквитки" path="/cookies" description="Как Дар от Земята използва бисквитки и как можеш да ги управляваш." />
+      <Title order={1} size="h2" mb="md">Ние използваме бисквитки</Title>
       <Text component="div" size="md" style={{ whiteSpace: "pre-line", lineHeight: 1.6 }}>
         {`Правила за „бисквитките“ („cookies“)
 

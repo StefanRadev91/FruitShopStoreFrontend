@@ -8,7 +8,7 @@ import {
 } from "@mantine/core";
 import { IconShoppingCart, IconHome, IconX } from "@tabler/icons-react";
 import { useDisclosure, useMediaQuery } from "@mantine/hooks";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import logo from "../assets/logo.webp";
 import { clearCatalogCache } from "../services/productsAPI";
 import { clearCategoriesCache } from "../services/categoriesAPI";
@@ -103,14 +103,15 @@ export function Header({ cart, onCartClick }) {
             zIndex: 1,
           }}
         >
-          <img
-            src={logo}
-            alt="Дар от Земята"
-            width={isMobile ? 76 : 100}
-            height={isMobile ? 76 : 100}
-            style={{ display: "block", cursor: "pointer", objectFit: "contain" }}
-            onClick={() => navigate("/")}
-          />
+          <Link to="/" aria-label="Дар от Земята – начална страница" style={{ display: "block" }}>
+            <img
+              src={logo}
+              alt="Дар от Земята"
+              width={isMobile ? 76 : 100}
+              height={isMobile ? 76 : 100}
+              style={{ display: "block", objectFit: "contain" }}
+            />
+          </Link>
         </Box>
 
         {/* Дясно: За нас + Количка */}
