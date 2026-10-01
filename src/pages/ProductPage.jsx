@@ -1,6 +1,6 @@
 // src/pages/ProductPage.jsx - актуализирана версия
-import { imageUrl, findInSnapshot } from "../services/productsAPI";
-import { useEffect, useState } from "react";
+import { imageUrl, findInSnapshot, useCatalog } from "../services/productsAPI";
+import { useEffect, useMemo, useState } from "react";
 import { useParams } from "react-router-dom";
 import {
   Title,
@@ -15,6 +15,16 @@ import {
   Select,
 } from "@mantine/core";
 import { PriceDisplay, formatEUR } from "../components/PriceDisplay";
+import { ProductSlider } from "../components/ProductSlider";
+
+const RELATED_COUNT = 10;
+
+// Стабилно "разбъркване" по slug, за да не се сменят предложенията при всяко рендиране.
+function hashCode(str) {
+  let h = 0;
+  for (let i = 0; i < str.length; i++) h = (h * 31 + str.charCodeAt(i)) | 0;
+  return h;
+}
 
 export function ProductPage({ onAddToCart }) {
   const { slug } = useParams();
@@ -24,6 +34,19 @@ export function ProductPage({ onAddToCart }) {
   const [fullLoaded, setFullLoaded] = useState(() => !!product?.product_description);
   const [loading, setLoading] = useState(product === null);
   const [selectedWeight, setSelectedWeight] = useState(null);
+  const { products: catalog } = useCatalog();
+
+  // Други продукти от същата категория; ако са малко – допълваме с най-продаваните.
+  const categoryName = product?.category?.Name;
+  const related = useMemo(() => {
+    if (!product) return [];
+    const others = catalog.filter((p) => p.slug && p.slug !== product.slug);
+    const sameCategory = categoryName ? others.filter((p) => p.category?.Name === categoryName) : [];
+    const pool = sameCategory.length >= 3 ? sameCategory : [...sameCategory, ...others.filter((p) => p.featured && !sameCategory.includes(p))];
+    return pool
+      .sort((a, b) => hashCode(product.slug + a.slug) - hashCode(product.slug + b.slug))
+      .slice(0, RELATED_COUNT);
+  }, [catalog, product, categoryName]);
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -211,6 +234,7 @@ export function ProductPage({ onAddToCart }) {
         </Grid.Col>
       </Grid>
 
+      {(!fullLoaded || product_description) && (
       <Box mt="xl">
         <Title order={4} mb="sm">
           Описание на продукта
@@ -226,6 +250,18 @@ export function ProductPage({ onAddToCart }) {
           <Text>{product_description}</Text>
         )}
       </Box>
+      )}
+
+      {related.length > 0 && (
+        <Box mt={48}>
+          <ProductSlider
+            variant="similar"
+            products={related}
+            onAddToCart={onAddToCart}
+            slideSize={{ base: "100%", xs: "50%", sm: "33.3333%" }}
+          />
+        </Box>
+      )}
     </Container>
   );
 }

@@ -1,5 +1,5 @@
 import { Box, Text, Title } from "@mantine/core";
-import { IconRosetteDiscount, IconSparkles, IconTrophy } from "@tabler/icons-react";
+import { IconRosetteDiscount, IconSparkles, IconTrophy, IconHeartHandshake } from "@tabler/icons-react";
 import { ProductCard } from "./ProductCard";
 import { Carousel } from "@mantine/carousel";
 import "@mantine/carousel/styles.css";
@@ -20,6 +20,14 @@ const HEADINGS = {
     subtitle: "Последните попълнения в нашия асортимент",
     from: "#51cf66",
     to: "#12b886",
+  },
+  similar: {
+    icon: IconHeartHandshake,
+    eyebrow: "Може да ви хареса",
+    title: "Подобни продукти",
+    subtitle: "Още предложения от същата категория",
+    from: "#4dabf7",
+    to: "#2f7de1",
   },
   best: {
     icon: IconTrophy,
@@ -86,13 +94,15 @@ function SectionHeading({ variant }) {
   );
 }
 
-export function ProductSlider({ variant, products, onAddToCart }) {
+export function ProductSlider({ variant, products, onAddToCart, slideSize }) {
   if (!products.length) return null;
 
   // Подреждане по последна модификация (най-новите отпред)
-  const sortedProducts = [...products].sort(
-    (a, b) => new Date(b.updatedAt) - new Date(a.updatedAt)
-  );
+  // (при "подобни" запазваме подадения ред)
+  const sortedProducts =
+    variant === "similar"
+      ? products
+      : [...products].sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt));
 
   return (
     <Box mt={40} mb={40}>
@@ -102,7 +112,7 @@ export function ProductSlider({ variant, products, onAddToCart }) {
         withControls
         controlsOffset={0}
         height="auto"
-        slideSize={{ base: "100%", xs: "50%", sm: "33.3333%", md: "25%" }}
+        slideSize={slideSize || { base: "100%", xs: "50%", sm: "33.3333%", md: "25%" }}
         slideGap="md"
         emblaOptions={{ align: "start", loop: false, containScroll: "trimSnaps", slidesToScroll: 1 }}
         styles={{
