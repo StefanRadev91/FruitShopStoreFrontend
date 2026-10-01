@@ -68,7 +68,7 @@ export function Header({ cart, onCartClick }) {
           position: "relative",
           background: "#fff",
           borderBottom: "1px solid #e3e3e3",
-          minHeight: 90,
+          minHeight: isMobile ? 84 : 112,
           display: "flex",
           alignItems: "center",
           justifyContent: "stretch", // всички колони с еднаква ширина
@@ -106,7 +106,9 @@ export function Header({ cart, onCartClick }) {
           <img
             src={logo}
             alt="Дар от Земята"
-            style={{ maxHeight: "80px", display: "block", cursor: "pointer" }}
+            width={isMobile ? 76 : 100}
+            height={isMobile ? 76 : 100}
+            style={{ display: "block", cursor: "pointer", objectFit: "contain" }}
             onClick={() => navigate("/")}
           />
         </Box>
