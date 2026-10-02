@@ -4,6 +4,9 @@ import { useParams } from "react-router-dom";
 import { Title, SimpleGrid, Text } from "@mantine/core";
 import { ProductCard } from "../components/ProductCard";
 import { Seo, breadcrumbJsonLd } from "../seo/Seo";
+import { ProductGridSkeleton } from "../components/Skeletons";
+import { ProductToolbar, useProductView } from "../components/ProductToolbar";
+import { CategoryChips } from "../components/CategoryChips";
 import { categoryPath } from "../seo/categoryRoutes";
 import { CatalogError } from "../components/CatalogError";
 import { useCatalog, sortByName } from "../services/productsAPI";
@@ -19,6 +22,7 @@ export function CategoryPage({ category: propCategory, onAddToCart }) {
     () => sortByName(catalog.filter((p) => p.category?.Name === categoryName)),
     [catalog, categoryName]
   );
+  const view = useProductView(products);
 
   const handleAddToCart = (product) => {
     onAddToCart(product);
@@ -26,40 +30,7 @@ export function CategoryPage({ category: propCategory, onAddToCart }) {
 
   if (error && catalog.length === 0) return <CatalogError onRetry={reload} />;
 
-  if (loading) {
-    return (
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-          flexDirection: "column",
-          minHeight: 300,
-        }}
-      >
-        <img
-          src="https://cdn-icons-png.flaticon.com/512/590/590685.png"
-          alt="Зареждаме..."
-          style={{
-            width: 80,
-            height: 80,
-            animation: "bounce 1.2s ease-in-out infinite",
-          }}
-        />
-        <div style={{ marginTop: 12, fontSize: 16, color: "#888" }}>
-          Зареждаме категорията...
-        </div>
-        <style>
-          {`
-            @keyframes bounce {
-              0%, 100% { transform: translateY(0); }
-              50%       { transform: translateY(-14px); }
-            }
-          `}
-        </style>
-      </div>
-    );
-  }
+  if (loading) return <ProductGridSkeleton />;
 
   const path = categoryPath(categoryName);
 
@@ -84,18 +55,27 @@ export function CategoryPage({ category: propCategory, onAddToCart }) {
         {categoryName}
       </Title>
 
+      <CategoryChips current={categoryName} />
+
       {/* Продукти */}
       {products.length === 0 ? (
         <Text ta="center" c="dimmed">
           Няма продукти в категория "{categoryName}".
         </Text>
       ) : (
+        <>
+        <ProductToolbar view={view} />
+        {view.visible.length === 0 ? (
+          <Text ta="center" c="dimmed">
+            Няма продукти на промоция в тази категория.
+          </Text>
+        ) : (
         <SimpleGrid
           cols={{ base: 1, sm: 2, lg: 3, xl: 3 }}
           spacing="lg"
           breakpoints={[{ maxWidth: "sm", cols: 1 }]}
         >
-          {products.map((p) => (
+          {view.visible.map((p) => (
             <ProductCard
               key={p.id}
               id={p.id}
@@ -111,6 +91,8 @@ export function CategoryPage({ category: propCategory, onAddToCart }) {
             />
           ))}
         </SimpleGrid>
+        )}
+        </>
       )}
     </>
   );

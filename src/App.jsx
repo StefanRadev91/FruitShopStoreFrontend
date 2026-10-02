@@ -1,11 +1,25 @@
-import { useState, lazy, Suspense } from "react";
+import { useState, useEffect, lazy, Suspense } from "react";
 import { Container, Box } from "@mantine/core";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { notifications } from "@mantine/notifications";
 import { useForm } from "@mantine/form";
 
 import { Header } from "./components/header";
-import { cartKey, orderPrice } from "./services/cart";
+import {
+  cartKey,
+  orderPrice,
+  slimCartItem,
+  summarizeCart,
+  loadCart,
+  saveCart,
+  refreshCartFromCatalog,
+  loadCustomer,
+  unitPriceBGN,
+  saveCustomer,
+  clearCustomer,
+  saveLastOrder,
+} from "./services/cart";
+import { getCatalog } from "./services/productsAPI";
 import { CartDrawer } from "./components/CartDrawer";
 import { HomePage } from "./pages/HomePage";
 const CategoryPage = lazy(() => import("./pages/CategoryPage").then((m) => ({ default: m.CategoryPage })));
@@ -18,18 +32,26 @@ const TermsPage = lazy(() => import("./pages/TermsPage"));
 const IdeaPage = lazy(() => import("./pages/IdeaPage"));
 const CookiesPage = lazy(() => import("./pages/CookiesPage"));
 const NotFoundPage = lazy(() => import("./pages/NotFoundPage"));
+const FavoritesPage = lazy(() => import("./pages/FavoritesPage"));
+
+const MAX_QTY = 99;
+const eur = (n) => n.toFixed(2);
 
 function App() {
-  const [cart, setCart] = useState([]);
+  const [cart, setCart] = useState(loadCart);
   const [cartOpened, setCartOpened] = useState(false);
   const [loadingOrder, setLoadingOrder] = useState(false);
+  const [confirmation, setConfirmation] = useState(null);
+  const [savedCustomer, setSavedCustomer] = useState(loadCustomer);
+  // Данните на клиента се запомнят само ако той го поиска (по подразбиране – ако вече го е искал).
+  const [remember, setRemember] = useState(() => !!loadCustomer());
 
   const form = useForm({
     initialValues: {
-      name: "",
-      phone: "",
-      address: "",
-      email: "",
+      name: savedCustomer?.name || "",
+      phone: savedCustomer?.phone || "",
+      address: savedCustomer?.address || "",
+      email: savedCustomer?.email || "",
       notes: "",
     },
     validate: {
@@ -42,16 +64,38 @@ function App() {
     },
   });
 
-  function handleAddToCart(product) {
+  // Количката се пази в браузъра, за да не се губи при презареждане.
+  useEffect(() => {
+    saveCart(cart);
+  }, [cart]);
+
+  // Запазената количка може да е стара – освежаваме цените и имената от актуалния каталог.
+  useEffect(() => {
+    getCatalog()
+      .then((catalog) => setCart((prev) => refreshCartFromCatalog(prev, catalog)))
+      .catch(() => {});
+  }, []);
+
+  function handleAddToCart(product, qty = 1) {
+    const add = Math.min(MAX_QTY, Math.max(1, Math.floor(qty) || 1));
+    setConfirmation(null);
     setCart((prevCart) => {
       const existing = prevCart.find((item) => cartKey(item) === cartKey(product));
       if (existing) {
         return prevCart.map((item) =>
-          cartKey(item) === cartKey(product) ? { ...item, qty: item.qty + 1 } : item
+          cartKey(item) === cartKey(product)
+            ? { ...item, qty: Math.min(MAX_QTY, item.qty + add) }
+            : item
         );
       }
-      return [...prevCart, { ...product, qty: 1 }];
+      return [...prevCart, slimCartItem(product, add)];
     });
+  }
+
+  // "Поръчай отново": добавя всички артикули от последната поръчка.
+  function handleReorder(items) {
+    items.forEach((item) => handleAddToCart(item, item.qty));
+    setCartOpened(true);
   }
 
   function handleRemoveFromCart(productId) {
@@ -63,31 +107,68 @@ function App() {
       prevCart
         .map((item) =>
           cartKey(item) === productId
-            ? { ...item, qty: Math.max(1, item.qty + diff) }
+            ? { ...item, qty: Math.min(MAX_QTY, Math.max(1, item.qty + diff)) }
             : item
         )
         .filter((item) => item.qty > 0)
     );
   }
 
-  const total = cart.reduce((sum, item) => {
-    const num = parseFloat(
-      String(item.selectedWeight?.price ?? item.price)
-        .replace(/[^\d.]/g, "")
-        .replace(",", ".")
-    );
-    return sum + num * item.qty;
-  }, 0);
+  function handleForgetCustomer() {
+    clearCustomer();
+    setSavedCustomer(null);
+    setRemember(false);
+    form.setValues({ name: "", phone: "", address: "", email: "", notes: "" });
+  }
 
-  function handleSubmitOrder(values) {
+  async function handleSubmitOrder(values) {
     setLoadingOrder(true);
+
+    // Запазената количка може да е стара: преди изпращане сверяваме цените и наличността с каталога.
+    let items = cart;
+    try {
+      const catalog = await getCatalog();
+      if (catalog.length > 0) {
+        const ids = new Set(catalog.map((p) => p.id));
+        const refreshed = refreshCartFromCatalog(cart, catalog);
+        const unavailable = cart.filter((i) => !ids.has(i.id));
+        const priceChanged = refreshed.filter((i, idx) => ids.has(i.id) && unitPriceBGN(i) !== unitPriceBGN(cart[idx]));
+        if (unavailable.length > 0 || priceChanged.length > 0) {
+          setCart(refreshed.filter((i) => ids.has(i.id)));
+          notifications.show({
+            title: "Количката е обновена",
+            message: [
+              unavailable.length > 0 ? "Някои продукти вече не са налични и бяха премахнати." : "",
+              priceChanged.length > 0 ? "Цените на част от продуктите са променени." : "",
+              "Прегледай количката и потвърди поръчката отново.",
+            ]
+              .filter(Boolean)
+              .join(" "),
+            color: "orange",
+            autoClose: 8000,
+          });
+          setLoadingOrder(false);
+          return;
+        }
+        items = refreshed;
+      }
+    } catch {
+      /* няма връзка с каталога – продължаваме с текущата количка */
+    }
+
+    const summary = summarizeCart(items);
+    // Сумите отиват в бележките, за да ги вижда и получателят на имейла (бекендът не се променя).
+    const summaryNote = `[Продукти: ${eur(summary.subtotalEUR)} €; доставка: ${
+      summary.freeDelivery ? "безплатна" : `${eur(summary.deliveryEUR)} €`
+    }; общо: ${eur(summary.totalEUR)} €]`;
+
     const order = {
       customerName: values.name,
       phone: values.phone,
       address: values.address,
       email: values.email,
-      notes: values.notes,
-      products: cart.map((item) => ({
+      notes: [values.notes?.trim(), summaryNote].filter(Boolean).join("\n\n"),
+      products: items.map((item) => ({
         id: item.id,
         name: item.name,
         qty: item.qty,
@@ -96,34 +177,42 @@ function App() {
       })),
     };
 
-    fetch(`https://fruitshopstore.onrender.com/api/orders`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ data: order }),
-    })
-      .then((res) => {
-        setLoadingOrder(false);
-        if (res.ok) {
-          notifications.show({
-            title: "Поръчката е изпратена!",
-            message: "Ще се свържем с вас за потвърждение.",
-            color: "green",
-          });
-          setCart([]);
-          form.reset();
-          setCartOpened(false);
-        } else {
-          throw new Error("HTTP error");
-        }
-      })
-      .catch(() => {
-        setLoadingOrder(false);
-        notifications.show({
-          title: "Грешка!",
-          message: "Поръчката не беше изпратена. Моля, опитайте отново.",
-          color: "red",
-        });
+    try {
+      const res = await fetch(`https://fruitshopstore.onrender.com/api/orders`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ data: order }),
       });
+      if (!res.ok) throw new Error("HTTP error");
+      const json = await res.json().catch(() => null);
+
+      const customer = { name: values.name, phone: values.phone, address: values.address, email: values.email };
+      if (remember) {
+        saveCustomer(customer);
+        setSavedCustomer(customer);
+      } else {
+        clearCustomer();
+        setSavedCustomer(null);
+      }
+      saveLastOrder(items);
+      setConfirmation({
+        id: json?.data?.id ?? null,
+        items,
+        summary,
+        name: values.name,
+        phone: values.phone,
+      });
+      setCart([]);
+      form.setValues({ ...(remember ? customer : { name: "", phone: "", address: "", email: "" }), notes: "" });
+    } catch {
+      notifications.show({
+        title: "Грешка!",
+        message: "Поръчката не беше изпратена. Моля, опитайте отново.",
+        color: "red",
+      });
+    } finally {
+      setLoadingOrder(false);
+    }
   }
 
   return (
@@ -133,7 +222,7 @@ function App() {
           minHeight: "100vh",
           background: "linear-gradient(120deg, #e6ffe6 0%, #f9fcff 100%)",
           maxWidth: "100vw",
-          overflowX: "hidden",
+          overflowX: "clip", // "hidden" би счупило залепения хедър (sticky)
         }}
       >
         <Header cart={cart} onCartClick={() => setCartOpened(true)} />
@@ -167,6 +256,7 @@ function App() {
             <Route path="/terms" element={<TermsPage />} />
             <Route path="/idea" element={<IdeaPage />} />
             <Route path="/cookies" element={<CookiesPage />} />
+            <Route path="/favorites" element={<FavoritesPage onAddToCart={handleAddToCart} onReorder={handleReorder} />} />
             <Route path="*" element={<NotFoundPage />} />
           </Routes>
           </Suspense>
@@ -174,14 +264,21 @@ function App() {
 
         <CartDrawer
           cartOpened={cartOpened}
-          onClose={() => setCartOpened(false)}
+          onClose={() => {
+            setCartOpened(false);
+            setConfirmation(null);
+          }}
           cart={cart}
           handleChangeQty={handleChangeQty}
           handleRemoveFromCart={handleRemoveFromCart}
           handleSubmitOrder={handleSubmitOrder}
           loadingOrder={loadingOrder}
           form={form}
-          total={total}
+          confirmation={confirmation}
+          hasSavedCustomer={!!savedCustomer}
+          remember={remember}
+          onRememberChange={setRemember}
+          onForgetCustomer={handleForgetCustomer}
         />
       </Box>
       <Footer />

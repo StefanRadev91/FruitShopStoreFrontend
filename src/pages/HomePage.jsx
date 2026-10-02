@@ -7,6 +7,7 @@ import { CategoryIconsSlider } from "../components/CategoryIconsSlider";
 import { DeliveryBanners } from "../components/DeliveryBanners";
 import { CatalogError } from "../components/CatalogError";
 import { Seo } from "../seo/Seo";
+import { HomeSkeleton } from "../components/Skeletons";
 import { useCatalog } from "../services/productsAPI";
 
 export function HomePage({ onAddToCart }) {
@@ -22,43 +23,7 @@ export function HomePage({ onAddToCart }) {
 
   if (error && products.length === 0) return <CatalogError onRetry={reload} />;
 
-  if (loading)
-    return (
-      <Box
-        style={{
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-          flexDirection: "column",
-          minHeight: 300,
-        }}
-      >
-        <img
-          src="https://cdn-icons-png.flaticon.com/512/590/590685.png"
-          alt="Зареждаме..."
-          style={{
-            width: 80,
-            height: 80,
-            animation: "bounce 1.2s ease-in-out infinite",
-          }}
-        />
-        <div style={{ marginTop: 12, fontSize: 16, color: "#888" }}>
-          Зареждаме свежест...
-        </div>
-        <style>
-          {`
-            @keyframes bounce {
-              0%, 100% {
-                transform: translateY(0);
-              }
-              50% {
-                transform: translateY(-14px);
-              }
-            }
-          `}
-        </style>
-      </Box>
-    );
+  if (loading) return <HomeSkeleton />;
 
   return (
     <>

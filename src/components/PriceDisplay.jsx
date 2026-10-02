@@ -13,6 +13,11 @@ export function toEUR(priceBGN) {
   return Number.isFinite(priceBGN) ? Math.round(convertBGNToEUR(priceBGN) * 100) / 100 : 0;
 }
 
+// "12.34 €" от сума, която вече е в евро
+export function eurAmount(amountEUR) {
+  return `${amountEUR.toFixed(2)} €`;
+}
+
 export function formatEUR(priceBGN) {
   if (!Number.isFinite(priceBGN)) return "—";
   return `${convertBGNToEUR(priceBGN).toFixed(2)} €`;
