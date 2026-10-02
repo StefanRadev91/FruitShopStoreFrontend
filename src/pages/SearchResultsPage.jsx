@@ -65,7 +65,6 @@ export function SearchResultsPage({ onAddToCart }) {
               category={p.category?.data?.attributes || p.category}
               weight_variants={p.weight_variants || []}
               onAddToCart={handleAddToCart}
-              isNew={p.new_product === true}
             />
           ))}
         </SimpleGrid>

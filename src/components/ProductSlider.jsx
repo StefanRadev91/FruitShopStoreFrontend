@@ -142,7 +142,6 @@ export function ProductSlider({ variant, products, onAddToCart, slideSize }) {
               weight_variants={[]} // остава си празно
               onAddToCart={() => onAddToCart(p)}
               compact
-              isNew={p.new_product === true}
             />
           </Carousel.Slide>
         ))}

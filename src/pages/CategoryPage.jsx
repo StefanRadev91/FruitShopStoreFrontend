@@ -4,6 +4,7 @@ import { useParams } from "react-router-dom";
 import { Title, SimpleGrid, Text } from "@mantine/core";
 import { ProductCard } from "../components/ProductCard";
 import { Seo, breadcrumbJsonLd } from "../seo/Seo";
+import { ProductGridSkeleton } from "../components/Skeletons";
 import { ProductToolbar, useProductView } from "../components/ProductToolbar";
 import { CategoryChips } from "../components/CategoryChips";
 import { categoryPath } from "../seo/categoryRoutes";
@@ -87,7 +88,6 @@ export function CategoryPage({ category: propCategory, onAddToCart }) {
               category={p.category}
               weight_variants={p.weight_variants || []}
               onAddToCart={handleAddToCart}
-              isNew={p.new_product === true}
             />
           ))}
         </SimpleGrid>
