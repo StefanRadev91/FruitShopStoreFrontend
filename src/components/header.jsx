@@ -144,39 +144,46 @@ export function Header({ cart, onCartClick }) {
             За нас
           </Button>
 
-          <ActionIcon
-            component={Link}
-            to="/favorites"
-            size="lg"
-            color="red"
-            variant="light"
-            aria-label="Любими продукти"
-            style={{ position: "relative" }}
-          >
-            <IconHeart size={22} />
+          {/* Значката е извън бутона, защото ActionIcon скрива всичко, което излиза от рамката му */}
+          <Box style={{ position: "relative", flexShrink: 0 }}>
+            <ActionIcon
+              component={Link}
+              to="/favorites"
+              size="lg"
+              color="red"
+              variant="light"
+              aria-label="Любими продукти"
+            >
+              <IconHeart size={22} />
+            </ActionIcon>
             {favoriteIds.length > 0 && (
               <Box
+                aria-hidden="true"
                 style={{
                   position: "absolute",
-                  top: -4,
-                  right: -4,
-                  background: "#e03131",
-                  borderRadius: "50%",
+                  top: -8,
+                  right: -8,
+                  background: "#c92a2a",
+                  borderRadius: 999,
                   color: "#fff",
-                  minWidth: 18,
-                  height: 18,
-                  fontSize: 11,
+                  minWidth: 22,
+                  height: 22,
+                  padding: "0 5px",
+                  fontSize: 13,
+                  fontWeight: 800,
+                  lineHeight: 1,
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
-                  fontWeight: 700,
                   border: "2px solid #fff",
+                  boxShadow: "0 2px 6px rgba(0,0,0,0.25)",
+                  pointerEvents: "none",
                 }}
               >
-                {favoriteIds.length}
+                {favoriteIds.length > 9 ? "9+" : favoriteIds.length}
               </Box>
             )}
-          </ActionIcon>
+          </Box>
 
           <ActionIcon
             size="lg"
