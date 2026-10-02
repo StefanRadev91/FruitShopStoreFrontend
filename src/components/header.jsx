@@ -1,3 +1,4 @@
+import { useLayoutEffect, useRef, useState } from "react";
 import {
   Group,
   Burger,
@@ -6,7 +7,7 @@ import {
   Button,
   Tooltip,
 } from "@mantine/core";
-import { IconShoppingCart, IconHome, IconX } from "@tabler/icons-react";
+import { IconShoppingCart, IconHome, IconX, IconHeart } from "@tabler/icons-react";
 import { useDisclosure, useMediaQuery } from "@mantine/hooks";
 import { Link, useNavigate } from "react-router-dom";
 import logo from "../assets/logo.webp";
@@ -14,21 +15,34 @@ import { clearCatalogCache } from "../services/productsAPI";
 import { clearCategoriesCache } from "../services/categoriesAPI";
 import { CategoryDrawer } from "./Drawer";
 import { SearchInput } from "./SearchInput";
+import { useFavorites } from "../services/favorites";
 
 export function Header({ cart, onCartClick }) {
   const [drawerOpened, { open: openDrawer, close: closeDrawer }] = useDisclosure(false);
   const isMobile = useMediaQuery("(max-width: 768px)");
   const navigate = useNavigate();
+  const { ids: favoriteIds } = useFavorites();
+
+  // Горната лента се скролира навън, а белият хедър остава залепен най-горе.
+  const barRef = useRef(null);
+  const [barHeight, setBarHeight] = useState(30);
+  useLayoutEffect(() => {
+    setBarHeight(barRef.current?.offsetHeight || 0);
+  }, [isMobile]);
 
   return (
     <Box
       style={{
         display: 'flex',
-        flexDirection: 'column'
+        flexDirection: 'column',
+        position: 'sticky',
+        top: -barHeight,
+        zIndex: 100,
       }}
     >
       {/* Горна оранжева лента с контакти и бутон за кеш */}
       <Box
+        ref={barRef}
         style={{
           background: "#ff4c1c",
           color: "white",
@@ -129,9 +143,44 @@ export function Header({ cart, onCartClick }) {
           </Button>
 
           <ActionIcon
+            component={Link}
+            to="/favorites"
+            size="lg"
+            color="red"
+            variant="light"
+            aria-label="Любими продукти"
+            style={{ position: "relative" }}
+          >
+            <IconHeart size={22} />
+            {favoriteIds.length > 0 && (
+              <Box
+                style={{
+                  position: "absolute",
+                  top: -4,
+                  right: -4,
+                  background: "#e03131",
+                  borderRadius: "50%",
+                  color: "#fff",
+                  minWidth: 18,
+                  height: 18,
+                  fontSize: 11,
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  fontWeight: 700,
+                  border: "2px solid #fff",
+                }}
+              >
+                {favoriteIds.length}
+              </Box>
+            )}
+          </ActionIcon>
+
+          <ActionIcon
             size="lg"
             color="green"
             variant="filled"
+            aria-label="Количка"
             style={{ position: "relative" }}
             onClick={onCartClick}
           >
@@ -164,7 +213,7 @@ export function Header({ cart, onCartClick }) {
         {/* Search на мобилно – пада отдолу */}
         {isMobile && (
           <Box style={{ width: '100%', marginBottom: '16px' }}>
-            <SearchInput />
+            <SearchInput fullWidth />
           </Box>
         )}
       </Box>

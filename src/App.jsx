@@ -31,6 +31,7 @@ const TermsPage = lazy(() => import("./pages/TermsPage"));
 const IdeaPage = lazy(() => import("./pages/IdeaPage"));
 const CookiesPage = lazy(() => import("./pages/CookiesPage"));
 const NotFoundPage = lazy(() => import("./pages/NotFoundPage"));
+const FavoritesPage = lazy(() => import("./pages/FavoritesPage"));
 
 const MAX_QTY = 99;
 const eur = (n) => n.toFixed(2);
@@ -179,7 +180,7 @@ function App() {
           minHeight: "100vh",
           background: "linear-gradient(120deg, #e6ffe6 0%, #f9fcff 100%)",
           maxWidth: "100vw",
-          overflowX: "hidden",
+          overflowX: "clip", // "hidden" би счупило залепения хедър (sticky)
         }}
       >
         <Header cart={cart} onCartClick={() => setCartOpened(true)} />
@@ -213,6 +214,7 @@ function App() {
             <Route path="/terms" element={<TermsPage />} />
             <Route path="/idea" element={<IdeaPage />} />
             <Route path="/cookies" element={<CookiesPage />} />
+            <Route path="/favorites" element={<FavoritesPage onAddToCart={handleAddToCart} onReorder={handleReorder} />} />
             <Route path="*" element={<NotFoundPage />} />
           </Routes>
           </Suspense>

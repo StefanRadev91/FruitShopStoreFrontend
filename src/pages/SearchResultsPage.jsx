@@ -3,6 +3,8 @@ import { useLocation } from "react-router-dom";
 import { SimpleGrid, Title, Text, Box } from "@mantine/core";
 import { ProductCard } from "../components/ProductCard";
 import { Seo } from "../seo/Seo";
+import { ProductGridSkeleton } from "../components/Skeletons";
+import { ProductToolbar, useProductView } from "../components/ProductToolbar";
 import { CatalogError } from "../components/CatalogError";
 import { useCatalog, sortByName } from "../services/productsAPI";
 
@@ -16,6 +18,7 @@ export function SearchResultsPage({ onAddToCart }) {
     if (!q) return [];
     return sortByName(products.filter((p) => p.name.toLowerCase().includes(q)));
   }, [products, query]);
+  const view = useProductView(results);
 
   const handleAddToCart = (product) => {
     onAddToCart(product);
@@ -23,38 +26,7 @@ export function SearchResultsPage({ onAddToCart }) {
 
   if (error && products.length === 0) return <CatalogError onRetry={reload} />;
 
-  if (loading) {
-    return (
-      <Box
-        style={{
-          minHeight: 300,
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-          flexDirection: "column",
-        }}
-      >
-        <img
-          src="https://cdn-icons-png.flaticon.com/512/590/590685.png"
-          alt="Зареждаме..."
-          style={{
-            width: 80,
-            height: 80,
-            animation: "bounce 1.2s ease-in-out infinite",
-          }}
-        />
-        <div style={{ marginTop: 12, fontSize: 16, color: "#888" }}>
-          Търсим продукти за теб...
-        </div>
-        <style>{`
-          @keyframes bounce {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-14px); }
-          }
-        `}</style>
-      </Box>
-    );
-  }
+  if (loading) return <ProductGridSkeleton />;
 
   return (
     <>
@@ -68,12 +40,19 @@ export function SearchResultsPage({ onAddToCart }) {
           Няма намерени продукти.
         </Text>
       ) : (
+        <>
+        <ProductToolbar view={view} />
+        {view.visible.length === 0 ? (
+          <Text ta="center" c="dimmed">
+            Няма намерени промоционални продукти.
+          </Text>
+        ) : (
         <SimpleGrid
           cols={{ base: 1, sm: 2, lg: 3, xl: 3 }}
           spacing="lg"
           breakpoints={[{ maxWidth: "sm", cols: 1 }]}
         >
-          {results.map((p) => (
+          {view.visible.map((p) => (
             <ProductCard
               key={p.id}
               id={p.id}
@@ -86,9 +65,12 @@ export function SearchResultsPage({ onAddToCart }) {
               category={p.category?.data?.attributes || p.category}
               weight_variants={p.weight_variants || []}
               onAddToCart={handleAddToCart}
+              isNew={p.new_product === true}
             />
           ))}
         </SimpleGrid>
+        )}
+        </>
       )}
     </>
   );

@@ -9,10 +9,13 @@ import {
   Group,
   Stack,
   Select,
+  Box,
 } from "@mantine/core";
+import { IconCheck } from "@tabler/icons-react";
 import { Link } from "react-router-dom";
 import { PriceDisplay, formatEUR } from "./PriceDisplay";
 import { imageUrl } from "../services/productsAPI";
+import { FavoriteButton } from "./FavoriteButton";
 
 export function ProductCard({
   id,
@@ -26,6 +29,7 @@ export function ProductCard({
   weight_variants = [],
   onAddToCart,
   compact = false,
+  isNew = false,
 }) {
   const imageSrc = imageUrl(image, 360);
 
@@ -51,7 +55,20 @@ export function ProductCard({
     ? parseFloat(promo_price)
     : null;
 
+  // Отстъпка в проценти (само когато има промо цена)
+  const discountPct =
+    promoPrice && originalPrice > promoPrice
+      ? Math.round((1 - promoPrice / originalPrice) * 100)
+      : 0;
+
+  const [added, setAdded] = useState(false);
+  const addedTimer = useRef(null);
+  useEffect(() => () => clearTimeout(addedTimer.current), []);
+
   const handleAddClick = () => {
+    setAdded(true);
+    clearTimeout(addedTimer.current);
+    addedTimer.current = setTimeout(() => setAdded(false), 1400);
     onAddToCart({
       id,
       name,
@@ -81,6 +98,7 @@ export function ProductCard({
       padding="lg"
       radius="md"
       withBorder
+      className="product-card"
       style={{
         height: descriptionText ? (compact ? 380 : 440) : compact ? 300 : "auto",
         gap: 12,
@@ -89,6 +107,22 @@ export function ProductCard({
         justifyContent: "space-between",
       }}
     >
+      {(discountPct > 0 || isNew) && (
+        <Box style={{ position: "absolute", top: 10, left: 10, zIndex: 2, display: "flex", flexDirection: "column", gap: 4 }}>
+          {discountPct > 0 && (
+            <Badge color="red" variant="filled" size="md">
+              −{discountPct}%
+            </Badge>
+          )}
+          {isNew && (
+            <Badge color="green" variant="filled" size="md">
+              Ново
+            </Badge>
+          )}
+        </Box>
+      )}
+      <FavoriteButton id={id} size="md" style={{ position: "absolute", top: 10, right: 10, zIndex: 2 }} />
+
       <Link
         onMouseEnter={prefetchLargeImage}
         onTouchStart={prefetchLargeImage}
@@ -207,18 +241,20 @@ export function ProductCard({
         />
 
         <Button
-          variant="light"
+          variant={added ? "filled" : "light"}
           color="green"
           radius="md"
           onClick={handleAddClick}
           size={compact ? "sm" : "md"}
+          leftSection={added ? <IconCheck size={16} /> : null}
           style={{ 
+            minWidth: 112,
             whiteSpace: "nowrap",
             alignSelf: compact ? "stretch" : "auto", // Разтяга бутона в compact
             marginTop: compact ? 2 : 0
           }}
         >
-          Добави
+          {added ? "Добавено" : "Добави"}
         </Button>
       </Group>
     </Card>

@@ -13,7 +13,8 @@ createRoot(document.getElementById("root")).render(
       withGlobalStyles
       withNormalizeCSS
       theme={{
-        fontFamily: "Inter, sans-serif",
+        fontFamily: "Inter, system-ui, -apple-system, 'Segoe UI', sans-serif",
+        headings: { fontFamily: "Manrope, Inter, system-ui, sans-serif", fontWeight: "800" },
         primaryColor: "green",
       }}
     >
