@@ -17,6 +17,38 @@ import { CategoryDrawer } from "./Drawer";
 import { SearchInput } from "./SearchInput";
 import { useFavorites } from "../services/favorites";
 
+// Значка с брой – стои извън бутона, защото ActionIcon скрива всичко, което излиза от рамката му.
+function CountBadge({ value, color, max = 99 }) {
+  if (!value) return null;
+  return (
+    <Box
+      aria-hidden="true"
+      style={{
+        position: "absolute",
+        top: -8,
+        right: -8,
+        background: color,
+        borderRadius: 999,
+        color: "#fff",
+        minWidth: 22,
+        height: 22,
+        padding: "0 5px",
+        fontSize: 13,
+        fontWeight: 800,
+        lineHeight: 1,
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        border: "2px solid #fff",
+        boxShadow: "0 2px 6px rgba(0,0,0,0.25)",
+        pointerEvents: "none",
+      }}
+    >
+      {value > max ? `${max}+` : value}
+    </Box>
+  );
+}
+
 export function Header({ cart, onCartClick }) {
   const [drawerOpened, { open: openDrawer, close: closeDrawer }] = useDisclosure(false);
   const isMobile = useMediaQuery("(max-width: 768px)");
@@ -156,67 +188,21 @@ export function Header({ cart, onCartClick }) {
             >
               <IconHeart size={22} />
             </ActionIcon>
-            {favoriteIds.length > 0 && (
-              <Box
-                aria-hidden="true"
-                style={{
-                  position: "absolute",
-                  top: -8,
-                  right: -8,
-                  background: "#c92a2a",
-                  borderRadius: 999,
-                  color: "#fff",
-                  minWidth: 22,
-                  height: 22,
-                  padding: "0 5px",
-                  fontSize: 13,
-                  fontWeight: 800,
-                  lineHeight: 1,
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  border: "2px solid #fff",
-                  boxShadow: "0 2px 6px rgba(0,0,0,0.25)",
-                  pointerEvents: "none",
-                }}
-              >
-                {favoriteIds.length > 9 ? "9+" : favoriteIds.length}
-              </Box>
-            )}
+            <CountBadge value={favoriteIds.length} color="#c92a2a" max={9} />
           </Box>
 
-          <ActionIcon
-            size="lg"
-            color="green"
-            variant="filled"
-            aria-label="Количка"
-            style={{ position: "relative" }}
-            onClick={onCartClick}
-          >
-            <IconShoppingCart size={24} />
-            {cart.length > 0 && (
-              <Box
-                style={{
-                  position: "absolute",
-                  top: 2,
-                  right: 2,
-                  background: "#ff4c1c",
-                  borderRadius: "50%",
-                  color: "#fff",
-                  width: 20,
-                  height: 20,
-                  fontSize: 13,
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  fontWeight: 700,
-                  border: "2px solid #fff",
-                }}
-              >
-                {cart.reduce((s, i) => s + i.qty, 0)}
-              </Box>
-            )}
-          </ActionIcon>
+          <Box style={{ position: "relative", flexShrink: 0 }}>
+            <ActionIcon
+              size="lg"
+              color="green"
+              variant="filled"
+              aria-label="Количка"
+              onClick={onCartClick}
+            >
+              <IconShoppingCart size={24} />
+            </ActionIcon>
+            <CountBadge value={cart.reduce((sum, i) => sum + i.qty, 0)} color="#ff4c1c" />
+          </Box>
         </Group>
 
         {/* Search на мобилно – пада отдолу */}
