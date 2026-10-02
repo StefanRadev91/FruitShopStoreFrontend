@@ -1,11 +1,24 @@
-import { useState, lazy, Suspense } from "react";
+import { useState, useEffect, lazy, Suspense } from "react";
 import { Container, Box } from "@mantine/core";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { notifications } from "@mantine/notifications";
 import { useForm } from "@mantine/form";
 
 import { Header } from "./components/header";
-import { cartKey, orderPrice } from "./services/cart";
+import {
+  cartKey,
+  orderPrice,
+  slimCartItem,
+  summarizeCart,
+  loadCart,
+  saveCart,
+  refreshCartFromCatalog,
+  loadCustomer,
+  saveCustomer,
+  clearCustomer,
+  saveLastOrder,
+} from "./services/cart";
+import { getCatalog } from "./services/productsAPI";
 import { CartDrawer } from "./components/CartDrawer";
 import { HomePage } from "./pages/HomePage";
 const CategoryPage = lazy(() => import("./pages/CategoryPage").then((m) => ({ default: m.CategoryPage })));
@@ -19,17 +32,22 @@ const IdeaPage = lazy(() => import("./pages/IdeaPage"));
 const CookiesPage = lazy(() => import("./pages/CookiesPage"));
 const NotFoundPage = lazy(() => import("./pages/NotFoundPage"));
 
+const MAX_QTY = 99;
+const eur = (n) => n.toFixed(2);
+
 function App() {
-  const [cart, setCart] = useState([]);
+  const [cart, setCart] = useState(loadCart);
   const [cartOpened, setCartOpened] = useState(false);
   const [loadingOrder, setLoadingOrder] = useState(false);
+  const [confirmation, setConfirmation] = useState(null);
+  const [savedCustomer, setSavedCustomer] = useState(loadCustomer);
 
   const form = useForm({
     initialValues: {
-      name: "",
-      phone: "",
-      address: "",
-      email: "",
+      name: savedCustomer?.name || "",
+      phone: savedCustomer?.phone || "",
+      address: savedCustomer?.address || "",
+      email: savedCustomer?.email || "",
       notes: "",
     },
     validate: {
@@ -42,16 +60,38 @@ function App() {
     },
   });
 
-  function handleAddToCart(product) {
+  // Количката се пази в браузъра, за да не се губи при презареждане.
+  useEffect(() => {
+    saveCart(cart);
+  }, [cart]);
+
+  // Запазената количка може да е стара – освежаваме цените и имената от актуалния каталог.
+  useEffect(() => {
+    getCatalog()
+      .then((catalog) => setCart((prev) => refreshCartFromCatalog(prev, catalog)))
+      .catch(() => {});
+  }, []);
+
+  function handleAddToCart(product, qty = 1) {
+    const add = Math.min(MAX_QTY, Math.max(1, Math.floor(qty) || 1));
+    setConfirmation(null);
     setCart((prevCart) => {
       const existing = prevCart.find((item) => cartKey(item) === cartKey(product));
       if (existing) {
         return prevCart.map((item) =>
-          cartKey(item) === cartKey(product) ? { ...item, qty: item.qty + 1 } : item
+          cartKey(item) === cartKey(product)
+            ? { ...item, qty: Math.min(MAX_QTY, item.qty + add) }
+            : item
         );
       }
-      return [...prevCart, { ...product, qty: 1 }];
+      return [...prevCart, slimCartItem(product, add)];
     });
+  }
+
+  // "Поръчай отново": добавя всички артикули от последната поръчка.
+  function handleReorder(items) {
+    items.forEach((item) => handleAddToCart(item, item.qty));
+    setCartOpened(true);
   }
 
   function handleRemoveFromCart(productId) {
@@ -63,30 +103,33 @@ function App() {
       prevCart
         .map((item) =>
           cartKey(item) === productId
-            ? { ...item, qty: Math.max(1, item.qty + diff) }
+            ? { ...item, qty: Math.min(MAX_QTY, Math.max(1, item.qty + diff)) }
             : item
         )
         .filter((item) => item.qty > 0)
     );
   }
 
-  const total = cart.reduce((sum, item) => {
-    const num = parseFloat(
-      String(item.selectedWeight?.price ?? item.price)
-        .replace(/[^\d.]/g, "")
-        .replace(",", ".")
-    );
-    return sum + num * item.qty;
-  }, 0);
+  function handleForgetCustomer() {
+    clearCustomer();
+    setSavedCustomer(null);
+    form.setValues({ name: "", phone: "", address: "", email: "", notes: "" });
+  }
 
-  function handleSubmitOrder(values) {
+  async function handleSubmitOrder(values) {
     setLoadingOrder(true);
+    const summary = summarizeCart(cart);
+    // Сумите отиват в бележките, за да ги вижда и получателят на имейла (бекендът не се променя).
+    const summaryNote = `[Продукти: ${eur(summary.subtotalEUR)} €; доставка: ${
+      summary.freeDelivery ? "безплатна" : `${eur(summary.deliveryEUR)} €`
+    }; общо: ${eur(summary.totalEUR)} €]`;
+
     const order = {
       customerName: values.name,
       phone: values.phone,
       address: values.address,
       email: values.email,
-      notes: values.notes,
+      notes: [values.notes?.trim(), summaryNote].filter(Boolean).join("\n\n"),
       products: cart.map((item) => ({
         id: item.id,
         name: item.name,
@@ -96,34 +139,37 @@ function App() {
       })),
     };
 
-    fetch(`https://fruitshopstore.onrender.com/api/orders`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ data: order }),
-    })
-      .then((res) => {
-        setLoadingOrder(false);
-        if (res.ok) {
-          notifications.show({
-            title: "Поръчката е изпратена!",
-            message: "Ще се свържем с вас за потвърждение.",
-            color: "green",
-          });
-          setCart([]);
-          form.reset();
-          setCartOpened(false);
-        } else {
-          throw new Error("HTTP error");
-        }
-      })
-      .catch(() => {
-        setLoadingOrder(false);
-        notifications.show({
-          title: "Грешка!",
-          message: "Поръчката не беше изпратена. Моля, опитайте отново.",
-          color: "red",
-        });
+    try {
+      const res = await fetch(`https://fruitshopstore.onrender.com/api/orders`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ data: order }),
       });
+      if (!res.ok) throw new Error("HTTP error");
+      const json = await res.json().catch(() => null);
+
+      const customer = { name: values.name, phone: values.phone, address: values.address, email: values.email };
+      saveCustomer(customer);
+      setSavedCustomer(customer);
+      saveLastOrder(cart);
+      setConfirmation({
+        id: json?.data?.id ?? null,
+        items: cart,
+        summary,
+        name: values.name,
+        phone: values.phone,
+      });
+      setCart([]);
+      form.setValues({ ...customer, notes: "" });
+    } catch {
+      notifications.show({
+        title: "Грешка!",
+        message: "Поръчката не беше изпратена. Моля, опитайте отново.",
+        color: "red",
+      });
+    } finally {
+      setLoadingOrder(false);
+    }
   }
 
   return (
@@ -174,14 +220,19 @@ function App() {
 
         <CartDrawer
           cartOpened={cartOpened}
-          onClose={() => setCartOpened(false)}
+          onClose={() => {
+            setCartOpened(false);
+            setConfirmation(null);
+          }}
           cart={cart}
           handleChangeQty={handleChangeQty}
           handleRemoveFromCart={handleRemoveFromCart}
           handleSubmitOrder={handleSubmitOrder}
           loadingOrder={loadingOrder}
           form={form}
-          total={total}
+          confirmation={confirmation}
+          hasSavedCustomer={!!savedCustomer}
+          onForgetCustomer={handleForgetCustomer}
         />
       </Box>
       <Footer />
