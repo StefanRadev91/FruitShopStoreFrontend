@@ -92,7 +92,7 @@ export function Header({ cart, onCartClick }) {
         }}
       >
         {/* Ляво: Начало + Бургер + Search */}
-        <Group spacing="xs" style={{ flex: 1, minWidth: 0 }}>
+        <Group gap={8} wrap="nowrap" style={{ flex: 1, minWidth: 0 }}>
           <ActionIcon
             size="lg"
             color="gray"
@@ -130,13 +130,15 @@ export function Header({ cart, onCartClick }) {
 
         {/* Дясно: За нас + Количка */}
         <Group
-          spacing="xs"
+          gap={isMobile ? 8 : 10}
+          wrap="nowrap"
           style={{ flex: 1, display: 'flex', justifyContent: 'flex-end' }}
         >
           <Button
             variant="subtle"
             color="dark"
-            style={{ padding: 0 }}
+            style={{ padding: isMobile ? "0 4px" : 0, flexShrink: 0 }}
+            size={isMobile ? "compact-sm" : "sm"}
             onClick={() => navigate("/idea")}
           >
             За нас
