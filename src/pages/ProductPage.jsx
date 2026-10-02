@@ -22,7 +22,7 @@ import {
 import { notifications } from "@mantine/notifications";
 import { IconShare, IconTruckDelivery, IconLeaf, IconCalendarEvent, IconMinus, IconPlus } from "@tabler/icons-react";
 import { FavoriteButton } from "../components/FavoriteButton";
-import { FREE_DELIVERY_OVER_BGN } from "../services/cart";
+import { FREE_DELIVERY_OVER_BGN, getPrices } from "../services/cart";
 import { PriceDisplay, formatEUR, toEUR } from "../components/PriceDisplay";
 import { Seo, SITE_URL, breadcrumbJsonLd } from "../seo/Seo";
 import { ProductPageSkeleton } from "../components/Skeletons";
@@ -46,7 +46,8 @@ export function ProductPage({ onAddToCart }) {
   const [fullLoaded, setFullLoaded] = useState(() => !!product?.product_description);
   const [loading, setLoading] = useState(product === null);
   const [selectedWeight, setSelectedWeight] = useState(null);
-  const [qty, setQty] = useState(1);
+  const [qty, setQty] = useState(1); // може да е "" докато клиентът пише
+  const qtyValue = Math.min(99, Math.max(1, Math.floor(Number(qty)) || 1));
   const [showStickyBar, setShowStickyBar] = useState(false);
   const ctaRef = useRef(null);
   const { products: catalog } = useCatalog();
@@ -57,7 +58,7 @@ export function ProductPage({ onAddToCart }) {
     const observer = new IntersectionObserver(([entry]) => setShowStickyBar(!entry.isIntersecting), { threshold: 0 });
     observer.observe(el);
     return () => observer.disconnect();
-  });
+  }, [loading, slug]); // бутонът се появява чак след зареждането
 
   // Други продукти от същата категория; ако са малко – допълваме с най-продаваните.
   const categoryName = product?.category?.Name;
@@ -143,17 +144,13 @@ export function ProductPage({ onAddToCart }) {
   const previewSrc = imageUrl(image, 360);
 
   // Изчисляваме оригинална и промо цена
-  const originalPrice = selectedWeight?.price ?? parseFloat(price);
-  const promoPrice = selectedWeight
-    ? selectedWeight.promo_price ?? null
-    : promo_price
-    ? parseFloat(promo_price)
-    : null;
+  const { original: originalPrice, promo: promoPrice } = getPrices({ selectedWeight, price, promo_price });
+  const hasPrice = Number.isFinite(originalPrice);
 
   const handleAddClick = () => {
-    onAddToCart({ ...product, selectedWeight }, qty);
+    onAddToCart({ ...product, selectedWeight }, qtyValue);
     notifications.show({
-      message: `${qty} × ${productName} е добавен в количката`,
+      message: `${qtyValue} × ${productName} е добавен в количката`,
       color: "green",
       autoClose: 2200,
     });
@@ -178,10 +175,8 @@ export function ProductPage({ onAddToCart }) {
   const descriptionText = Array.isArray(product_description)
     ? product_description.map((b) => b?.children?.[0]?.text || "").filter(Boolean).join(" ")
     : product_description || "";
-  const basePrice = (() => {
-    const promo = promo_price ? parseFloat(promo_price) : NaN;
-    return Number.isFinite(promo) ? promo : parseFloat(price);
-  })();
+  const { original: baseOriginal, promo: basePromo } = getPrices({ price, promo_price });
+  const basePrice = basePromo ?? baseOriginal;
   const seoImage = image?.[0]?.url
     ? image[0].url.startsWith("http")
       ? image[0].url
@@ -317,12 +312,13 @@ export function ProductPage({ onAddToCart }) {
 
             <Group gap="md" align="center" wrap="wrap" ref={ctaRef}>
               <Group gap={4} wrap="nowrap">
-                <ActionIcon variant="light" color="green" size="lg" aria-label="Намали количеството" onClick={() => setQty((q) => Math.max(1, q - 1))} disabled={qty <= 1}>
+                <ActionIcon variant="light" color="green" size="lg" aria-label="Намали количеството" onClick={() => setQty(Math.max(1, qtyValue - 1))} disabled={qtyValue <= 1}>
                   <IconMinus size={16} />
                 </ActionIcon>
                 <NumberInput
                   value={qty}
-                  onChange={(v) => setQty(Math.min(99, Math.max(1, Math.floor(Number(v)) || 1)))}
+                  onChange={setQty}
+                  onBlur={() => setQty(qtyValue)}
                   min={1}
                   max={99}
                   hideControls
@@ -331,12 +327,12 @@ export function ProductPage({ onAddToCart }) {
                   aria-label="Количество"
                   styles={{ input: { textAlign: "center", fontWeight: 700 } }}
                 />
-                <ActionIcon variant="light" color="green" size="lg" aria-label="Увеличи количеството" onClick={() => setQty((q) => Math.min(99, q + 1))}>
+                <ActionIcon variant="light" color="green" size="lg" aria-label="Увеличи количеството" onClick={() => setQty(Math.min(99, qtyValue + 1))}>
                   <IconPlus size={16} />
                 </ActionIcon>
               </Group>
-              <Button color="orange" size="md" radius="md" style={{ minWidth: 190 }} onClick={handleAddClick}>
-                Добави в количката
+              <Button color="orange" size="md" radius="md" style={{ minWidth: 190 }} onClick={handleAddClick} disabled={!hasPrice}>
+                {hasPrice ? "Добави в количката" : "Няма цена"}
               </Button>
             </Group>
 
@@ -404,8 +400,8 @@ export function ProductPage({ onAddToCart }) {
               {formatEUR(promoPrice ?? originalPrice)}
             </Text>
           </Box>
-          <Button color="orange" radius="md" tabIndex={showStickyBar ? 0 : -1} onClick={handleAddClick}>
-            Добави в количката
+          <Button color="orange" radius="md" tabIndex={showStickyBar ? 0 : -1} onClick={handleAddClick} disabled={!hasPrice}>
+            {hasPrice ? "Добави в количката" : "Няма цена"}
           </Button>
         </Group>
       </Box>

@@ -5,6 +5,15 @@ export function cartKey(item) {
   return `${item.id}|${item.selectedWeight?.label ?? ""}`;
 }
 
+// Редовна и промо цена (в лева) за продукт/ред от количката – единственото място за тази логика.
+export function getPrices({ selectedWeight, price, promo_price }) {
+  if (selectedWeight) {
+    return { original: selectedWeight.price, promo: selectedWeight.promo_price ?? null };
+  }
+  const promo = promo_price ? parseFloat(promo_price) : NaN;
+  return { original: parseFloat(price), promo: Number.isFinite(promo) ? promo : null };
+}
+
 // Цената за реда в поръчката – същата, която клиентът вижда в количката (промо, ако има).
 export function orderPrice(item) {
   if (item.selectedWeight) {
@@ -32,7 +41,8 @@ export function summarizeCart(cart) {
   const freeDelivery = !isEmpty && subtotalBGN > FREE_DELIVERY_OVER_BGN;
   const deliveryEUR = isEmpty || freeDelivery ? 0 : toEUR(DELIVERY_FEE_BGN);
   const totalEUR = subtotalEUR + deliveryEUR;
-  const remainingEUR = freeDelivery || isEmpty ? 0 : toEUR(FREE_DELIVERY_OVER_BGN - subtotalBGN);
+  // "над 40 лв." е строго – при точно 40.00 още липсва поне цент, затова не показваме "0.00 €".
+  const remainingEUR = freeDelivery || isEmpty ? 0 : Math.max(0.01, toEUR(FREE_DELIVERY_OVER_BGN - subtotalBGN));
   const progress = isEmpty ? 0 : Math.min(100, (subtotalBGN / FREE_DELIVERY_OVER_BGN) * 100);
   return {
     count: cart.reduce((s, i) => s + i.qty, 0),

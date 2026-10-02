@@ -15,6 +15,7 @@ import { IconCheck } from "@tabler/icons-react";
 import { Link } from "react-router-dom";
 import { PriceDisplay, formatEUR } from "./PriceDisplay";
 import { imageUrl } from "../services/productsAPI";
+import { getPrices } from "../services/cart";
 import { FavoriteButton } from "./FavoriteButton";
 
 export function ProductCard({
@@ -29,7 +30,6 @@ export function ProductCard({
   weight_variants = [],
   onAddToCart,
   compact = false,
-  isNew = false,
 }) {
   const imageSrc = imageUrl(image, 360);
 
@@ -46,14 +46,8 @@ export function ProductCard({
   const [showScrollHint, setShowScrollHint] = useState(false);
   const descRef = useRef(null);
 
-  // оригинална цена (variant или основна)
-  const originalPrice = selectedWeight?.price ?? parseFloat(price);
-  // промо цена само ако има за конкретния variant, иначе основната промо цена
-  const promoPrice = selectedWeight
-    ? selectedWeight.promo_price ?? null
-    : promo_price
-    ? parseFloat(promo_price)
-    : null;
+  const { original: originalPrice, promo: promoPrice } = getPrices({ selectedWeight, price, promo_price });
+  const hasPrice = Number.isFinite(originalPrice);
 
   // Отстъпка в проценти (само когато има промо цена)
   const discountPct =
@@ -107,18 +101,11 @@ export function ProductCard({
         justifyContent: "space-between",
       }}
     >
-      {(discountPct > 0 || isNew) && (
-        <Box style={{ position: "absolute", top: 10, left: 10, zIndex: 2, display: "flex", flexDirection: "column", gap: 4 }}>
-          {discountPct > 0 && (
-            <Badge color="red" variant="filled" size="md">
-              −{discountPct}%
-            </Badge>
-          )}
-          {isNew && (
-            <Badge color="green" variant="filled" size="md">
-              Ново
-            </Badge>
-          )}
+      {discountPct > 0 && (
+        <Box style={{ position: "absolute", top: 10, left: 10, zIndex: 2 }}>
+          <Badge color="red" variant="filled" size="md">
+            −{discountPct}%
+          </Badge>
         </Box>
       )}
       <FavoriteButton id={id} size="md" style={{ position: "absolute", top: 10, right: 10, zIndex: 2 }} />
@@ -245,6 +232,7 @@ export function ProductCard({
           color="green"
           radius="md"
           onClick={handleAddClick}
+          disabled={!hasPrice}
           size={compact ? "sm" : "md"}
           leftSection={added ? <IconCheck size={16} /> : null}
           style={{ 
@@ -254,7 +242,7 @@ export function ProductCard({
             marginTop: compact ? 2 : 0
           }}
         >
-          {added ? "Добавено" : "Добави"}
+          {!hasPrice ? "Няма цена" : added ? "Добавено" : "Добави"}
         </Button>
       </Group>
     </Card>

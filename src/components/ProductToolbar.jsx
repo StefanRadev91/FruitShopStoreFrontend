@@ -20,7 +20,16 @@ const hasPromo = (p) => Number.isFinite(parseFloat(p.promo_price)) && parseFloat
 export function sortProducts(list, mode) {
   const sorted = [...list];
   if (mode === "price-asc") sorted.sort((a, b) => priceOf(a) - priceOf(b) || nameCompare(a, b));
-  else if (mode === "price-desc") sorted.sort((a, b) => (priceOf(b) === Infinity ? -1 : priceOf(a) === Infinity ? 1 : priceOf(b) - priceOf(a)) || nameCompare(a, b));
+  else if (mode === "price-desc")
+    // продуктите без цена винаги най-накрая; при равни – по име (последователен comparator)
+    sorted.sort((a, b) => {
+      const pa = priceOf(a);
+      const pb = priceOf(b);
+      if (pa === Infinity && pb === Infinity) return nameCompare(a, b);
+      if (pa === Infinity) return 1;
+      if (pb === Infinity) return -1;
+      return pb - pa || nameCompare(a, b);
+    });
   else if (mode === "promo") sorted.sort((a, b) => Number(hasPromo(b)) - Number(hasPromo(a)) || nameCompare(a, b));
   else sorted.sort(nameCompare);
   return sorted;

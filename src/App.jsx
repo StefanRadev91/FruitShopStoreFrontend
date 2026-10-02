@@ -14,6 +14,7 @@ import {
   saveCart,
   refreshCartFromCatalog,
   loadCustomer,
+  unitPriceBGN,
   saveCustomer,
   clearCustomer,
   saveLastOrder,
@@ -42,6 +43,8 @@ function App() {
   const [loadingOrder, setLoadingOrder] = useState(false);
   const [confirmation, setConfirmation] = useState(null);
   const [savedCustomer, setSavedCustomer] = useState(loadCustomer);
+  // Данните на клиента се запомнят само ако той го поиска (по подразбиране – ако вече го е искал).
+  const [remember, setRemember] = useState(() => !!loadCustomer());
 
   const form = useForm({
     initialValues: {
@@ -114,12 +117,46 @@ function App() {
   function handleForgetCustomer() {
     clearCustomer();
     setSavedCustomer(null);
+    setRemember(false);
     form.setValues({ name: "", phone: "", address: "", email: "", notes: "" });
   }
 
   async function handleSubmitOrder(values) {
     setLoadingOrder(true);
-    const summary = summarizeCart(cart);
+
+    // Запазената количка може да е стара: преди изпращане сверяваме цените и наличността с каталога.
+    let items = cart;
+    try {
+      const catalog = await getCatalog();
+      if (catalog.length > 0) {
+        const ids = new Set(catalog.map((p) => p.id));
+        const refreshed = refreshCartFromCatalog(cart, catalog);
+        const unavailable = cart.filter((i) => !ids.has(i.id));
+        const priceChanged = refreshed.filter((i, idx) => ids.has(i.id) && unitPriceBGN(i) !== unitPriceBGN(cart[idx]));
+        if (unavailable.length > 0 || priceChanged.length > 0) {
+          setCart(refreshed.filter((i) => ids.has(i.id)));
+          notifications.show({
+            title: "Количката е обновена",
+            message: [
+              unavailable.length > 0 ? "Някои продукти вече не са налични и бяха премахнати." : "",
+              priceChanged.length > 0 ? "Цените на част от продуктите са променени." : "",
+              "Прегледай количката и потвърди поръчката отново.",
+            ]
+              .filter(Boolean)
+              .join(" "),
+            color: "orange",
+            autoClose: 8000,
+          });
+          setLoadingOrder(false);
+          return;
+        }
+        items = refreshed;
+      }
+    } catch {
+      /* няма връзка с каталога – продължаваме с текущата количка */
+    }
+
+    const summary = summarizeCart(items);
     // Сумите отиват в бележките, за да ги вижда и получателят на имейла (бекендът не се променя).
     const summaryNote = `[Продукти: ${eur(summary.subtotalEUR)} €; доставка: ${
       summary.freeDelivery ? "безплатна" : `${eur(summary.deliveryEUR)} €`
@@ -131,7 +168,7 @@ function App() {
       address: values.address,
       email: values.email,
       notes: [values.notes?.trim(), summaryNote].filter(Boolean).join("\n\n"),
-      products: cart.map((item) => ({
+      products: items.map((item) => ({
         id: item.id,
         name: item.name,
         qty: item.qty,
@@ -150,18 +187,23 @@ function App() {
       const json = await res.json().catch(() => null);
 
       const customer = { name: values.name, phone: values.phone, address: values.address, email: values.email };
-      saveCustomer(customer);
-      setSavedCustomer(customer);
-      saveLastOrder(cart);
+      if (remember) {
+        saveCustomer(customer);
+        setSavedCustomer(customer);
+      } else {
+        clearCustomer();
+        setSavedCustomer(null);
+      }
+      saveLastOrder(items);
       setConfirmation({
         id: json?.data?.id ?? null,
-        items: cart,
+        items,
         summary,
         name: values.name,
         phone: values.phone,
       });
       setCart([]);
-      form.setValues({ ...customer, notes: "" });
+      form.setValues({ ...(remember ? customer : { name: "", phone: "", address: "", email: "" }), notes: "" });
     } catch {
       notifications.show({
         title: "Грешка!",
@@ -234,6 +276,8 @@ function App() {
           form={form}
           confirmation={confirmation}
           hasSavedCustomer={!!savedCustomer}
+          remember={remember}
+          onRememberChange={setRemember}
           onForgetCustomer={handleForgetCustomer}
         />
       </Box>

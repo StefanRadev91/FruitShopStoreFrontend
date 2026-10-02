@@ -127,6 +127,9 @@ export function SearchInput({ fullWidth = false }) {
             overflow: "hidden",
           }}
           role="listbox"
+          // Натискане вътре в списъка не бива да "отнема" фокуса от полето – иначе Safari/iOS
+          // затварят списъка още преди да се обработи кликът.
+          onMouseDown={(e) => e.preventDefault()}
         >
           {suggestions.length === 0 ? (
             <Text size="sm" c="dimmed" p="md">

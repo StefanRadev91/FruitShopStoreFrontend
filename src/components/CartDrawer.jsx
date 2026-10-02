@@ -12,6 +12,7 @@ import {
   Divider,
   Stack,
   Image,
+  Checkbox,
 } from "@mantine/core";
 import { Link } from "react-router-dom";
 import {
@@ -22,21 +23,11 @@ import {
   IconCircleCheck,
   IconShoppingCartOff,
 } from "@tabler/icons-react";
-import { PriceDisplay, formatEUR, toEUR } from "./PriceDisplay";
-import { cartKey, summarizeCart, unitPriceBGN } from "../services/cart";
+import { PriceDisplay, formatEUR, toEUR, eurAmount } from "./PriceDisplay";
+import { cartKey, summarizeCart, unitPriceBGN, getPrices } from "../services/cart";
 import { imageUrl } from "../services/productsAPI";
 
-const eur = (n) => `${n.toFixed(2)} €`;
-
-function itemPrices(item) {
-  const originalPrice = item.selectedWeight?.price ?? parseFloat(item.price);
-  const promoPrice = item.selectedWeight
-    ? item.selectedWeight.promo_price ?? null
-    : item.promo_price
-    ? parseFloat(item.promo_price)
-    : null;
-  return { originalPrice, promoPrice };
-}
+const eur = eurAmount;
 
 function SummaryRow({ label, value, strong, color }) {
   return (
@@ -105,6 +96,8 @@ export function CartDrawer({
   form,
   confirmation,
   hasSavedCustomer,
+  remember,
+  onRememberChange,
   onForgetCustomer,
 }) {
   const summary = summarizeCart(cart);
@@ -164,7 +157,7 @@ export function CartDrawer({
           {/* Артикули */}
           <Stack gap="md">
             {cart.map((item) => {
-              const { originalPrice, promoPrice } = itemPrices(item);
+              const { original: originalPrice, promo: promoPrice } = getPrices(item);
               const key = cartKey(item);
               const lineTotal = toEUR(unitPriceBGN(item)) * item.qty;
               return (
@@ -309,11 +302,18 @@ export function CartDrawer({
               {...form.getInputProps("notes")}
               mb="xs"
             />
+            <Checkbox
+              checked={!!remember}
+              onChange={(e) => onRememberChange(e.currentTarget.checked)}
+              label="Запомни данните ми на това устройство за следващата поръчка"
+              size="sm"
+              mb={hasSavedCustomer ? 4 : "md"}
+            />
             {hasSavedCustomer && (
               <Text size="xs" c="dimmed" mb="md">
-                Запомнихме данните ти на това устройство за следващата поръчка.{" "}
+                Данните са запомнени на това устройство.{" "}
                 <Text component="a" href="#" size="xs" c="blue" onClick={(e) => { e.preventDefault(); onForgetCustomer(); }}>
-                  Забрави ги
+                  Изтрий ги
                 </Text>
               </Text>
             )}
@@ -323,7 +323,6 @@ export function CartDrawer({
               size="md"
               color="green"
               loading={loadingOrder}
-              mt={hasSavedCustomer ? 0 : "md"}
               onClick={() => {
                 if (form.validate().hasErrors) return;
                 handleSubmitOrder(form.values);
