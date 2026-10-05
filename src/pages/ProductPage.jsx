@@ -50,7 +50,8 @@ export function ProductPage({ onAddToCart }) {
   const qtyValue = Math.min(99, Math.max(1, Math.floor(Number(qty)) || 1));
   const [showStickyBar, setShowStickyBar] = useState(false);
   const ctaRef = useRef(null);
-  const { products: catalog } = useCatalog();
+  // Каталогът е нужен само за "подобни" – тегли се чак след като самият продукт е зареден (иначе му конкурира).
+  const { products: catalog } = useCatalog({ enabled: !loading && fullLoaded });
 
   useEffect(() => {
     const el = ctaRef.current;
@@ -357,7 +358,7 @@ export function ProductPage({ onAddToCart }) {
 
       {(!fullLoaded || product_description) && (
       <Box mt="xl">
-        <Title order={4} mb="sm">
+        <Title order={2} size="h4" mb="sm">
           Описание на продукта
         </Title>
         {!fullLoaded && !product_description ? (

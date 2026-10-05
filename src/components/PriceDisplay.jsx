@@ -32,7 +32,7 @@ export function PriceDisplay({ priceBGN, promoPriceBGN = null, size = "lg", comp
             <Text size={size} fw={700} c="red">
               {formatEUR(promoPriceBGN)}
             </Text>
-            <Text size="sm" style={{ textDecoration: "line-through", color: "#888" }}>
+            <Text size="sm" style={{ textDecoration: "line-through", color: "#6b6b6b" }}>
               {formatEUR(priceBGN)}
             </Text>
           </>
@@ -52,7 +52,7 @@ export function PriceDisplay({ priceBGN, promoPriceBGN = null, size = "lg", comp
           <Text size={size} fw={700} c="red">
             {formatEUR(promoPriceBGN)}
           </Text>
-          <Text size="sm" mt={4} style={{ textDecoration: "line-through", color: "#888" }}>
+          <Text size="sm" mt={4} style={{ textDecoration: "line-through", color: "#6b6b6b" }}>
             {formatEUR(priceBGN)}
           </Text>
         </>

@@ -29,21 +29,10 @@ export function ProductGridSkeleton({ count = 6 }) {
   );
 }
 
-export function HomeSkeleton() {
+// Само секциите с продукти – банерите и категориите на началната страница не чакат API-то.
+export function ProductSectionsSkeleton() {
   return (
-    <Box role="status" aria-label="Зареждане">
-      <Group grow gap="xl" mt="xl" wrap="nowrap">
-        <Skeleton height={120} radius="md" />
-        <Skeleton height={120} radius="md" />
-      </Group>
-      <Group justify="center" gap={24} mt="xl" wrap="wrap">
-        {Array.from({ length: 6 }, (_, i) => (
-          <Stack key={i} align="center" gap={8}>
-            <Skeleton height={60} width={60} circle />
-            <Skeleton height={10} width={56} />
-          </Stack>
-        ))}
-      </Group>
+    <Box role="status" aria-label="Зареждане на продукти" mih={640}>
       <Skeleton height={34} width={240} mx="auto" mt={48} mb="xl" />
       <SimpleGrid cols={{ base: 1, xs: 2, sm: 3, md: 4 }} spacing="md">
         {Array.from({ length: 4 }, (_, i) => (

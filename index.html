@@ -71,7 +71,12 @@
     </script>
   </head>
   <body>
-    <div id="root"></div>
+    <div id="root">
+      <!-- Статична горна лента: показва се веднага, преди JS-ът да се зареди (React я заменя). Стилът и текстът следват header.jsx (текстът идва от src/config/contact.js при билд) -->
+      <div style="background:#c2410c;color:#fff;padding:4px 12px;display:flex;justify-content:center;font:500 14px/1.55 system-ui,sans-serif">
+        <span><!--CONTACT_LINE--></span>
+      </div>
+    </div>
     <script type="module" src="/src/main.jsx"></script>
   </body>
 </html>
