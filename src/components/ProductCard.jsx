@@ -30,6 +30,7 @@ export function ProductCard({
   weight_variants = [],
   onAddToCart,
   compact = false,
+  priority = false, // първите карти над сгъвката: снимката се тегли веднага (иначе е LCP със закъснение)
 }) {
   const imageSrc = imageUrl(image, 360);
 
@@ -119,7 +120,8 @@ export function ProductCard({
         <Card.Section>
           <Image
             src={imageSrc}
-            loading="lazy"
+            loading={priority ? "eager" : "lazy"}
+            fetchPriority={priority ? "high" : undefined}
             height={120}
             fit="contain"
             alt={name}

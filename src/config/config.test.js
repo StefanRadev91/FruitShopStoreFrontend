@@ -46,4 +46,13 @@ describe("конфигурация", () => {
     const paths = Object.values(COLLECTIONS).map((c) => c.path);
     expect(new Set(paths).size).toBe(paths.length);
   });
+
+  it("vercel.json кешира хешираните ресурси за година (immutable) и пази rewrite-а за SPA", () => {
+    const cfg = JSON.parse(readFileSync(resolve(root, "vercel.json"), "utf8"));
+    const assets = cfg.headers.find((h) => h.source === "/assets/(.*)");
+    expect(assets.headers).toContainEqual({ key: "Cache-Control", value: "public, max-age=31536000, immutable" });
+    expect(cfg.rewrites).toContainEqual({ source: "/(.*)", destination: "/" });
+    // само /assets (с хеш в името) е immutable – index.html не бива да е
+    expect(cfg.headers.every((h) => h.source.startsWith("/assets"))).toBe(true);
+  });
 });

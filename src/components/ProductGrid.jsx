@@ -3,6 +3,9 @@ import { Box, Button, SimpleGrid } from "@mantine/core";
 import { ProductCard } from "./ProductCard";
 import { useProgressiveList } from "../hooks/useProgressiveList";
 
+// Снимките на първите карти се зареждат веднага (те са най-големият видим елемент – LCP).
+const PRIORITY_CARDS = 3;
+
 // Решетка с продукти, която се дорисува при скролиране (и има бутон като резервен вариант).
 export function ProductGrid({ products, onAddToCart, step }) {
   const { visible, hasMore, remaining, showMore } = useProgressiveList(products, step);
@@ -20,7 +23,7 @@ export function ProductGrid({ products, onAddToCart, step }) {
   return (
     <>
       <SimpleGrid cols={{ base: 1, sm: 2, lg: 3, xl: 3 }} spacing="lg">
-        {visible.map((p) => (
+        {visible.map((p, index) => (
           <ProductCard
             key={p.id}
             id={p.id}
@@ -33,6 +36,7 @@ export function ProductGrid({ products, onAddToCart, step }) {
             category={p.category?.data?.attributes || p.category}
             weight_variants={p.weight_variants || []}
             onAddToCart={onAddToCart}
+            priority={index < PRIORITY_CARDS}
           />
         ))}
       </SimpleGrid>

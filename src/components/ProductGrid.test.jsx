@@ -48,4 +48,19 @@ describe("<ProductGrid />", () => {
     act(() => trigger());
     expect(cards()).toHaveLength(20);
   });
+
+  it("първите 3 снимки са с висок приоритет (LCP), останалите – ленив", () => {
+    const withImages = many(6).map((p) => ({ ...p, image: [{ url: `https://res.cloudinary.com/x/image/upload/v1/${p.id}.webp` }] }));
+    renderWithProviders(<ProductGrid products={withImages} onAddToCart={() => {}} step={10} />);
+    const imgs = [...document.querySelectorAll(".mantine-Card-root img")];
+    expect(imgs).toHaveLength(6);
+    imgs.slice(0, 3).forEach((img) => {
+      expect(img).toHaveAttribute("loading", "eager");
+      expect(img).toHaveAttribute("fetchpriority", "high");
+    });
+    imgs.slice(3).forEach((img) => {
+      expect(img).toHaveAttribute("loading", "lazy");
+      expect(img).not.toHaveAttribute("fetchpriority");
+    });
+  });
 });
