@@ -32,7 +32,7 @@ export default [
   },
   {
     // Node-код: конфигурации, скриптове, тестове (Playwright's `use` не е React hook)
-    files: ['e2e/**', 'playwright.config.js', 'vite.config.js', 'scripts/**', 'src/**/*.test.{js,jsx}'],
+    files: ['e2e/**', 'e2e-prod/**', 'playwright.config.js', 'playwright.prod.config.js', 'vite.config.js', 'scripts/**', 'src/**/*.test.{js,jsx}'],
     languageOptions: { globals: { ...globals.browser, ...globals.node } },
     rules: { 'react-hooks/rules-of-hooks': 'off' },
   },
