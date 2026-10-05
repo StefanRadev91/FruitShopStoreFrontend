@@ -1,5 +1,5 @@
 // src/components/SearchInput.jsx – търсачка с бързи подсказки (от вече зареденото меню с продукти)
-import { useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Box, Image, Paper, Text, TextInput, UnstyledButton, ActionIcon } from "@mantine/core";
 import { IconSearch, IconX } from "@tabler/icons-react";
 import { Link, useNavigate } from "react-router-dom";
@@ -14,7 +14,13 @@ export function SearchInput({ fullWidth = false }) {
   const [open, setOpen] = useState(false);
   const [active, setActive] = useState(-1);
   const navigate = useNavigate();
-  const { products } = useCatalog();
+  // Каталогът се тегли 3 s след старта (да не пречи на зареждането на страницата) или веднага при фокус на полето.
+  const [wanted, setWanted] = useState(false);
+  useEffect(() => {
+    const t = setTimeout(() => setWanted(true), 3000);
+    return () => clearTimeout(t);
+  }, []);
+  const { products } = useCatalog({ enabled: wanted });
   const inputRef = useRef(null);
 
   const query = value.trim().toLowerCase();
@@ -103,7 +109,10 @@ export function SearchInput({ fullWidth = false }) {
           setOpen(true);
           setActive(-1);
         }}
-        onFocus={() => setOpen(true)}
+        onFocus={() => {
+          setWanted(true);
+          setOpen(true);
+        }}
         onKeyDown={handleKeyDown}
         radius="md"
         size="sm"

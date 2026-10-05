@@ -8,10 +8,10 @@ import variety from "../assets/icons-04.svg";
 
 // Определяме към къде води всяка икона
 const banners = [
-  { src: fresh, link: "/idea" },
-  { src: time, link: "/delivery" },
-  { src: easy, link: "/delivery" },
-  { src: variety, link: "/idea" },
+  { src: fresh, alt: "Свежи продукти", link: "/idea" },
+  { src: time, alt: "Бърза доставка", link: "/delivery" },
+  { src: easy, alt: "Лесно пазаруване", link: "/delivery" },
+  { src: variety, alt: "Богат избор", link: "/idea" },
 ];
 
 export function FeatureBanners() {
@@ -45,7 +45,11 @@ export function FeatureBanners() {
           >
             <img
               src={banner.src}
-              alt={`feature-${index}`}
+              alt={banner.alt}
+              loading="lazy"
+              decoding="async"
+              width={245}
+              height={120}
               style={{
                 width: "115%",
                 height: "auto",

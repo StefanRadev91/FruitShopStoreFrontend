@@ -2,6 +2,7 @@
 // Пуска се автоматично преди билда. Ако API-то не отговори, оставя съществуващия sitemap.xml
 // и билдът продължава нормално.
 import { writeFile } from "node:fs/promises";
+import { COLLECTIONS } from "../src/config/collections.js";
 import { CATEGORY_ROUTES } from "../src/seo/categoryRoutes.js";
 
 const SITE = "https://darotzemqta.bg";
@@ -13,6 +14,7 @@ const STATIC_PAGES = [
   { path: "/", priority: "1.0", changefreq: "daily" },
   { path: "/delivery", priority: "0.5", changefreq: "monthly" },
   { path: "/about", priority: "0.4", changefreq: "monthly" },
+  ...Object.values(COLLECTIONS).map((c) => ({ path: c.path, priority: "0.6", changefreq: "daily" })),
   { path: "/idea", priority: "0.4", changefreq: "monthly" },
   { path: "/terms", priority: "0.2", changefreq: "yearly" },
   { path: "/cookies", priority: "0.2", changefreq: "yearly" },

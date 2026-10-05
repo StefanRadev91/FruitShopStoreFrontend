@@ -1,4 +1,4 @@
-import { FaFacebookF, FaInstagram } from "react-icons/fa";
+import { IconBrandFacebook, IconBrandInstagram } from "@tabler/icons-react";
 import { Box, Flex, Text, Group, Stack, Title } from "@mantine/core";
 import { Link } from "react-router-dom";
 import { useEffect, useState } from "react";
@@ -57,7 +57,7 @@ export default function Footer() {
               padding: "16px 0",
             }}
           >
-            <Title order={6} c="white" ta={{ base: "center", md: "cemter" }}>
+            <Title order={2} size="h6" c="white" ta={{ base: "center", md: "center" }}>
               Информация
             </Title>
 
@@ -98,19 +98,21 @@ export default function Footer() {
             <Group justify="center" gap={12} mb={8}>
               <a
                 href="https://www.facebook.com/profile.php?id=61576940663187"
+                aria-label="Facebook"
                 style={iconLinkStyle}
                 target="_blank"
                 rel="noopener noreferrer"
               >
-                <FaFacebookF size={18} />
+                <IconBrandFacebook size={18} />
               </a>
               <a
                 href="https://www.instagram.com/your-page"
+                aria-label="Instagram"
                 style={iconLinkStyle}
                 target="_blank"
                 rel="noopener noreferrer"
               >
-                <FaInstagram size={18} />
+                <IconBrandInstagram size={18} />
               </a>
             </Group>
             <Text size="sm" style={{ fontWeight: 400 }}>
@@ -129,7 +131,7 @@ export default function Footer() {
               padding: "16px 0",
             }}
           >
-            <Title order={6} c="white" ta={{ base: "center", md: "center" }}>
+            <Title order={2} size="h6" c="white" ta={{ base: "center", md: "center" }}>
               Връзка с нас
             </Title>
             <Text size="sm" ta={{ base: "center", md: "center" }}>

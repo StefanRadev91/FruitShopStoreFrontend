@@ -1,8 +1,8 @@
 // src/pages/CategoryPage.jsx - почистена версия
 import { useMemo } from "react";
 import { useParams } from "react-router-dom";
-import { Title, SimpleGrid, Text } from "@mantine/core";
-import { ProductCard } from "../components/ProductCard";
+import { Title, Text } from "@mantine/core";
+import { ProductGrid } from "../components/ProductGrid";
 import { Seo, breadcrumbJsonLd } from "../seo/Seo";
 import { ProductGridSkeleton } from "../components/Skeletons";
 import { ProductToolbar, useProductView } from "../components/ProductToolbar";
@@ -70,27 +70,7 @@ export function CategoryPage({ category: propCategory, onAddToCart }) {
             Няма продукти на промоция в тази категория.
           </Text>
         ) : (
-        <SimpleGrid
-          cols={{ base: 1, sm: 2, lg: 3, xl: 3 }}
-          spacing="lg"
-          breakpoints={[{ maxWidth: "sm", cols: 1 }]}
-        >
-          {view.visible.map((p) => (
-            <ProductCard
-              key={p.id}
-              id={p.id}
-              name={p.name}
-              slug={p.slug}
-              price={p.price}
-              promo_price={p.promo_price}
-              description={p.product_description}
-              image={p.image}
-              category={p.category}
-              weight_variants={p.weight_variants || []}
-              onAddToCart={handleAddToCart}
-            />
-          ))}
-        </SimpleGrid>
+          <ProductGrid products={view.visible} onAddToCart={handleAddToCart} />
         )}
         </>
       )}

@@ -270,9 +270,8 @@ export function CategoryIconsSlider() {
 
   if (loading) {
     return (
-      <Box my="md" px="sm" ta="center">
-        <Text size="sm" c="dimmed">Зареждаме категории...</Text>
-      </Box>
+      // Запазва мястото на категориите, за да не "скача" страницата, когато дойдат от API-то.
+      <Box mt="xl" mb="md" role="status" aria-label="Зареждаме категории" className="category-placeholder" />
     );
   }
 

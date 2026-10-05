@@ -1,11 +1,10 @@
-import { useLayoutEffect, useRef, useState } from "react";
+import { Suspense, useLayoutEffect, useRef, useState } from "react";
 import {
   Group,
   Burger,
   ActionIcon,
   Box,
   Button,
-  Tooltip,
 } from "@mantine/core";
 import { IconShoppingCart, IconHome, IconX, IconHeart } from "@tabler/icons-react";
 import { useDisclosure, useMediaQuery } from "@mantine/hooks";
@@ -13,8 +12,15 @@ import { Link, useNavigate } from "react-router-dom";
 import logo from "../assets/logo.webp";
 import { clearCatalogCache } from "../services/productsAPI";
 import { clearCategoriesCache } from "../services/categoriesAPI";
-import { CategoryDrawer } from "./Drawer";
+// Менюто с категории е извън първоначалния bundle: зарежда се в свободно време или при първо отваряне.
+const { Component: CategoryDrawer, load: loadCategoryDrawer } = lazyWithRetry(() =>
+  import("./Drawer").then((m) => ({ default: m.CategoryDrawer }))
+);
 import { SearchInput } from "./SearchInput";
+import { ErrorBoundary, LoadFailed } from "./ErrorBoundary";
+import { useIdlePreload } from "../hooks/useIdlePreload";
+import { lazyWithRetry } from "../lib/lazyWithRetry";
+import { CONTACT_LINE } from "../config/contact";
 import { useFavorites } from "../services/favorites";
 
 // Значка с брой – стои извън бутона, защото ActionIcon скрива всичко, което излиза от рамката му.
@@ -51,6 +57,7 @@ function CountBadge({ value, color, max = 99 }) {
 
 export function Header({ cart, onCartClick }) {
   const [drawerOpened, { open: openDrawer, close: closeDrawer }] = useDisclosure(false);
+  const drawerReady = useIdlePreload(loadCategoryDrawer);
   const isMobile = useMediaQuery("(max-width: 768px)");
   const navigate = useNavigate();
   const { ids: favoriteIds } = useFavorites();
@@ -76,7 +83,7 @@ export function Header({ cart, onCartClick }) {
       <Box
         ref={barRef}
         style={{
-          background: "#ff4c1c",
+          background: "#c2410c",
           color: "white",
           padding: "4px 12px",
           display: "flex",
@@ -87,10 +94,9 @@ export function Header({ cart, onCartClick }) {
           position: "relative",
         }}
       >
-        <span>За връзка: +359 886 282 323 | darotzemqta@abv.bg</span>
+        <span>{CONTACT_LINE}</span>
 
         <Box style={{ position: "absolute", right: 12 }}>
-          <Tooltip label="Изчисти кеша">
             <ActionIcon
               onClick={() => {
                 sessionStorage.clear();
@@ -101,10 +107,11 @@ export function Header({ cart, onCartClick }) {
               variant="transparent"
               color="white"
               size="lg"
+              aria-label="Изчисти кеша"
+              title="Изчисти кеша"
             >
               <IconX size={20} />
             </ActionIcon>
-          </Tooltip>
         </Box>
       </Box>
 
@@ -129,12 +136,13 @@ export function Header({ cart, onCartClick }) {
             size="lg"
             color="gray"
             variant="light"
+            aria-label="Начало"
             onClick={() => navigate("/")}
           >
             <IconHome size={22} />
           </ActionIcon>
 
-          <Burger opened={drawerOpened} onClick={openDrawer} size="md" />
+          <Burger opened={drawerOpened} onClick={openDrawer} size="md" aria-label="Меню с категории" />
 
           {!isMobile && <SearchInput />}
         </Group>
@@ -201,7 +209,7 @@ export function Header({ cart, onCartClick }) {
             >
               <IconShoppingCart size={24} />
             </ActionIcon>
-            <CountBadge value={cart.reduce((sum, i) => sum + i.qty, 0)} color="#ff4c1c" />
+            <CountBadge value={cart.reduce((sum, i) => sum + i.qty, 0)} color="#c2410c" />
           </Box>
         </Group>
 
@@ -213,7 +221,13 @@ export function Header({ cart, onCartClick }) {
         )}
       </Box>
 
-      <CategoryDrawer opened={drawerOpened} onClose={closeDrawer} />
+      {(drawerReady || drawerOpened) && (
+        <ErrorBoundary fallback={<LoadFailed inline message="Не успяхме да заредим менюто." />}>
+          <Suspense fallback={null}>
+            <CategoryDrawer opened={drawerOpened} onClose={closeDrawer} />
+          </Suspense>
+        </ErrorBoundary>
+      )}
     </Box>
   );
 }

@@ -154,13 +154,16 @@ export function findInSnapshot(slug) {
 }
 
 // Показва веднага последно видяния каталог (ако има) и го опреснява във фонов режим.
-export function useCatalog() {
+// enabled: false – още не тегли каталога (показва само запазеното), за да не конкурира по-важни заявки,
+// напр. самия продукт на продуктовата страница. Когато стане true – започва да тегли.
+export function useCatalog({ enabled = true } = {}) {
   const [products, setProducts] = useState(readSnapshot);
   const [loading, setLoading] = useState(products === null);
   const [error, setError] = useState(false);
   const [attempt, setAttempt] = useState(0);
 
   useEffect(() => {
+    if (!enabled) return;
     let cancelled = false;
     getCatalog()
       .then((data) => {
@@ -178,7 +181,7 @@ export function useCatalog() {
     return () => {
       cancelled = true;
     };
-  }, [attempt]);
+  }, [attempt, enabled]);
 
   const reload = () => {
     setLoading(true);

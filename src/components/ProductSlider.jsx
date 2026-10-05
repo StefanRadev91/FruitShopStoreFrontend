@@ -97,19 +97,14 @@ function SectionHeading({ variant }) {
 export function ProductSlider({ variant, products, onAddToCart, slideSize }) {
   if (!products.length) return null;
 
-  // Подреждане по последна модификация (най-новите отпред)
-  // (при "подобни" запазваме подадения ред)
-  const sortedProducts =
-    variant === "similar"
-      ? products
-      : [...products].sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt));
-
   return (
     <Box mt={40} mb={40}>
       <SectionHeading variant={variant} />
       <Carousel
         withIndicators={false}
         withControls
+        previousControlProps={{ "aria-label": "Предишни продукти" }}
+        nextControlProps={{ "aria-label": "Следващи продукти" }}
         controlsOffset={0}
         height="auto"
         slideSize={slideSize || { base: "100%", xs: "50%", sm: "33.3333%", md: "25%" }}
@@ -128,7 +123,7 @@ export function ProductSlider({ variant, products, onAddToCart, slideSize }) {
           viewport: { padding: "6px 4px 12px" },
         }}
       >
-        {sortedProducts.map((p) => (
+        {products.map((p) => (
           <Carousel.Slide key={p.id}>
             <ProductCard
               id={p.id}

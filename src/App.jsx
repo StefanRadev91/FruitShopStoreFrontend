@@ -2,7 +2,7 @@ import { useState, useEffect, lazy, Suspense } from "react";
 import { Container, Box } from "@mantine/core";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { notifications } from "@mantine/notifications";
-import { useForm } from "@mantine/form";
+import { useSimpleForm } from "./hooks/useSimpleForm";
 
 import { Header } from "./components/header";
 import {
@@ -20,7 +20,12 @@ import {
   saveLastOrder,
 } from "./services/cart";
 import { getCatalog } from "./services/productsAPI";
-import { CartDrawer } from "./components/CartDrawer";
+import { ErrorBoundary, LoadFailed } from "./components/ErrorBoundary";
+import { useIdlePreload } from "./hooks/useIdlePreload";
+import { lazyWithRetry } from "./lib/lazyWithRetry";
+const { Component: CartDrawer, load: loadCartDrawer } = lazyWithRetry(() =>
+  import("./components/CartDrawer").then((m) => ({ default: m.CartDrawer }))
+);
 import { HomePage } from "./pages/HomePage";
 const CategoryPage = lazy(() => import("./pages/CategoryPage").then((m) => ({ default: m.CategoryPage })));
 const AboutPage = lazy(() => import("./pages/AboutPage"));
@@ -32,6 +37,7 @@ const TermsPage = lazy(() => import("./pages/TermsPage"));
 const IdeaPage = lazy(() => import("./pages/IdeaPage"));
 const CookiesPage = lazy(() => import("./pages/CookiesPage"));
 const NotFoundPage = lazy(() => import("./pages/NotFoundPage"));
+const CollectionPage = lazy(() => import("./pages/CollectionPage").then((m) => ({ default: m.CollectionPage })));
 const FavoritesPage = lazy(() => import("./pages/FavoritesPage"));
 
 const MAX_QTY = 99;
@@ -40,13 +46,15 @@ const eur = (n) => n.toFixed(2);
 function App() {
   const [cart, setCart] = useState(loadCart);
   const [cartOpened, setCartOpened] = useState(false);
+  // Количката е извън първоначалния bundle: зарежда се в свободно време или при първо отваряне.
+  const cartReady = useIdlePreload(loadCartDrawer);
   const [loadingOrder, setLoadingOrder] = useState(false);
   const [confirmation, setConfirmation] = useState(null);
   const [savedCustomer, setSavedCustomer] = useState(loadCustomer);
   // Данните на клиента се запомнят само ако той го поиска (по подразбиране – ако вече го е искал).
   const [remember, setRemember] = useState(() => !!loadCustomer());
 
-  const form = useForm({
+  const form = useSimpleForm({
     initialValues: {
       name: savedCustomer?.name || "",
       phone: savedCustomer?.phone || "",
@@ -70,7 +78,9 @@ function App() {
   }, [cart]);
 
   // Запазената количка може да е стара – освежаваме цените и имената от актуалния каталог.
+  // Само ако има запазена количка – на нов посетител каталогът не се тегли напразно още на старта.
   useEffect(() => {
+    if (loadCart().length === 0) return;
     getCatalog()
       .then((catalog) => setCart((prev) => refreshCartFromCatalog(prev, catalog)))
       .catch(() => {});
@@ -227,7 +237,8 @@ function App() {
       >
         <Header cart={cart} onCartClick={() => setCartOpened(true)} />
 
-        <Container size="lg" py="xl" style={{ flex: 1 }}>
+        <Container component="main" size="lg" py="xl" style={{ flex: 1 }}>
+          <ErrorBoundary fallback={<LoadFailed />}>
           <Suspense fallback={null}>
           <Routes>
             <Route path="/" element={<HomePage onAddToCart={handleAddToCart} />} />
@@ -249,6 +260,11 @@ function App() {
             <Route path="/category/:subcategory" element={<CategoryPage onAddToCart={handleAddToCart} />} />
             
             {/* Останали страници */}
+            {/* "Виж всички" зад слайдерите на началната */}
+            <Route path="/promo" element={<CollectionPage variant="promo" onAddToCart={handleAddToCart} />} />
+            <Route path="/new" element={<CollectionPage variant="new" onAddToCart={handleAddToCart} />} />
+            <Route path="/bestsellers" element={<CollectionPage variant="best" onAddToCart={handleAddToCart} />} />
+
             <Route path="/about" element={<AboutPage />} />
             <Route path="/product/:slug" element={<ProductPage onAddToCart={handleAddToCart} />} />
             <Route path="/search" element={<SearchResultsPage onAddToCart={handleAddToCart} />} />
@@ -260,8 +276,12 @@ function App() {
             <Route path="*" element={<NotFoundPage />} />
           </Routes>
           </Suspense>
+          </ErrorBoundary>
         </Container>
 
+        {(cartReady || cartOpened) && (
+        <ErrorBoundary fallback={<LoadFailed inline message="Не успяхме да заредим количката." />}>
+        <Suspense fallback={null}>
         <CartDrawer
           cartOpened={cartOpened}
           onClose={() => {
@@ -280,6 +300,9 @@ function App() {
           onRememberChange={setRemember}
           onForgetCustomer={handleForgetCustomer}
         />
+        </Suspense>
+        </ErrorBoundary>
+        )}
       </Box>
       <Footer />
     </BrowserRouter>

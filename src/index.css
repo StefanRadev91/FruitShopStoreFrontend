@@ -125,3 +125,13 @@ button:focus-visible {
     box-shadow: 0 14px 28px -14px rgba(20, 60, 20, 0.35) !important;
   }
 }
+
+/* Запазва мястото на категориите на началната, докато се зареждат (без "скачане" на страницата). */
+.category-placeholder { min-height: 300px; }
+@media (min-width: 600px) { .category-placeholder { min-height: 210px; } }
+@media (min-width: 1180px) { .category-placeholder { min-height: 108px; } }
+
+/* Приглушеният текст по подразбиране (#868e96) е с контраст 3.3:1 върху бяло – малко по-тъмен е четим (≥ 4.5:1). */
+:root[data-mantine-color-scheme="light"] {
+  --mantine-color-dimmed: #5c6670;
+}

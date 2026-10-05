@@ -10,11 +10,15 @@ export function DeliveryBanners() {
     {
       image: officeImg,
       label: "Поръчай за дома или офиса",
+      width: 560,
+      height: 560,
       link: "/delivery",
     },
     {
       image: restaurantImg,
       label: "Поръчай за ресторант или търговски обект",
+      width: 640,
+      height: 300,
       link: "/about",
     },
   ];
@@ -51,6 +55,10 @@ export function DeliveryBanners() {
           <img
             src={banner.image}
             alt={banner.label}
+            width={banner.width}
+            height={banner.height}
+            fetchPriority="high"
+            decoding="async"
             style={{
               width: "100%",
               height: "100%",
