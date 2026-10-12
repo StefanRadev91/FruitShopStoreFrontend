@@ -5,6 +5,8 @@ import { useEffect, useState } from "react";
 import { getMainCategoriesWithCache, getCachedMainCategories } from "../services/categoriesAPI";
 import { categoryPath } from "../seo/categoryRoutes";
 
+const AGENCY_URL = "https://www.newwavedevelopement.online/en";
+
 // Плосък списък: категориите без подкатегории + всички подкатегории.
 function flattenCategories(categories) {
   return (categories || []).flatMap((c) =>
@@ -116,8 +118,23 @@ export default function Footer() {
               </a>
             </Group>
             <Text size="sm" style={{ fontWeight: 400 }}>
-              Всички права запазени &copy; 2025 "ДАР ОТ ЗЕМЯТА"
+              Всички права запазени &copy; {new Date().getFullYear()} "ДАР ОТ ЗЕМЯТА"
             </Text>
+            <a
+              href={AGENCY_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="Powered by New Wave Web Intelligence"
+              style={{ ...linkStyle, display: "flex", alignItems: "center", gap: 8, marginTop: 8, marginBottom: 0, opacity: 0.9 }}
+            >
+              <span style={{ fontSize: "0.75rem" }}>Powered by</span>
+              <svg width="28" height="28" viewBox="0 0 64 64" aria-hidden="true">
+                <rect width="64" height="64" rx="14" fill="#c8ff2e" />
+                <text x="32" y="43" textAnchor="middle" fontFamily="Arial, Helvetica, sans-serif" fontWeight="800" fontSize="30" fill="#0a0a0b">
+                  NW
+                </text>
+              </svg>
+            </a>
           </Box>
 
           {/* Дясна колона */}
